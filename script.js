@@ -1,0 +1,939 @@
+﻿const FREE_LIMIT = 5;
+const THEME_KEY = "convertpro-theme";
+const PLAN_KEY = "convertpro-plan";
+const USAGE_KEY = "convertpro-usage-count";
+
+const LIBS = {
+  pdfjs: {
+    url: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js",
+    check: () => Boolean(window.pdfjsLib),
+    afterLoad: () => {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+    },
+  },
+  jspdf: { url: "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js", check: () => Boolean(window.jspdf) },
+  docx: { url: "https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.js", check: () => Boolean(window.docx) },
+  xlsx: { url: "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js", check: () => Boolean(window.XLSX) },
+  pptx: { url: "https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js", check: () => Boolean(window.PptxGenJS) },
+  mammoth: { url: "https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js", check: () => Boolean(window.mammoth) },
+  html2pdf: { url: "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js", check: () => Boolean(window.html2pdf) },
+  jszip: { url: "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js", check: () => Boolean(window.JSZip) },
+  tesseract: { url: "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js", check: () => Boolean(window.Tesseract) },
+  pdfLib: { url: "https://unpkg.com/pdf-lib/dist/pdf-lib.min.js", check: () => Boolean(window.PDFLib) },
+  marked: { url: "https://cdn.jsdelivr.net/npm/marked/marked.min.js", check: () => Boolean(window.marked) },
+  heic2any: { url: "https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js", check: () => Boolean(window.heic2any) },
+  utif: { url: "https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.min.js", check: () => Boolean(window.UTIF) },
+};
+
+const tools = [
+  { id: "merge-pdf", name: "Merge PDF", accept: ".pdf", multiple: true, description: "Combine PDFs into one", deps: ["pdfLib"] },
+  { id: "split-pdf", name: "Split PDF", accept: ".pdf", description: "Split each page to separate PDF", deps: ["pdfLib", "jszip"] },
+  { id: "compress-pdf", name: "Compress PDF", accept: ".pdf", description: "Optimize PDF size", deps: ["pdfLib"] },
+  { id: "pdf-to-word", name: "PDF -> Word", accept: ".pdf", description: "PDF text to DOCX", deps: ["pdfjs", "docx"] },
+  { id: "pdf-to-ppt", name: "PDF -> PowerPoint", accept: ".pdf", description: "PDF pages to PPT", deps: ["pdfjs", "pptx"] },
+  { id: "pdf-to-excel", name: "PDF -> Excel", accept: ".pdf", description: "PDF pages to XLSX", deps: ["pdfjs", "xlsx"] },
+  { id: "pdf-to-jpg", name: "PDF -> JPG", accept: ".pdf", description: "PDF pages to JPG ZIP", deps: ["pdfjs", "jszip"] },
+  { id: "word-to-pdf", name: "Word -> PDF", accept: ".docx", description: "DOCX to PDF", deps: ["mammoth", "html2pdf"] },
+  { id: "ppt-to-pdf", name: "PowerPoint -> PDF", accept: ".pptx", description: "PPTX text to PDF", deps: ["jszip", "jspdf"] },
+  { id: "excel-to-pdf", name: "Excel -> PDF", accept: ".xlsx,.xls", description: "Sheets to PDF", deps: ["xlsx", "html2pdf"] },
+  { id: "jpg-to-pdf", name: "JPG -> PDF", accept: "image/*", multiple: true, description: "Images to PDF", deps: ["jspdf"] },
+  { id: "html-to-pdf", name: "HTML -> PDF", htmlMode: true, description: "Paste HTML to PDF", deps: ["html2pdf"] },
+  { id: "pdfa-converter", name: "PDF -> PDF/A", accept: ".pdf", description: "Archival best effort", deps: ["pdfLib"] },
+  { id: "ocr-pdf", name: "OCR PDF", accept: ".pdf", description: "Scanned PDF to text PDF", deps: ["pdfjs", "jspdf", "tesseract"] },
+  { id: "pdf-to-epub", name: "PDF -> EPUB", accept: ".pdf", description: "PDF text into EPUB", deps: ["pdfjs", "jszip"] },
+  { id: "epub-to-pdf", name: "EPUB -> PDF", accept: ".epub", description: "EPUB text to PDF", deps: ["jszip", "jspdf"] },
+  { id: "pdf-to-mobi", name: "PDF -> MOBI", accept: ".pdf", description: "Experimental MOBI", deps: ["pdfjs"] },
+  { id: "mobi-to-pdf", name: "MOBI -> PDF", accept: ".mobi,.azw,.azw3", description: "MOBI text to PDF", deps: ["jspdf"] },
+  { id: "pdf-to-md", name: "PDF -> Markdown", accept: ".pdf", description: "PDF text to MD", deps: ["pdfjs"] },
+  { id: "md-to-pdf", name: "Markdown -> PDF", accept: ".md,.markdown,.txt", description: "MD to PDF", deps: ["marked", "html2pdf"] },
+  { id: "pdf-to-latex", name: "PDF -> LaTeX", accept: ".pdf", description: "PDF text to TEX", deps: ["pdfjs"] },
+  { id: "latex-to-pdf", name: "LaTeX -> PDF", accept: ".tex,.txt", description: "TEX preview to PDF", deps: ["jspdf"] },
+  { id: "pdf-to-jsonxml", name: "PDF -> JSON/XML", accept: ".pdf", description: "Structured extraction", deps: ["pdfjs", "jszip"] },
+  { id: "json-to-pdf", name: "JSON -> PDF", accept: ".json", description: "JSON to PDF", deps: ["jspdf"] },
+  { id: "xml-to-pdf", name: "XML -> PDF", accept: ".xml", description: "XML to PDF", deps: ["jspdf"] },
+  { id: "docx-to-odt", name: "DOCX -> ODT", accept: ".docx", description: "Best effort ODT", deps: ["mammoth", "jszip"] },
+  { id: "odt-to-docx", name: "ODT -> DOCX", accept: ".odt", description: "ODT text to DOCX", deps: ["jszip", "docx"] },
+  { id: "rtf-to-docx", name: "RTF -> DOCX", accept: ".rtf", description: "RTF to DOCX", deps: ["docx"] },
+  { id: "docx-to-rtf", name: "DOCX -> RTF", accept: ".docx", description: "DOCX to RTF", deps: ["mammoth"] },
+  { id: "png-to-jpg", name: "PNG -> JPG", accept: ".png", description: "PNG image to JPG", deps: [] },
+  { id: "jpg-to-png", name: "JPG -> PNG", accept: ".jpg,.jpeg", description: "JPG image to PNG", deps: [] },
+  { id: "webp-to-jpgpng", name: "WebP -> JPG/PNG", accept: ".webp", description: "WebP to raster", deps: [] },
+  { id: "heic-to-jpg", name: "HEIC -> JPG", accept: ".heic,.heif", description: "HEIC to JPG", deps: ["heic2any"] },
+  { id: "svg-to-raster", name: "SVG -> PNG/JPG", accept: ".svg", description: "SVG to raster", deps: [] },
+  { id: "tiff-to-raster", name: "TIFF -> JPG/PNG", accept: ".tif,.tiff", description: "TIFF to raster", deps: ["utif"] },
+  { id: "gif-to-mp4", name: "GIF -> MP4", accept: ".gif", description: "WebM fallback", deps: [] },
+];
+
+const TOOL_META = {
+  "merge-pdf": { category: "organize", popularity: 10, created: 0 },
+  "split-pdf": { category: "organize", popularity: 9, created: 0 },
+  "compress-pdf": { category: "organize", popularity: 9, created: 0 },
+  "pdf-to-word": { category: "convert", popularity: 10, created: 1 },
+  "pdf-to-ppt": { category: "convert", popularity: 8, created: 2 },
+  "pdf-to-excel": { category: "convert", popularity: 8, created: 3 },
+  "pdf-to-jpg": { category: "images", popularity: 7, created: 4 },
+  "word-to-pdf": { category: "convert", popularity: 10, created: 5 },
+  "ppt-to-pdf": { category: "convert", popularity: 7, created: 6 },
+  "excel-to-pdf": { category: "convert", popularity: 7, created: 7 },
+  "jpg-to-pdf": { category: "images", popularity: 8, created: 8 },
+  "html-to-pdf": { category: "workflow", popularity: 5, created: 9 },
+  "pdfa-converter": { category: "organize", popularity: 6, created: 10 },
+  "ocr-pdf": { category: "workflow", popularity: 8, created: 11 },
+  "pdf-to-epub": { category: "ebooks", popularity: 5, created: 12 },
+  "epub-to-pdf": { category: "ebooks", popularity: 5, created: 13 },
+  "pdf-to-mobi": { category: "ebooks", popularity: 4, created: 14 },
+  "mobi-to-pdf": { category: "ebooks", popularity: 4, created: 15 },
+  "pdf-to-md": { category: "workflow", popularity: 6, created: 16 },
+  "md-to-pdf": { category: "workflow", popularity: 6, created: 17 },
+  "pdf-to-latex": { category: "workflow", popularity: 4, created: 18 },
+  "latex-to-pdf": { category: "workflow", popularity: 4, created: 19 },
+  "pdf-to-jsonxml": { category: "workflow", popularity: 5, created: 20 },
+  "json-to-pdf": { category: "workflow", popularity: 5, created: 21 },
+  "xml-to-pdf": { category: "workflow", popularity: 5, created: 22 },
+  "docx-to-odt": { category: "workflow", popularity: 4, created: 23 },
+  "odt-to-docx": { category: "workflow", popularity: 4, created: 24 },
+  "rtf-to-docx": { category: "workflow", popularity: 4, created: 25 },
+  "docx-to-rtf": { category: "workflow", popularity: 4, created: 26 },
+  "png-to-jpg": { category: "images", popularity: 7, created: 27 },
+  "jpg-to-png": { category: "images", popularity: 7, created: 28 },
+  "webp-to-jpgpng": { category: "images", popularity: 6, created: 29 },
+  "heic-to-jpg": { category: "images", popularity: 8, created: 30 },
+  "svg-to-raster": { category: "images", popularity: 6, created: 31 },
+  "tiff-to-raster": { category: "images", popularity: 5, created: 32 },
+  "gif-to-mp4": { category: "images", popularity: 5, created: 33 },
+};
+
+const loadedLibPromises = new Map();
+const state = {
+  activeTool: tools[0],
+  theme: "dark",
+  isPremium: false,
+  usageCount: 0,
+  isBusy: false,
+  query: "",
+  activeCategory: "all",
+  sortMode: "az",
+  pendingDownload: null,
+};
+
+const TOOL_ICONS = {
+  "merge-pdf": "🧷",
+  "split-pdf": "✂️",
+  "compress-pdf": "🗜️",
+  "pdf-to-word": "📄",
+  "pdf-to-ppt": "📊",
+  "pdf-to-excel": "📈",
+  "pdf-to-jpg": "🖼️",
+  "word-to-pdf": "📝",
+  "ppt-to-pdf": "📽️",
+  "excel-to-pdf": "📑",
+  "jpg-to-pdf": "📷",
+  "html-to-pdf": "🌐",
+  "pdfa-converter": "🗂️",
+  "ocr-pdf": "🔍",
+  "pdf-to-epub": "📚",
+  "epub-to-pdf": "📕",
+  "pdf-to-mobi": "📘",
+  "mobi-to-pdf": "📗",
+  "pdf-to-md": "✍️",
+  "md-to-pdf": "📰",
+  "pdf-to-latex": "📐",
+  "latex-to-pdf": "🧪",
+  "pdf-to-jsonxml": "🧬",
+  "json-to-pdf": "🔢",
+  "xml-to-pdf": "🧱",
+  "docx-to-odt": "📃",
+  "odt-to-docx": "📋",
+  "rtf-to-docx": "🗒️",
+  "docx-to-rtf": "📔",
+  "png-to-jpg": "🖌️",
+  "jpg-to-png": "🎨",
+  "webp-to-jpgpng": "🧰",
+  "heic-to-jpg": "📱",
+  "svg-to-raster": "🧩",
+  "tiff-to-raster": "🧾",
+  "gif-to-mp4": "🎬",
+};
+
+const els = {
+  appShell: document.querySelector(".app-shell"),
+  toolList: document.getElementById("toolList"),
+  toolSearch: document.getElementById("toolSearch"),
+  sortFilter: document.getElementById("sortFilter"),
+  toolTitle: document.getElementById("toolTitle"),
+  toolDescription: document.getElementById("toolDescription"),
+  fileGroup: document.getElementById("fileGroup"),
+  fileInput: document.getElementById("fileInput"),
+  fileInputLabel: document.getElementById("fileInputLabel"),
+  htmlInputGroup: document.getElementById("htmlInputGroup"),
+  htmlContent: document.getElementById("htmlContent"),
+  convertBtn: document.getElementById("convertBtn"),
+  resetBtn: document.getElementById("resetBtn"),
+  status: document.getElementById("status"),
+  themeSwitch: document.getElementById("themeSwitch"),
+  planStatus: document.getElementById("planStatus"),
+  upgradeBtn: document.getElementById("upgradeBtn"),
+  downloadBtn: document.getElementById("downloadBtn"),
+  downloadInfo: document.getElementById("downloadInfo"),
+  topFilterButtons: Array.from(document.querySelectorAll(".filter-btn")),
+  pillFilters: Array.from(document.querySelectorAll(".pill-filter")),
+  relatedToolButtons: Array.from(document.querySelectorAll(".related-tool")),
+};
+
+const base = (n) => n.replace(/\.[^/.]+$/, "");
+const readText = (f) => f.text();
+const readBuf = (f) => f.arrayBuffer();
+
+function setStatus(message, type = "ok") {
+  els.status.textContent = message;
+  els.status.classList.remove("error", "busy");
+  if (type === "error") els.status.classList.add("error");
+  if (type === "busy") els.status.classList.add("busy");
+}
+
+function setBusy(busy) {
+  state.isBusy = busy;
+  els.convertBtn.disabled = busy;
+  els.appShell.classList.toggle("is-busy", busy);
+}
+
+function applyTheme(theme) {
+  state.theme = theme;
+  document.documentElement.setAttribute("data-theme", theme);
+  if (els.themeSwitch) els.themeSwitch.checked = theme === "light";
+}
+
+function initTheme() {
+  const t = localStorage.getItem(THEME_KEY);
+  applyTheme(t === "light" || t === "dark" ? t : "dark");
+}
+
+function toggleTheme() {
+  const n = state.theme === "dark" ? "light" : "dark";
+  applyTheme(n);
+  localStorage.setItem(THEME_KEY, n);
+}
+
+function refreshPlan() {
+  if (state.isPremium) {
+    els.planStatus.textContent = "Premium Active: unlimited conversions";
+    els.upgradeBtn.textContent = "Premium Enabled";
+    els.upgradeBtn.disabled = true;
+    return;
+  }
+  els.planStatus.textContent = `Free Plan: ${state.usageCount}/${FREE_LIMIT} conversions used`;
+  els.upgradeBtn.textContent = "$1 / month Upgrade";
+  els.upgradeBtn.disabled = false;
+}
+
+function initPlan() {
+  state.isPremium = localStorage.getItem(PLAN_KEY) === "premium";
+  state.usageCount = Number(localStorage.getItem(USAGE_KEY) || "0");
+  refreshPlan();
+}
+
+function upgrade() {
+  if (!window.confirm("Activate premium plan for $1/month? (demo unlock)")) return;
+  state.isPremium = true;
+  localStorage.setItem(PLAN_KEY, "premium");
+  refreshPlan();
+  setStatus("Premium activated.");
+}
+
+function canUse() {
+  return state.isPremium || state.usageCount < FREE_LIMIT;
+}
+
+function addUsage() {
+  if (state.isPremium) return;
+  state.usageCount += 1;
+  localStorage.setItem(USAGE_KEY, String(state.usageCount));
+  refreshPlan();
+}
+
+function dl(blob, name) {
+  state.pendingDownload = { blob, name };
+  els.downloadBtn.disabled = false;
+  els.downloadInfo.textContent = `${name} is ready. Click Download File to save it.`;
+}
+
+function triggerDownload() {
+  if (!state.pendingDownload) return;
+  const { blob, name } = state.pendingDownload;
+  const u = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = u;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(u);
+}
+
+function clearPendingDownload(message = "After conversion, your file will appear here for manual download.") {
+  state.pendingDownload = null;
+  els.downloadBtn.disabled = true;
+  els.downloadInfo.textContent = message;
+}
+
+function fileMatchesAccept(file, accept) {
+  if (!accept) return true;
+  const parts = accept.split(",").map((x) => x.trim().toLowerCase()).filter(Boolean);
+  if (!parts.length) return true;
+  const fileName = (file.name || "").toLowerCase();
+  const mime = (file.type || "").toLowerCase();
+
+  return parts.some((part) => {
+    if (part === "image/*") return mime.startsWith("image/");
+    if (part.endsWith("/*")) return mime.startsWith(part.slice(0, -1));
+    if (part.startsWith(".")) return fileName.endsWith(part);
+    return mime === part;
+  });
+}
+
+function ensureLib(name) {
+  const lib = LIBS[name];
+  if (!lib) return Promise.reject(new Error(`Unknown library: ${name}`));
+  if (lib.check()) return Promise.resolve();
+  if (loadedLibPromises.has(name)) return loadedLibPromises.get(name);
+
+  const promise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = lib.url;
+    script.async = true;
+    script.onload = () => {
+      try {
+        if (lib.afterLoad) lib.afterLoad();
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
+    };
+    script.onerror = () => reject(new Error(`Failed loading ${name}`));
+    document.head.appendChild(script);
+  });
+
+  loadedLibPromises.set(name, promise);
+  return promise;
+}
+
+async function ensureDeps(tool) {
+  await Promise.all((tool.deps || []).map(ensureLib));
+}
+
+async function pdfPages(buf) {
+  const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise;
+  const arr = [];
+  for (let i = 1; i <= pdf.numPages; i += 1) {
+    const p = await pdf.getPage(i);
+    const c = await p.getTextContent();
+    arr.push(c.items.map((x) => x.str).join(" ").trim() || "(No text)");
+  }
+  return arr;
+}
+
+async function pageCanvas(pdf, n, scale = 2) {
+  const p = await pdf.getPage(n);
+  const v = p.getViewport({ scale });
+  const c = document.createElement("canvas");
+  c.width = v.width;
+  c.height = v.height;
+  await p.render({ canvasContext: c.getContext("2d"), viewport: v }).promise;
+  return c;
+}
+
+async function toDataUrl(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+async function loadImg(src) {
+  return new Promise((res, rej) => {
+    const i = new Image();
+    i.onload = () => res(i);
+    i.onerror = rej;
+    i.src = src;
+  });
+}
+
+async function toRaster(file, ext, sourceType = "dataurl") {
+  let src;
+  if (sourceType === "svg") src = URL.createObjectURL(new Blob([await readText(file)], { type: "image/svg+xml" }));
+  else src = await toDataUrl(file);
+  const img = await loadImg(src);
+  if (sourceType === "svg") URL.revokeObjectURL(src);
+  const c = document.createElement("canvas");
+  c.width = img.width;
+  c.height = img.height;
+  c.getContext("2d").drawImage(img, 0, 0);
+  const mime = ext === "jpg" ? "image/jpeg" : "image/png";
+  c.toBlob((blob) => dl(blob, `${base(file.name)}.${ext}`), mime, 0.92);
+}
+
+async function htmlToPdfBlob(element) {
+  return window.html2pdf().from(element).outputPdf("blob");
+}
+
+async function runTool(tool, files) {
+  const file = files[0];
+  const { jsPDF } = window.jspdf || {};
+
+  if (tool.id === "merge-pdf") {
+    if (files.length < 2) throw new Error("Select at least two PDF files to merge.");
+    const merged = await window.PDFLib.PDFDocument.create();
+    for (const currentFile of files) {
+      const src = await window.PDFLib.PDFDocument.load(await readBuf(currentFile));
+      const pageIndices = src.getPageIndices();
+      const copiedPages = await merged.copyPages(src, pageIndices);
+      copiedPages.forEach((p) => merged.addPage(p));
+    }
+    const out = await merged.save();
+    dl(new Blob([out], { type: "application/pdf" }), "merged-document.pdf");
+    return;
+  }
+
+  if (tool.id === "split-pdf") {
+    const src = await window.PDFLib.PDFDocument.load(await readBuf(file));
+    const zip = new window.JSZip();
+    const pages = src.getPageIndices();
+    for (const pageIndex of pages) {
+      const outDoc = await window.PDFLib.PDFDocument.create();
+      const [page] = await outDoc.copyPages(src, [pageIndex]);
+      outDoc.addPage(page);
+      const bytes = await outDoc.save();
+      zip.file(`${base(file.name)}-page-${pageIndex + 1}.pdf`, bytes);
+    }
+    dl(await zip.generateAsync({ type: "blob" }), `${base(file.name)}-split.zip`);
+    return;
+  }
+
+  if (tool.id === "compress-pdf") {
+    const src = await window.PDFLib.PDFDocument.load(await readBuf(file));
+    const optimized = await src.save({
+      useObjectStreams: true,
+      addDefaultPage: false,
+      updateFieldAppearances: false,
+    });
+    dl(new Blob([optimized], { type: "application/pdf" }), `${base(file.name)}-compressed.pdf`);
+    return;
+  }
+
+  if (tool.id === "html-to-pdf") {
+    const html = els.htmlContent.value.trim();
+    if (!html) throw new Error("Paste HTML first.");
+    const d = document.createElement("div");
+    d.style.background = "#fff";
+    d.style.color = "#000";
+    d.style.padding = "20px";
+    d.innerHTML = html;
+    const blob = await htmlToPdfBlob(d);
+    dl(blob, "html-output.pdf");
+    return;
+  }
+
+  if (!file) throw new Error("Please select input file first.");
+
+  if (tool.id === "pdf-to-word") {
+    const pages = await pdfPages(await readBuf(file));
+    const ch = [];
+    pages.forEach((t, i) => {
+      ch.push(new window.docx.Paragraph({ text: `Page ${i + 1}`, heading: window.docx.HeadingLevel.HEADING_1 }));
+      ch.push(new window.docx.Paragraph({ text: t }));
+    });
+    dl(await window.docx.Packer.toBlob(new window.docx.Document({ sections: [{ children: ch }] })), `${base(file.name)}.docx`);
+    return;
+  }
+
+  if (tool.id === "pdf-to-mobi") {
+    const pages = await pdfPages(await readBuf(file));
+    dl(new Blob([`MOBI-EXPERIMENTAL\n\n${pages.join("\n\n---\n\n")}`], { type: "application/x-mobipocket-ebook" }), `${base(file.name)}.mobi`);
+    return;
+  }
+
+  if (tool.id === "pdf-to-md") {
+    const pages = await pdfPages(await readBuf(file));
+    dl(new Blob([pages.map((x, i) => `## Page ${i + 1}\n\n${x}`).join("\n\n")], { type: "text/markdown" }), `${base(file.name)}.md`);
+    return;
+  }
+
+  if (tool.id === "pdf-to-latex") {
+    const pages = await pdfPages(await readBuf(file));
+    const tex = `\\documentclass{article}\n\\begin{document}\n${pages.map((x, i) => `\\section*{Page ${i + 1}}\n${x.replace(/[#$%&_{}]/g, "")}`).join("\n\n")}\n\\end{document}`;
+    dl(new Blob([tex], { type: "application/x-tex" }), `${base(file.name)}.tex`);
+    return;
+  }
+
+  if (tool.id === "pdf-to-excel") {
+    const pages = await pdfPages(await readBuf(file));
+    const wb = window.XLSX.utils.book_new();
+    pages.forEach((t, i) => {
+      const rows = t.split(/\n|  +/).filter(Boolean).map((x) => [x]);
+      window.XLSX.utils.book_append_sheet(wb, window.XLSX.utils.aoa_to_sheet(rows.length ? rows : [["No data"]]), `Page_${i + 1}`);
+    });
+    const out = window.XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    dl(new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${base(file.name)}.xlsx`);
+    return;
+  }
+
+  if (tool.id === "pdf-to-ppt") {
+    const pages = await pdfPages(await readBuf(file));
+    const p = new window.PptxGenJS();
+    p.layout = "LAYOUT_WIDE";
+    pages.forEach((t, i) => {
+      const s = p.addSlide();
+      s.addText(`Page ${i + 1}`, { x: 0.5, y: 0.3, w: 12, h: 0.5, fontSize: 24, bold: true });
+      s.addText(t.slice(0, 2200), { x: 0.5, y: 1.0, w: 12, h: 5.5, fontSize: 13 });
+    });
+    const out = await p.write({ outputType: "blob" });
+    dl(out, `${base(file.name)}.pptx`);
+    return;
+  }
+
+  if (tool.id === "pdf-to-jpg") {
+    const pdf = await window.pdfjsLib.getDocument({ data: await readBuf(file) }).promise;
+    const zip = new window.JSZip();
+    for (let i = 1; i <= pdf.numPages; i += 1) {
+      const c = await pageCanvas(pdf, i, 2);
+      zip.file(`page-${i}.jpg`, c.toDataURL("image/jpeg", 0.92).split(",")[1], { base64: true });
+    }
+    dl(await zip.generateAsync({ type: "blob" }), `${base(file.name)}-jpg.zip`);
+    return;
+  }
+
+  if (tool.id === "word-to-pdf") {
+    const h = await window.mammoth.convertToHtml({ arrayBuffer: await readBuf(file) });
+    const d = document.createElement("div");
+    d.style.background = "#fff";
+    d.style.color = "#000";
+    d.style.padding = "20px";
+    d.innerHTML = h.value;
+    const blob = await htmlToPdfBlob(d);
+    dl(blob, `${base(file.name)}.pdf`);
+    return;
+  }
+
+  if (tool.id === "excel-to-pdf") {
+    const wb = window.XLSX.read(await readBuf(file), { type: "array" });
+    const d = document.createElement("div");
+    d.style.background = "#fff";
+    d.style.color = "#000";
+    d.style.padding = "20px";
+    wb.SheetNames.forEach((n) => {
+      const h = document.createElement("h2");
+      h.textContent = n;
+      d.appendChild(h);
+      const b = document.createElement("div");
+      b.innerHTML = window.XLSX.utils.sheet_to_html(wb.Sheets[n]);
+      d.appendChild(b);
+    });
+    const blob = await htmlToPdfBlob(d);
+    dl(blob, `${base(file.name)}.pdf`);
+    return;
+  }
+
+  if (tool.id === "ppt-to-pdf") {
+    const z = await window.JSZip.loadAsync(await readBuf(file));
+    const slides = Object.keys(z.files).filter((x) => /^ppt\/slides\/slide\d+\.xml$/i.test(x)).sort();
+    const pdf = new jsPDF({ unit: "pt", format: "a4" });
+    for (let i = 0; i < slides.length; i += 1) {
+      const xml = await z.file(slides[i]).async("text");
+      const txt = [...xml.matchAll(/<a:t>(.*?)<\/a:t>/g)].map((m) => m[1]).join(" ") || "No text";
+      if (i) pdf.addPage();
+      pdf.setFontSize(16);
+      pdf.text(`Slide ${i + 1}`, 40, 50);
+      pdf.setFontSize(11);
+      pdf.text(pdf.splitTextToSize(txt, 520), 40, 80);
+    }
+    dl(pdf.output("blob"), `${base(file.name)}.pdf`);
+    return;
+  }
+
+  if (tool.id === "jpg-to-pdf") {
+    const pdf = new jsPDF({ unit: "pt", format: "a4" });
+    for (let i = 0; i < files.length; i += 1) {
+      const u = await toDataUrl(files[i]);
+      const img = await loadImg(u);
+      if (i) pdf.addPage();
+      const pw = pdf.internal.pageSize.getWidth();
+      const ph = pdf.internal.pageSize.getHeight();
+      const s = Math.min(pw / img.width, ph / img.height);
+      const w = img.width * s;
+      const h = img.height * s;
+      pdf.addImage(u, "JPEG", (pw - w) / 2, (ph - h) / 2, w, h);
+    }
+    dl(pdf.output("blob"), `${base(files[0].name)}-images.pdf`);
+    return;
+  }
+
+  if (tool.id === "pdfa-converter") {
+    const d = await window.PDFLib.PDFDocument.load(await readBuf(file));
+    d.setTitle(`${file.name} (Archival Copy)`);
+    d.setAuthor("ConvertPro Studio");
+    const b = await d.save({ useObjectStreams: false });
+    dl(new Blob([b], { type: "application/pdf" }), `${base(file.name)}-pdfa.pdf`);
+    return;
+  }
+
+  if (tool.id === "ocr-pdf") {
+    const pdfIn = await window.pdfjsLib.getDocument({ data: await readBuf(file) }).promise;
+    const out = new jsPDF({ unit: "pt", format: "a4" });
+    for (let i = 1; i <= pdfIn.numPages; i += 1) {
+      setStatus(`OCR page ${i}/${pdfIn.numPages}...`, "busy");
+      const c = await pageCanvas(pdfIn, i, 1.8);
+      const { data } = await window.Tesseract.recognize(c, "eng");
+      if (i > 1) out.addPage();
+      out.text(out.splitTextToSize(data.text || "", 520), 40, 50);
+    }
+    dl(out.output("blob"), `${base(file.name)}-ocr.pdf`);
+    return;
+  }
+
+  if (tool.id === "pdf-to-epub") {
+    const pages = await pdfPages(await readBuf(file));
+    const z = new window.JSZip();
+    z.file("mimetype", "application/epub+zip", { compression: "STORE" });
+    z.folder("META-INF").file("container.xml", `<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`);
+    const o = z.folder("OEBPS");
+    const m = [];
+    const s = [];
+    pages.forEach((t, i) => {
+      const id = `c${i + 1}`;
+      const href = `chapter-${i + 1}.xhtml`;
+      m.push(`<item id="${id}" href="${href}" media-type="application/xhtml+xml"/>`);
+      s.push(`<itemref idref="${id}"/>`);
+      o.file(href, `<html xmlns="http://www.w3.org/1999/xhtml"><body><h1>Page ${i + 1}</h1><p>${t.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</p></body></html>`);
+    });
+    o.file("content.opf", `<?xml version="1.0"?><package version="3.0" xmlns="http://www.idpf.org/2007/opf"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>${base(file.name)}</dc:title><dc:language>en</dc:language></metadata><manifest>${m.join("")}</manifest><spine>${s.join("")}</spine></package>`);
+    dl(await z.generateAsync({ type: "blob" }), `${base(file.name)}.epub`);
+    return;
+  }
+
+  if (tool.id === "epub-to-pdf") {
+    const z = await window.JSZip.loadAsync(await readBuf(file));
+    const ch = Object.keys(z.files).filter((x) => x.endsWith(".xhtml") || x.endsWith(".html")).sort();
+    const pdf = new jsPDF({ unit: "pt", format: "a4" });
+    for (let i = 0; i < ch.length; i += 1) {
+      const txt = (await z.file(ch[i]).async("text")).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+      if (i) pdf.addPage();
+      pdf.text(pdf.splitTextToSize(txt, 520), 40, 50);
+    }
+    dl(pdf.output("blob"), `${base(file.name)}.pdf`);
+    return;
+  }
+
+  if (tool.id === "mobi-to-pdf") {
+    const pdf = new jsPDF({ unit: "pt", format: "a4" });
+    pdf.text(pdf.splitTextToSize(await readText(file), 520), 40, 50);
+    dl(pdf.output("blob"), `${base(file.name)}.pdf`);
+    return;
+  }
+
+  if (tool.id === "md-to-pdf") {
+    const md = await readText(file);
+    const d = document.createElement("div");
+    d.style.background = "#fff";
+    d.style.color = "#000";
+    d.style.padding = "20px";
+    d.innerHTML = window.marked.parse(md);
+    const blob = await htmlToPdfBlob(d);
+    dl(blob, `${base(file.name)}.pdf`);
+    return;
+  }
+
+  if (tool.id === "latex-to-pdf") {
+    const pdf = new jsPDF({ unit: "pt", format: "a4" });
+    pdf.text(pdf.splitTextToSize(await readText(file), 520), 40, 50);
+    dl(pdf.output("blob"), `${base(file.name)}.pdf`);
+    return;
+  }
+
+  if (tool.id === "pdf-to-jsonxml") {
+    const pages = await pdfPages(await readBuf(file));
+    const j = JSON.stringify({ source: file.name, pages: pages.map((t, i) => ({ page: i + 1, text: t })) }, null, 2);
+    const x = `<?xml version="1.0"?><document>${pages.map((t, i) => `<page number="${i + 1}">${t.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</page>`).join("")}</document>`;
+    const z = new window.JSZip();
+    z.file(`${base(file.name)}.json`, j);
+    z.file(`${base(file.name)}.xml`, x);
+    dl(await z.generateAsync({ type: "blob" }), `${base(file.name)}-structured.zip`);
+    return;
+  }
+
+  if (tool.id === "json-to-pdf") {
+    const pdf = new jsPDF({ unit: "pt", format: "a4" });
+    pdf.text(pdf.splitTextToSize(JSON.stringify(JSON.parse(await readText(file)), null, 2), 520), 40, 50);
+    dl(pdf.output("blob"), `${base(file.name)}.pdf`);
+    return;
+  }
+
+  if (tool.id === "xml-to-pdf") {
+    const pdf = new jsPDF({ unit: "pt", format: "a4" });
+    pdf.text(pdf.splitTextToSize((await readText(file)).replace(/<[^>]+>/g, " "), 520), 40, 50);
+    dl(pdf.output("blob"), `${base(file.name)}.pdf`);
+    return;
+  }
+
+  if (tool.id === "docx-to-odt") {
+    const text = (await window.mammoth.extractRawText({ arrayBuffer: await readBuf(file) })).value;
+    const z = new window.JSZip();
+    z.file("mimetype", "application/vnd.oasis.opendocument.text", { compression: "STORE" });
+    z.folder("META-INF").file("manifest.xml", `<?xml version="1.0"?><manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0"><manifest:file-entry manifest:media-type="application/vnd.oasis.opendocument.text" manifest:full-path="/"/><manifest:file-entry manifest:media-type="text/xml" manifest:full-path="content.xml"/></manifest:manifest>`);
+    z.file("content.xml", `<?xml version="1.0"?><office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"><office:body><office:text><text:p>${text.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text:p></office:text></office:body></office:document-content>`);
+    dl(await z.generateAsync({ type: "blob" }), `${base(file.name)}.odt`);
+    return;
+  }
+
+  if (tool.id === "odt-to-docx") {
+    const z = await window.JSZip.loadAsync(await readBuf(file));
+    const t = (await z.file("content.xml").async("text")).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    dl(await window.docx.Packer.toBlob(new window.docx.Document({ sections: [{ children: [new window.docx.Paragraph({ text: t || "(No text extracted)" })] }] })), `${base(file.name)}.docx`);
+    return;
+  }
+
+  if (tool.id === "rtf-to-docx") {
+    const t = (await readText(file)).replace(/\\par[d]?/g, "\n").replace(/\\'[0-9a-f]{2}/gi, "").replace(/\\[a-z]+\d* ?/gi, "").replace(/[{}]/g, "").trim();
+    const ps = t.split("\n").filter(Boolean).map((x) => new window.docx.Paragraph({ text: x }));
+    dl(await window.docx.Packer.toBlob(new window.docx.Document({ sections: [{ children: ps }] })), `${base(file.name)}.docx`);
+    return;
+  }
+
+  if (tool.id === "docx-to-rtf") {
+    const t = (await window.mammoth.extractRawText({ arrayBuffer: await readBuf(file) })).value.replace(/\\/g, "\\\\").replace(/{/g, "\\{").replace(/}/g, "\\}");
+    dl(new Blob([`{\\rtf1\\ansi ${t.replace(/\n/g, "\\par ")}}`], { type: "application/rtf" }), `${base(file.name)}.rtf`);
+    return;
+  }
+
+  if (tool.id === "png-to-jpg") return toRaster(file, "jpg");
+  if (tool.id === "jpg-to-png") return toRaster(file, "png");
+
+  if (tool.id === "webp-to-jpgpng") {
+    const ask = window.prompt("Choose output: jpg or png", "jpg");
+    if (!ask || !["jpg", "png"].includes(ask.toLowerCase())) throw new Error("Choose jpg or png.");
+    return toRaster(file, ask.toLowerCase());
+  }
+
+  if (tool.id === "heic-to-jpg") {
+    const out = await window.heic2any({ blob: file, toType: "image/jpeg", quality: 0.92 });
+    dl(Array.isArray(out) ? out[0] : out, `${base(file.name)}.jpg`);
+    return;
+  }
+
+  if (tool.id === "svg-to-raster") {
+    const ask = window.prompt("Choose output: jpg or png", "png");
+    if (!ask || !["jpg", "png"].includes(ask.toLowerCase())) throw new Error("Choose jpg or png.");
+    return toRaster(file, ask.toLowerCase(), "svg");
+  }
+
+  if (tool.id === "tiff-to-raster") {
+    const ask = window.prompt("Choose output: jpg or png", "jpg");
+    if (!ask || !["jpg", "png"].includes(ask.toLowerCase())) throw new Error("Choose jpg or png.");
+    const buf = await readBuf(file);
+    const d = window.UTIF.decode(buf);
+    window.UTIF.decodeImage(buf, d[0]);
+    const rgba = window.UTIF.toRGBA8(d[0]);
+    const canvas = document.createElement("canvas");
+    canvas.width = d[0].width;
+    canvas.height = d[0].height;
+    const ctx = canvas.getContext("2d");
+    const id = ctx.createImageData(canvas.width, canvas.height);
+    id.data.set(rgba);
+    ctx.putImageData(id, 0, 0);
+    const mime = ask.toLowerCase() === "jpg" ? "image/jpeg" : "image/png";
+    canvas.toBlob((blob) => dl(blob, `${base(file.name)}.${ask.toLowerCase()}`), mime, 0.92);
+    return;
+  }
+
+  if (tool.id === "gif-to-mp4") {
+    const u = await toDataUrl(file);
+    const img = await loadImg(u);
+    const c = document.createElement("canvas");
+    c.width = img.width;
+    c.height = img.height;
+    const ctx = c.getContext("2d");
+    const rec = new MediaRecorder(c.captureStream(15), { mimeType: "video/webm;codecs=vp9" });
+    const ch = [];
+    rec.ondataavailable = (e) => ch.push(e.data);
+    rec.start();
+    const st = performance.now();
+    await new Promise((r) => {
+      const draw = () => {
+        ctx.drawImage(img, 0, 0);
+        if (performance.now() - st < 3000) requestAnimationFrame(draw);
+        else r();
+      };
+      draw();
+    });
+    rec.stop();
+    await new Promise((r) => {
+      rec.onstop = r;
+    });
+    dl(new Blob(ch, { type: "video/webm" }), `${base(file.name)}.webm`);
+    setStatus("GIF converted with WebM fallback.");
+    return;
+  }
+
+  throw new Error("Unsupported converter.");
+}
+
+function getVisibleTools() {
+  const q = state.query.trim().toLowerCase();
+  const filtered = tools.filter((tool) => {
+    const textMatch = !q || `${tool.name} ${tool.description}`.toLowerCase().includes(q);
+    if (!textMatch) return false;
+    if (state.activeCategory === "all") return true;
+    return TOOL_META[tool.id]?.category === state.activeCategory;
+  });
+
+  const sorted = [...filtered];
+  if (state.sortMode === "az") sorted.sort((a, b) => a.name.localeCompare(b.name));
+  if (state.sortMode === "za") sorted.sort((a, b) => b.name.localeCompare(a.name));
+  if (state.sortMode === "popular") sorted.sort((a, b) => (TOOL_META[b.id]?.popularity || 0) - (TOOL_META[a.id]?.popularity || 0));
+  if (state.sortMode === "newest") sorted.sort((a, b) => (TOOL_META[b.id]?.created || 0) - (TOOL_META[a.id]?.created || 0));
+  return sorted;
+}
+
+function syncFilterButtons() {
+  els.topFilterButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.filter === state.activeCategory);
+  });
+  els.pillFilters.forEach((pill) => {
+    pill.classList.toggle("active", pill.dataset.filter === state.activeCategory);
+  });
+}
+
+function renderToolButtons() {
+  const visibleTools = getVisibleTools();
+  els.toolList.innerHTML = "";
+  visibleTools.forEach((tool) => {
+    const b = document.createElement("button");
+    b.className = `tool-btn${tool.id === state.activeTool.id ? " active" : ""}`;
+    b.type = "button";
+    const icon = document.createElement("span");
+    icon.className = "tool-icon";
+    icon.textContent = TOOL_ICONS[tool.id] || "🛠️";
+    const name = document.createElement("span");
+    name.className = "tool-name";
+    name.textContent = tool.name;
+    b.append(icon, name);
+    b.addEventListener("click", () => {
+      state.activeTool = tool;
+      configureUI();
+      renderToolButtons();
+      setStatus("Ready.");
+    });
+    els.toolList.appendChild(b);
+  });
+}
+
+function configureUI() {
+  const t = state.activeTool;
+  els.toolTitle.textContent = t.name;
+  els.toolDescription.textContent = t.description;
+  els.fileInput.value = "";
+  els.htmlContent.value = "";
+  clearPendingDownload();
+  els.fileGroup.classList.toggle("hidden", Boolean(t.htmlMode));
+  els.htmlInputGroup.classList.toggle("hidden", !t.htmlMode);
+  els.fileInputLabel.textContent = t.multiple ? "Input files" : "Input file";
+  els.fileInput.accept = t.accept || "";
+  els.fileInput.multiple = Boolean(t.multiple);
+}
+
+function setCategoryFilter(category) {
+  state.activeCategory = category || "all";
+  syncFilterButtons();
+  renderToolButtons();
+}
+
+async function runConversion() {
+  try {
+    if (state.isBusy) return;
+    if (!canUse()) throw new Error("Free limit reached. Upgrade to premium ($1/month).");
+    const files = Array.from(els.fileInput.files || []);
+    if (!state.activeTool.htmlMode && files.length === 0) throw new Error("Please select input file first.");
+    if (!state.activeTool.htmlMode) {
+      const invalid = files.find((file) => !fileMatchesAccept(file, state.activeTool.accept));
+      if (invalid) throw new Error(`Invalid file type: ${invalid.name}. Please choose only ${state.activeTool.accept} files.`);
+    }
+
+    setBusy(true);
+    setStatus("Loading converter runtime...", "busy");
+    await ensureDeps(state.activeTool);
+
+    setStatus("Converting...", "busy");
+    await runTool(state.activeTool, files);
+    addUsage();
+    if (state.pendingDownload) setStatus("Done. Open Download Center to save your file.");
+    else if (!els.status.textContent.startsWith("GIF converted")) {
+      setStatus("Done. Conversion completed.");
+      els.downloadInfo.textContent = "This converter downloads directly from the browser.";
+    }
+  } catch (err) {
+    setStatus(err.message || "Conversion failed.", "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+function resetForm() {
+  els.fileInput.value = "";
+  els.htmlContent.value = "";
+  clearPendingDownload();
+  setStatus("Reset complete.");
+}
+
+els.convertBtn.addEventListener("click", runConversion);
+els.resetBtn.addEventListener("click", resetForm);
+els.themeSwitch.addEventListener("change", () => {
+  const nextTheme = els.themeSwitch.checked ? "light" : "dark";
+  applyTheme(nextTheme);
+  localStorage.setItem(THEME_KEY, nextTheme);
+});
+els.upgradeBtn.addEventListener("click", upgrade);
+els.toolSearch.addEventListener("input", (event) => {
+  state.query = event.target.value || "";
+  renderToolButtons();
+});
+els.sortFilter.addEventListener("change", (event) => {
+  state.sortMode = event.target.value || "az";
+  renderToolButtons();
+});
+els.topFilterButtons.forEach((button) => {
+  button.addEventListener("click", () => setCategoryFilter(button.dataset.filter));
+});
+els.pillFilters.forEach((pill) => {
+  pill.addEventListener("click", () => setCategoryFilter(pill.dataset.filter));
+});
+els.relatedToolButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const nextTool = tools.find((tool) => tool.id === button.dataset.toolId);
+    if (!nextTool) return;
+    state.activeTool = nextTool;
+    configureUI();
+    renderToolButtons();
+    setStatus(`${nextTool.name} selected.`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+});
+els.downloadBtn.addEventListener("click", () => {
+  triggerDownload();
+  setStatus("Download started.");
+});
+els.fileInput.addEventListener("change", () => {
+  const files = Array.from(els.fileInput.files || []);
+  if (!files.length || state.activeTool.htmlMode) return;
+  const invalid = files.find((file) => !fileMatchesAccept(file, state.activeTool.accept));
+  if (!invalid) return;
+  els.fileInput.value = "";
+  setStatus(`Only ${state.activeTool.accept} files are allowed for ${state.activeTool.name}.`, "error");
+});
+
+initTheme();
+initPlan();
+configureUI();
+renderToolButtons();
+syncFilterButtons();

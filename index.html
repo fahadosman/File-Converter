@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ConvertPro Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="background-glow" aria-hidden="true"></div>
+
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand">CONVERT EVERYFILE</div>
+      <nav class="top-links" aria-label="Primary navigation">
+        <button class="filter-btn active" type="button" data-filter="all">All Tools</button>
+        <button class="filter-btn" type="button" data-filter="workflow">Workflows</button>
+        <button class="filter-btn" type="button" data-filter="organize">Organize PDF</button>
+        <button class="filter-btn" type="button" data-filter="convert">Convert PDF</button>
+      </nav>
+      <label class="theme-switch" for="themeSwitch" aria-label="Toggle dark and light mode">
+        <input id="themeSwitch" type="checkbox" />
+        <span class="slider"></span>
+        <span class="switch-label">Dark / Light</span>
+      </label>
+    </header>
+
+    <header class="hero">
+      <div class="hero-top">
+        <div>
+          <h1>Every tool you need to work with PDFs in one place</h1>
+          <p>
+            Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use!
+            Merge, split, compress, convert, rotate, unlock and watermark PDFs with just a few clicks.
+          </p>
+        </div>
+      </div>
+      <div class="hero-pills">
+        <span class="pill-filter active" data-filter="all">All</span>
+        <span class="pill-filter" data-filter="workflow">Workflows</span>
+        <span class="pill-filter" data-filter="organize">Organize PDF</span>
+        <span class="pill-filter" data-filter="convert">Convert PDF</span>
+        <span class="pill-filter" data-filter="images">Images</span>
+        <span class="pill-filter" data-filter="ebooks">eBooks</span>
+      </div>
+    </header>
+
+    <section class="layout single-column">
+      <section class="tool-list-panel">
+        <div class="tools-head">
+          <h2>All Converters</h2>
+          <div class="filter-row">
+            <input id="toolSearch" class="tool-search" type="search" placeholder="Search converters..." />
+            <select id="sortFilter" class="sort-filter" aria-label="Sort converters">
+              <option value="az">Sort: A to Z</option>
+              <option value="za">Sort: Z to A</option>
+              <option value="popular">Sort: Popular</option>
+              <option value="newest">Sort: Newest</option>
+            </select>
+          </div>
+        </div>
+        <div id="toolList" class="tool-grid" aria-label="Converter tools"></div>
+      </section>
+
+      <section class="tool-workspace">
+        <section class="workspace-main-grid">
+          <article class="card converter-card">
+            <div class="card-head">
+              <h2 id="toolTitle">PDF to Word</h2>
+              <p id="toolDescription">Select a tool from the left menu to begin.</p>
+            </div>
+
+            <div class="card-body">
+              <div id="fileGroup" class="field-group">
+                <label for="fileInput" id="fileInputLabel">Input file</label>
+                <input id="fileInput" type="file" />
+                <small class="file-helper">Only files matching the selected converter are accepted.</small>
+              </div>
+
+              <div id="htmlInputGroup" class="field-group hidden">
+                <label for="htmlContent">HTML Content</label>
+                <textarea id="htmlContent" rows="12" placeholder="Paste HTML content here..."></textarea>
+              </div>
+
+              <div class="actions">
+                <button id="convertBtn" class="primary-btn" type="button">Convert Now</button>
+                <button id="resetBtn" class="ghost-btn" type="button">Reset</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card download-card" id="downloadCard">
+            <h3>Download Center</h3>
+            <p id="downloadInfo">After conversion, your file will appear here for manual download.</p>
+            <button id="downloadBtn" class="primary-btn" type="button" disabled>Download File</button>
+          </article>
+        </section>
+
+        <article class="card status-card">
+          <h3>Progress</h3>
+          <div id="status" class="status">Ready.</div>
+        </article>
+
+        <article class="card premium-card iap-card">
+          <h3>Premium Upgrade</h3>
+          <p id="planStatus">Free Plan: 0/5 conversions used</p>
+          <ul class="premium-features">
+            <li>Unlimited conversions</li>
+            <li>Priority conversion queue</li>
+            <li>Advanced format tools</li>
+            <li>No wait between jobs</li>
+          </ul>
+          <button id="upgradeBtn" class="primary-btn" type="button">$1 / month Upgrade</button>
+        </article>
+
+        <section class="info-section">
+          <h2>Why choose Convert EveryFile?</h2>
+          <div class="feature-grid">
+            <article class="feature-card">
+              <h3>High Quality</h3>
+              <p>Smart text extraction and structured output with readable formatting.</p>
+            </article>
+            <article class="feature-card">
+              <h3>Secure Files</h3>
+              <p>Files are processed in-browser for better privacy and local safety.</p>
+            </article>
+            <article class="feature-card">
+              <h3>Multiple Formats</h3>
+              <p>Work with PDF, Office, image, and eBook formats in one workspace.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="info-section">
+          <h2>How to convert PDF to Word</h2>
+          <div class="steps-grid">
+            <article class="step-card"><strong>1.</strong> Select <em>PDF to Word</em> tool.</article>
+            <article class="step-card"><strong>2.</strong> Upload your PDF file.</article>
+            <article class="step-card"><strong>3.</strong> Click Convert and wait for completion.</article>
+            <article class="step-card"><strong>4.</strong> Download DOCX from Download Center.</article>
+          </div>
+        </section>
+
+        <section class="info-section">
+          <h2>FAQ</h2>
+          <details class="faq-item" open>
+            <summary>Can I convert scanned PDF files?</summary>
+            <p>Yes, OCR-supported tools are available for scanned documents.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Will my formatting be preserved?</summary>
+            <p>The converter keeps structure as close as possible and optimizes for editability.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Can I use this for free?</summary>
+            <p>Yes. Free usage is available with a monthly limit. Premium unlocks unlimited usage.</p>
+          </details>
+        </section>
+
+        <section class="info-section">
+          <h2>Related PDF tools</h2>
+          <div class="related-grid">
+            <button type="button" class="related-tool" data-tool-id="merge-pdf">Merge PDF</button>
+            <button type="button" class="related-tool" data-tool-id="split-pdf">Split PDF</button>
+            <button type="button" class="related-tool" data-tool-id="compress-pdf">Compress PDF</button>
+            <button type="button" class="related-tool" data-tool-id="pdf-to-ppt">PDF to PowerPoint</button>
+            <button type="button" class="related-tool" data-tool-id="pdf-to-excel">PDF to Excel</button>
+            <button type="button" class="related-tool" data-tool-id="jpg-to-pdf">JPG to PDF</button>
+          </div>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <section class="rating-strip">
+    <h3>⭐ User Rating</h3>
+    <p><strong>4.8 / 5</strong> based on converter experience and output quality.</p>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <section class="footer-col">
+        <h4>Product</h4>
+        <a href="#">Home</a>
+        <a href="#">Features</a>
+        <a href="#">Pricing</a>
+        <a href="#">Tools</a>
+        <a href="#">FAQ</a>
+      </section>
+      <section class="footer-col">
+        <h4>Resources</h4>
+        <a href="#">iLovePDF Desktop</a>
+        <a href="#">iLovePDF Mobile</a>
+        <a href="#">iLoveSign</a>
+        <a href="#">iLoveAPI</a>
+        <a href="#">iLoveIMG</a>
+      </section>
+      <section class="footer-col">
+        <h4>Solutions</h4>
+        <a href="#">Business</a>
+        <a href="#">Education</a>
+      </section>
+      <section class="footer-col">
+        <h4>Legal</h4>
+        <a href="#">Security</a>
+        <a href="#">Privacy policy</a>
+        <a href="#">Terms &amp; conditions</a>
+        <a href="#">Cookies</a>
+      </section>
+      <section class="footer-col">
+        <h4>Company</h4>
+        <a href="#">About us</a>
+        <a href="#">Contact us</a>
+        <a href="#">Blog</a>
+        <a href="#">Press</a>
+      </section>
+      <section class="footer-col">
+        <h4>Stores</h4>
+        <a href="#">Google Play</a>
+        <a href="#">App Store</a>
+        <a href="#">Mac Store</a>
+        <a href="#">Microsoft Store</a>
+      </section>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
