@@ -188,6 +188,7 @@ const els = {
   upgradeBtn: document.getElementById("upgradeBtn"),
   premiumTag: document.getElementById("premiumTag"),
   premiumTagTop: document.getElementById("premiumTagTop"),
+  iapBanner: document.querySelector(".iap-banner"),
   downloadBtn: document.getElementById("downloadBtn"),
   downloadInfo: document.getElementById("downloadInfo"),
   topFilterButtons: Array.from(document.querySelectorAll(".filter-btn")),
@@ -196,6 +197,9 @@ const els = {
   languageSelect: document.getElementById("languageSelect"),
   statusMeterFill: document.getElementById("statusMeterFill"),
   toast: document.getElementById("toast"),
+  premiumLimitDialog: document.getElementById("premiumLimitDialog"),
+  premiumDialogCloseBtn: document.getElementById("premiumDialogCloseBtn"),
+  premiumDialogUpgradeBtn: document.getElementById("premiumDialogUpgradeBtn"),
 };
 
 const base = (n) => n.replace(/\.[^/.]+$/, "");
@@ -339,6 +343,7 @@ function refreshPlan() {
     els.upgradeBtn.disabled = true;
     if (els.premiumTag) els.premiumTag.classList.remove("hidden");
     if (els.premiumTagTop) els.premiumTagTop.classList.remove("hidden");
+    if (els.iapBanner) els.iapBanner.classList.add("hidden");
     return;
   }
   els.planStatus.textContent = t("plan.free", { used: state.usageCount, limit: FREE_LIMIT });
@@ -346,6 +351,7 @@ function refreshPlan() {
   els.upgradeBtn.disabled = false;
   if (els.premiumTag) els.premiumTag.classList.add("hidden");
   if (els.premiumTagTop) els.premiumTagTop.classList.add("hidden");
+  if (els.iapBanner) els.iapBanner.classList.remove("hidden");
 }
 
 function initPlan() {
@@ -357,6 +363,19 @@ function initPlan() {
 
 function upgrade() {
   startStripeCheckout();
+}
+
+function openPremiumLimitDialog() {
+  showToolView();
+  if (!els.premiumLimitDialog) return;
+  els.premiumLimitDialog.classList.remove("hidden");
+  els.premiumLimitDialog.removeAttribute("hidden");
+}
+
+function closePremiumLimitDialog() {
+  if (!els.premiumLimitDialog) return;
+  els.premiumLimitDialog.classList.add("hidden");
+  els.premiumLimitDialog.setAttribute("hidden", "");
 }
 
 function canUse() {
@@ -1102,7 +1121,10 @@ function setCategoryFilter(category) {
 async function runConversion() {
   try {
     if (state.isBusy) return;
-    if (!canUse()) throw new Error(t("error.freeLimit"));
+    if (!canUse()) {
+      openPremiumLimitDialog();
+      return;
+    }
     await assertSessionCanUse();
     const files = Array.from(els.fileInput.files || []);
     if (!state.activeTool.htmlMode && files.length === 0) throw new Error(t("error.selectInput"));
@@ -1124,6 +1146,9 @@ async function runConversion() {
       els.downloadInfo.textContent = t("download.browserDirect");
     }
   } catch (err) {
+    if ((err.message || "").includes(t("error.freeLimit"))) {
+      openPremiumLimitDialog();
+    }
     setStatus(err.message || "Conversion failed.", "error");
   } finally {
     setBusy(false);
@@ -1145,6 +1170,13 @@ els.themeSwitch.addEventListener("change", () => {
   localStorage.setItem(THEME_KEY, nextTheme);
 });
 els.upgradeBtn.addEventListener("click", upgrade);
+if (els.premiumDialogUpgradeBtn) els.premiumDialogUpgradeBtn.addEventListener("click", upgrade);
+if (els.premiumDialogCloseBtn) els.premiumDialogCloseBtn.addEventListener("click", closePremiumLimitDialog);
+if (els.premiumLimitDialog) {
+  els.premiumLimitDialog.addEventListener("click", (event) => {
+    if (event.target?.dataset?.premiumClose === "true") closePremiumLimitDialog();
+  });
+}
 els.toolSearch.addEventListener("input", (event) => {
   state.query = event.target.value || "";
   window.requestAnimationFrame(renderToolButtons);

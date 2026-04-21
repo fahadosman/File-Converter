@@ -249,6 +249,24 @@
   </footer>
 
   <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+  <div id="premiumLimitDialog" class="auth-modal hidden" hidden>
+    <div class="auth-modal__backdrop" data-premium-close="true"></div>
+    <div class="auth-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="premiumLimitTitle">
+      <div class="auth-head">
+        <h3 id="premiumLimitTitle">Upgrade to Premium</h3>
+        <button id="premiumDialogCloseBtn" class="ghost-btn auth-close-btn" type="button">Close</button>
+      </div>
+      <p class="iap-plan-line">
+        You have used all 5 free conversions. Upgrade now to continue with unlimited file conversions.
+      </p>
+      <div class="actions">
+        <button id="premiumDialogUpgradeBtn" class="primary-btn cta-btn" type="button">
+          <span class="iap-cta__icon" aria-hidden="true">👑</span>
+          Get Premium
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script src="locales.js"></script>
   <script src="script.js"></script>

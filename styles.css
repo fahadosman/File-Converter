@@ -886,6 +886,44 @@ button {
   transform: translateY(0);
 }
 
+.auth-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+
+.auth-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 10, 24, 0.68);
+}
+
+.auth-modal__dialog {
+  position: relative;
+  width: min(92vw, 460px);
+  margin: 10vh auto 0;
+  border-radius: 20px;
+  border: 1px solid var(--panel-border);
+  background: linear-gradient(160deg, var(--soft-bg-strong), rgba(255, 255, 255, 0.04));
+  backdrop-filter: blur(12px);
+  padding: 18px;
+}
+
+.auth-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.auth-head h3 {
+  margin: 0;
+}
+
+.auth-close-btn {
+  padding: 8px 12px;
+}
+
 .pill-filter {
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
