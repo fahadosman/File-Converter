@@ -654,6 +654,12 @@ button {
   box-shadow: 0 4px 12px rgba(255, 210, 74, 0.3);
 }
 
+.premium-tag--top {
+  font-size: 0.66rem;
+  padding: 3px 8px;
+  margin-left: 2px;
+}
+
 .iap-banner__list {
   margin: 0 0 14px;
   padding: 0;

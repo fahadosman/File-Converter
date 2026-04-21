@@ -3,6 +3,7 @@ const THEME_KEY = "convertpro-theme";
 const PLAN_KEY = "convertpro-plan";
 const USAGE_KEY = "convertpro-usage-count";
 const LANG_KEY = "convertpro-language";
+const DEVICE_ID_KEY = "convertpro-device-id";
 const LOCALES = window.APP_LOCALES || {};
 const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_dRmaEW2JvbXe7970Tl2kw01";
 const SECURITY_API_BASE = window.__PAYMENTS_API_BASE__ || "";
@@ -111,6 +112,7 @@ const TOOL_META = {
 const loadedLibPromises = new Map();
 const state = {
   activeTool: tools[0],
+  deviceId: "",
   theme: "dark",
   language: "en",
   isPremium: false,
@@ -185,6 +187,7 @@ const els = {
   planStatus: document.getElementById("planStatus"),
   upgradeBtn: document.getElementById("upgradeBtn"),
   premiumTag: document.getElementById("premiumTag"),
+  premiumTagTop: document.getElementById("premiumTagTop"),
   downloadBtn: document.getElementById("downloadBtn"),
   downloadInfo: document.getElementById("downloadInfo"),
   topFilterButtons: Array.from(document.querySelectorAll(".filter-btn")),
@@ -198,6 +201,24 @@ const els = {
 const base = (n) => n.replace(/\.[^/.]+$/, "");
 const readText = (f) => f.text();
 const readBuf = (f) => f.arrayBuffer();
+
+function getOrCreateDeviceId() {
+  const current = localStorage.getItem(DEVICE_ID_KEY);
+  if (current) return current;
+  const generated =
+    (window.crypto && window.crypto.randomUUID && window.crypto.randomUUID()) ||
+    `device-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  localStorage.setItem(DEVICE_ID_KEY, generated);
+  return generated;
+}
+
+function planStorageKey() {
+  return `${PLAN_KEY}:${state.deviceId}`;
+}
+
+function usageStorageKey() {
+  return `${USAGE_KEY}:${state.deviceId}`;
+}
 
 function t(key, vars = {}) {
   const dict = LOCALES[state.language] || LOCALES.en || {};
@@ -317,17 +338,20 @@ function refreshPlan() {
     els.upgradeBtn.innerHTML = `${crown}${t("plan.enabled")}`;
     els.upgradeBtn.disabled = true;
     if (els.premiumTag) els.premiumTag.classList.remove("hidden");
+    if (els.premiumTagTop) els.premiumTagTop.classList.remove("hidden");
     return;
   }
   els.planStatus.textContent = t("plan.free", { used: state.usageCount, limit: FREE_LIMIT });
   els.upgradeBtn.innerHTML = `${crown}${t("plan.getPremium")}`;
   els.upgradeBtn.disabled = false;
   if (els.premiumTag) els.premiumTag.classList.add("hidden");
+  if (els.premiumTagTop) els.premiumTagTop.classList.add("hidden");
 }
 
 function initPlan() {
-  state.isPremium = localStorage.getItem(PLAN_KEY) === "premium";
-  state.usageCount = Number(localStorage.getItem(USAGE_KEY) || "0");
+  state.deviceId = getOrCreateDeviceId();
+  state.isPremium = localStorage.getItem(planStorageKey()) === "premium";
+  state.usageCount = Number(localStorage.getItem(usageStorageKey()) || "0");
   refreshPlan();
 }
 
@@ -342,7 +366,7 @@ function canUse() {
 function addUsage() {
   if (state.isPremium) return;
   state.usageCount += 1;
-  localStorage.setItem(USAGE_KEY, String(state.usageCount));
+  localStorage.setItem(usageStorageKey(), String(state.usageCount));
   refreshPlan();
 }
 
@@ -361,7 +385,7 @@ async function startUsageSession() {
   const payload = await response.json();
   state.securityApiReady = true;
   state.usageCount = Number(payload.usageCount || 0);
-  localStorage.setItem(USAGE_KEY, String(state.usageCount));
+  localStorage.setItem(usageStorageKey(), String(state.usageCount));
   refreshPlan();
 }
 
@@ -373,7 +397,7 @@ async function assertSessionCanUse() {
   if (!response.ok) throw new Error("Unable to verify usage security.");
   const payload = await response.json();
   state.usageCount = Number(payload.usageCount || 0);
-  localStorage.setItem(USAGE_KEY, String(state.usageCount));
+  localStorage.setItem(usageStorageKey(), String(state.usageCount));
   refreshPlan();
   if (state.usageCount >= FREE_LIMIT) throw new Error(t("error.freeLimit"));
 }
@@ -389,7 +413,7 @@ async function secureConsumeUsage() {
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(payload.error || "Usage security check failed.");
   state.usageCount = Number(payload.usageCount || state.usageCount);
-  localStorage.setItem(USAGE_KEY, String(state.usageCount));
+  localStorage.setItem(usageStorageKey(), String(state.usageCount));
   refreshPlan();
 }
 
@@ -442,7 +466,7 @@ async function syncPaymentFromReturn() {
     if (!paid) return;
 
     state.isPremium = true;
-    localStorage.setItem(PLAN_KEY, "premium");
+    localStorage.setItem(planStorageKey(), "premium");
     refreshPlan();
     setStatus(t("status.premiumActivated"));
 
@@ -452,10 +476,10 @@ async function syncPaymentFromReturn() {
     hashParams.delete("session_id");
     hashParams.delete("payment");
     hashParams.delete("premium");
-    const baseHash = hash.includes("?") ? hash.split("?")[0] : hash;
-    const cleanHash = hashParams.toString() ? `${baseHash}?${hashParams.toString()}` : baseHash;
+    const cleanHash = "#/";
     const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${cleanHash}`;
     window.history.replaceState({}, "", clean);
+    applyRoute();
   } catch (error) {
     setStatus(error.message || t("error.paymentVerifyFailed"), "error");
   }
