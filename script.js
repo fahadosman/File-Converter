@@ -4,8 +4,7 @@ const PLAN_KEY = "convertpro-plan";
 const USAGE_KEY = "convertpro-usage-count";
 const LANG_KEY = "convertpro-language";
 const LOCALES = window.APP_LOCALES || {};
-const PAYMENTS_API_BASE =
-  window.__PAYMENTS_API_BASE__ || (window.location.hostname === "localhost" ? "http://localhost:8787" : "");
+const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_dRmaEW2JvbXe7970Tl2kw01";
 
 const LIBS = {
   pdfjs: {
@@ -306,7 +305,7 @@ function initPlan() {
 }
 
 function upgrade() {
-  startEasyPaisaCheckout();
+  startStripeCheckout();
 }
 
 function canUse() {
@@ -345,33 +344,10 @@ function clearPendingDownload(message = t("download.waiting")) {
   els.downloadInfo.textContent = message;
 }
 
-function postToCheckout(checkoutUrl, fields) {
-  const form = document.createElement("form");
-  form.method = "POST";
-  form.action = checkoutUrl;
-  Object.entries(fields || {}).forEach(([name, value]) => {
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = name;
-    input.value = String(value);
-    form.appendChild(input);
-  });
-  document.body.appendChild(form);
-  form.submit();
-}
-
-async function startEasyPaisaCheckout() {
+function startStripeCheckout() {
   try {
     setStatus(t("status.paymentInit"), "busy");
-    const response = await fetch(`${PAYMENTS_API_BASE}/api/payments/easypaisa/create`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plan: "premium_monthly" }),
-    });
-    const payload = await response.json();
-    if (!response.ok) throw new Error(payload.error || t("error.paymentInitFailed"));
-    if (!payload.checkoutUrl || !payload.fields) throw new Error(t("error.paymentInitFailed"));
-    postToCheckout(payload.checkoutUrl, payload.fields);
+    window.location.href = STRIPE_CHECKOUT_URL;
   } catch (error) {
     setStatus(error.message || t("error.paymentInitFailed"), "error");
   }
@@ -380,40 +356,19 @@ async function startEasyPaisaCheckout() {
 async function syncPaymentFromReturn() {
   try {
     const params = new URLSearchParams(window.location.search);
-    // Some callback flows can append query inside hash routes.
-    const hashPart = window.location.hash || "";
-    const hashQuery = hashPart.includes("?") ? hashPart.split("?")[1] : "";
-    const hashParams = new URLSearchParams(hashQuery);
-    const orderRef = params.get("orderRef") || hashParams.get("orderRef");
-    const paymentState = params.get("payment") || hashParams.get("payment");
-    if (!orderRef || !paymentState) return;
-
-    if (paymentState !== "success") {
-      setStatus(t("error.paymentFailed"), "error");
-      params.delete("payment");
-      params.delete("orderRef");
-      const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${window.location.hash}`;
-      window.history.replaceState({}, "", clean);
-      return;
-    }
-
-    const verifyResponse = await fetch(`${PAYMENTS_API_BASE}/api/payments/easypaisa/verify/${encodeURIComponent(orderRef)}`);
-    if (!verifyResponse.ok) throw new Error(t("error.paymentVerifyFailed"));
-    const verifyPayload = await verifyResponse.json();
-    if (verifyPayload.status !== "success") throw new Error(t("error.paymentVerifyFailed"));
+    // Stripe Checkout success URLs typically include session_id.
+    const sessionId = params.get("session_id");
+    const paymentState = params.get("payment");
+    if (!sessionId && paymentState !== "success") return;
 
     state.isPremium = true;
     localStorage.setItem(PLAN_KEY, "premium");
     refreshPlan();
     setStatus(t("status.premiumActivated"));
 
+    params.delete("session_id");
     params.delete("payment");
-    params.delete("orderRef");
-    hashParams.delete("payment");
-    hashParams.delete("orderRef");
-    const cleanedHashBase = hashPart.includes("?") ? hashPart.split("?")[0] : hashPart;
-    const cleanHash = hashParams.toString() ? `${cleanedHashBase}?${hashParams.toString()}` : cleanedHashBase;
-    const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${cleanHash}`;
+    const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${window.location.hash}`;
     window.history.replaceState({}, "", clean);
   } catch (error) {
     setStatus(error.message || t("error.paymentVerifyFailed"), "error");
