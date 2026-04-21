@@ -367,6 +367,7 @@ function upgrade() {
 
 function openPremiumLimitDialog() {
   showToolView();
+  setStatus(t("error.freeLimit"), "error");
   if (!els.premiumLimitDialog) return;
   els.premiumLimitDialog.classList.remove("hidden");
   els.premiumLimitDialog.removeAttribute("hidden");
@@ -422,7 +423,11 @@ async function assertSessionCanUse() {
 }
 
 async function secureConsumeUsage() {
-  if (state.isPremium || !state.securityApiReady) return;
+  if (state.isPremium) return;
+  if (!state.securityApiReady) {
+    addUsage();
+    return;
+  }
   const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/consume`, {
     method: "POST",
     credentials: "include",
@@ -486,6 +491,7 @@ async function syncPaymentFromReturn() {
 
     state.isPremium = true;
     localStorage.setItem(planStorageKey(), "premium");
+    closePremiumLimitDialog();
     refreshPlan();
     setStatus(t("status.premiumActivated"));
 
