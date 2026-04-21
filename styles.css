@@ -886,6 +886,11 @@ button {
   transform: translateY(0);
 }
 
+.toast.success {
+  border-color: rgba(30, 207, 154, 0.52);
+  color: #d9fff2;
+}
+
 .auth-modal {
   position: fixed;
   inset: 0;

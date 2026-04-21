@@ -303,12 +303,19 @@ function setStatus(message, type = "ok") {
 }
 
 function showToast(message) {
+  showToastWithType(message, "error");
+}
+
+function showToastWithType(message, type = "error") {
   if (!els.toast) return;
   if (state.toastTimer) clearTimeout(state.toastTimer);
   els.toast.textContent = String(message || "Something went wrong.");
+  els.toast.classList.remove("success");
+  if (type === "success") els.toast.classList.add("success");
   els.toast.classList.add("show");
   state.toastTimer = setTimeout(() => {
     els.toast.classList.remove("show");
+    els.toast.classList.remove("success");
   }, 3000);
 }
 
@@ -494,6 +501,7 @@ async function syncPaymentFromReturn() {
     closePremiumLimitDialog();
     refreshPlan();
     setStatus(t("status.premiumActivated"));
+    showToastWithType(t("status.premiumActivated"), "success");
 
     params.delete("session_id");
     params.delete("payment");
