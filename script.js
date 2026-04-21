@@ -5,7 +5,7 @@ const USAGE_KEY = "convertpro-usage-count";
 const LANG_KEY = "convertpro-language";
 const LOCALES = window.APP_LOCALES || {};
 const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_dRmaEW2JvbXe7970Tl2kw01";
-const SECURITY_API_BASE = window.__PAYMENTS_API_BASE__ || "http://localhost:8787";
+const SECURITY_API_BASE = window.__PAYMENTS_API_BASE__ || "";
 
 const LIBS = {
   pdfjs: {
@@ -121,6 +121,7 @@ const state = {
   sortMode: "az",
   pendingDownload: null,
   toastTimer: null,
+  securityApiReady: Boolean(SECURITY_API_BASE),
 };
 
 const TOOL_ICONS = {
@@ -183,6 +184,7 @@ const els = {
   themeSwitch: document.getElementById("themeSwitch"),
   planStatus: document.getElementById("planStatus"),
   upgradeBtn: document.getElementById("upgradeBtn"),
+  premiumTag: document.getElementById("premiumTag"),
   downloadBtn: document.getElementById("downloadBtn"),
   downloadInfo: document.getElementById("downloadInfo"),
   topFilterButtons: Array.from(document.querySelectorAll(".filter-btn")),
@@ -314,11 +316,13 @@ function refreshPlan() {
     els.planStatus.textContent = t("plan.active");
     els.upgradeBtn.innerHTML = `${crown}${t("plan.enabled")}`;
     els.upgradeBtn.disabled = true;
+    if (els.premiumTag) els.premiumTag.classList.remove("hidden");
     return;
   }
   els.planStatus.textContent = t("plan.free", { used: state.usageCount, limit: FREE_LIMIT });
   els.upgradeBtn.innerHTML = `${crown}${t("plan.getPremium")}`;
   els.upgradeBtn.disabled = false;
+  if (els.premiumTag) els.premiumTag.classList.add("hidden");
 }
 
 function initPlan() {
@@ -343,6 +347,10 @@ function addUsage() {
 }
 
 async function startUsageSession() {
+  if (!SECURITY_API_BASE) {
+    state.securityApiReady = false;
+    return;
+  }
   const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/start`, {
     method: "POST",
     credentials: "include",
@@ -351,13 +359,14 @@ async function startUsageSession() {
   });
   if (!response.ok) throw new Error("Usage security service unavailable.");
   const payload = await response.json();
+  state.securityApiReady = true;
   state.usageCount = Number(payload.usageCount || 0);
   localStorage.setItem(USAGE_KEY, String(state.usageCount));
   refreshPlan();
 }
 
 async function assertSessionCanUse() {
-  if (state.isPremium) return;
+  if (state.isPremium || !state.securityApiReady) return;
   const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/status`, {
     credentials: "include",
   });
@@ -370,7 +379,7 @@ async function assertSessionCanUse() {
 }
 
 async function secureConsumeUsage() {
-  if (state.isPremium) return;
+  if (state.isPremium || !state.securityApiReady) return;
   const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/consume`, {
     method: "POST",
     credentials: "include",
@@ -421,10 +430,16 @@ function startStripeCheckout() {
 async function syncPaymentFromReturn() {
   try {
     const params = new URLSearchParams(window.location.search);
-    // Stripe Checkout success URLs typically include session_id.
-    const sessionId = params.get("session_id");
-    const paymentState = params.get("payment");
-    if (!sessionId && paymentState !== "success") return;
+    const hash = window.location.hash || "";
+    const hashQuery = hash.includes("?") ? hash.split("?")[1] : "";
+    const hashParams = new URLSearchParams(hashQuery);
+
+    // Stripe success URLs usually include session_id; keep payment=success fallback.
+    const sessionId = params.get("session_id") || hashParams.get("session_id");
+    const paymentState = params.get("payment") || hashParams.get("payment");
+    const premiumState = params.get("premium") || hashParams.get("premium");
+    const paid = Boolean(sessionId) || paymentState === "success" || premiumState === "1";
+    if (!paid) return;
 
     state.isPremium = true;
     localStorage.setItem(PLAN_KEY, "premium");
@@ -433,7 +448,13 @@ async function syncPaymentFromReturn() {
 
     params.delete("session_id");
     params.delete("payment");
-    const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${window.location.hash}`;
+    params.delete("premium");
+    hashParams.delete("session_id");
+    hashParams.delete("payment");
+    hashParams.delete("premium");
+    const baseHash = hash.includes("?") ? hash.split("?")[0] : hash;
+    const cleanHash = hashParams.toString() ? `${baseHash}?${hashParams.toString()}` : baseHash;
+    const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${cleanHash}`;
     window.history.replaceState({}, "", clean);
   } catch (error) {
     setStatus(error.message || t("error.paymentVerifyFailed"), "error");
@@ -1153,7 +1174,8 @@ initTheme();
 initLanguage();
 initPlan();
 startUsageSession().catch((error) => {
-  setStatus(error.message || "Usage security service unavailable.", "error");
+  state.securityApiReady = false;
+  setStatus("Secure usage server is offline. Using local limit tracking.", "error");
 });
 syncFilterButtons();
 syncPaymentFromReturn();

@@ -634,6 +634,24 @@ button {
   font-size: 1.35rem;
   font-weight: 800;
   letter-spacing: -0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.premium-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #07111f;
+  background: linear-gradient(120deg, #ffda6f, #ffd24a);
+  border: 1px solid rgba(255, 210, 74, 0.7);
+  box-shadow: 0 4px 12px rgba(255, 210, 74, 0.3);
 }
 
 .iap-banner__list {
