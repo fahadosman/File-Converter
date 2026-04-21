@@ -17,17 +17,73 @@ const EASYPAISA_PAYMENT_METHOD = process.env.EASYPAISA_PAYMENT_METHOD || "MA_PAY
 const EASYPAISA_ACCOUNT_NUMBER = process.env.EASYPAISA_ACCOUNT_NUMBER || "";
 const EASYPAISA_ACCOUNT_FIELD = process.env.EASYPAISA_ACCOUNT_FIELD || "mobileNum";
 const EASYPAISA_EXPIRY_MINUTES = Number(process.env.EASYPAISA_EXPIRY_MINUTES || 30);
+const FREE_LIMIT = Number(process.env.FREE_LIMIT || 5);
 
 const checkoutUrl = EASYPAISA_SANDBOX
   ? "https://easypaystg.easypaisa.com.pk/easypay/Index.jsf"
   : "https://easypay.easypaisa.com.pk/easypay/Index.jsf";
 
 const payments = new Map();
+const usageSessions = new Map();
 app.set("trust proxy", true);
 
-app.use(cors({ origin: FRONTEND_ORIGIN, credentials: false }));
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
+      if (origin === FRONTEND_ORIGIN) return callback(null, true);
+      if (/^http:\/\/localhost:\d+$/i.test(origin)) return callback(null, true);
+      return callback(new Error("Origin not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+function parseCookies(req) {
+  const source = req.headers.cookie || "";
+  return source.split(";").reduce((acc, part) => {
+    const [k, ...v] = part.trim().split("=");
+    if (!k) return acc;
+    acc[k] = decodeURIComponent(v.join("=") || "");
+    return acc;
+  }, {});
+}
+
+function getOrCreateUsageSession(req, res) {
+  const cookies = parseCookies(req);
+  let sessionId = cookies.fc_session_id;
+  let session = sessionId ? usageSessions.get(sessionId) : null;
+  if (!session) {
+    sessionId = crypto.randomBytes(24).toString("hex");
+    session = { usageCount: 0, createdAt: Date.now(), updatedAt: Date.now() };
+    usageSessions.set(sessionId, session);
+    res.setHeader("Set-Cookie", `fc_session_id=${sessionId}; HttpOnly; Path=/; SameSite=Lax; Max-Age=2592000`);
+  }
+  session.updatedAt = Date.now();
+  return { sessionId, session };
+}
+
+app.post("/api/usage/session/start", (req, res) => {
+  const { session } = getOrCreateUsageSession(req, res);
+  return res.json({ usageCount: session.usageCount, freeLimit: FREE_LIMIT });
+});
+
+app.get("/api/usage/session/status", (req, res) => {
+  const { session } = getOrCreateUsageSession(req, res);
+  return res.json({ usageCount: session.usageCount, freeLimit: FREE_LIMIT });
+});
+
+app.post("/api/usage/session/consume", (req, res) => {
+  const { session } = getOrCreateUsageSession(req, res);
+  if (session.usageCount >= FREE_LIMIT) {
+    return res.status(403).json({ error: "Free conversion limit reached.", usageCount: session.usageCount, freeLimit: FREE_LIMIT });
+  }
+  session.usageCount += 1;
+  session.updatedAt = Date.now();
+  return res.json({ usageCount: session.usageCount, freeLimit: FREE_LIMIT });
+});
 
 function orderRef() {
   return `IAP-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;

@@ -5,6 +5,7 @@ const USAGE_KEY = "convertpro-usage-count";
 const LANG_KEY = "convertpro-language";
 const LOCALES = window.APP_LOCALES || {};
 const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_dRmaEW2JvbXe7970Tl2kw01";
+const SECURITY_API_BASE = window.__PAYMENTS_API_BASE__ || "http://localhost:8787";
 
 const LIBS = {
   pdfjs: {
@@ -119,6 +120,7 @@ const state = {
   activeCategory: "all",
   sortMode: "az",
   pendingDownload: null,
+  toastTimer: null,
 };
 
 const TOOL_ICONS = {
@@ -187,6 +189,8 @@ const els = {
   pillFilters: Array.from(document.querySelectorAll(".pill-filter")),
   relatedToolButtons: Array.from(document.querySelectorAll(".related-tool")),
   languageSelect: document.getElementById("languageSelect"),
+  statusMeterFill: document.getElementById("statusMeterFill"),
+  toast: document.getElementById("toast"),
 };
 
 const base = (n) => n.replace(/\.[^/.]+$/, "");
@@ -247,7 +251,7 @@ function applyLanguage(language) {
   localizeTools();
   refreshPlan();
   configureUI();
-  renderToolButtons();
+  requestAnimationFrame(() => renderToolButtons());
 }
 
 function initLanguage() {
@@ -260,6 +264,25 @@ function setStatus(message, type = "ok") {
   els.status.classList.remove("error", "busy");
   if (type === "error") els.status.classList.add("error");
   if (type === "busy") els.status.classList.add("busy");
+  if (els.statusMeterFill) {
+    const width = type === "busy" ? "72%" : type === "error" ? "100%" : "100%";
+    els.statusMeterFill.style.width = width;
+    els.statusMeterFill.style.background =
+      type === "error"
+        ? "linear-gradient(90deg, #ff6f91, #ff956f)"
+        : "linear-gradient(90deg, var(--accent), var(--accent-2))";
+  }
+  if (type === "error") showToast(message);
+}
+
+function showToast(message) {
+  if (!els.toast) return;
+  if (state.toastTimer) clearTimeout(state.toastTimer);
+  els.toast.textContent = String(message || "Something went wrong.");
+  els.toast.classList.add("show");
+  state.toastTimer = setTimeout(() => {
+    els.toast.classList.remove("show");
+  }, 3000);
 }
 
 function setBusy(busy) {
@@ -315,6 +338,48 @@ function canUse() {
 function addUsage() {
   if (state.isPremium) return;
   state.usageCount += 1;
+  localStorage.setItem(USAGE_KEY, String(state.usageCount));
+  refreshPlan();
+}
+
+async function startUsageSession() {
+  const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/start`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({}),
+  });
+  if (!response.ok) throw new Error("Usage security service unavailable.");
+  const payload = await response.json();
+  state.usageCount = Number(payload.usageCount || 0);
+  localStorage.setItem(USAGE_KEY, String(state.usageCount));
+  refreshPlan();
+}
+
+async function assertSessionCanUse() {
+  if (state.isPremium) return;
+  const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/status`, {
+    credentials: "include",
+  });
+  if (!response.ok) throw new Error("Unable to verify usage security.");
+  const payload = await response.json();
+  state.usageCount = Number(payload.usageCount || 0);
+  localStorage.setItem(USAGE_KEY, String(state.usageCount));
+  refreshPlan();
+  if (state.usageCount >= FREE_LIMIT) throw new Error(t("error.freeLimit"));
+}
+
+async function secureConsumeUsage() {
+  if (state.isPremium) return;
+  const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/consume`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({}),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(payload.error || "Usage security check failed.");
+  state.usageCount = Number(payload.usageCount || state.usageCount);
   localStorage.setItem(USAGE_KEY, String(state.usageCount));
   refreshPlan();
 }
@@ -917,7 +982,7 @@ function showToolView() {
   els.viewTool.removeAttribute("hidden");
   els.viewHome.classList.add("hidden");
   els.viewHome.setAttribute("hidden", "");
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo({ top: 0, behavior: "auto" });
 }
 
 function getToolFromHash() {
@@ -943,6 +1008,7 @@ function applyRoute() {
 function renderToolButtons() {
   const visibleTools = getVisibleTools();
   els.toolList.innerHTML = "";
+  const fragment = document.createDocumentFragment();
   visibleTools.forEach((tool) => {
     const b = document.createElement("button");
     b.className = `tool-btn${tool.id === state.activeTool.id ? " active" : ""}`;
@@ -963,8 +1029,9 @@ function renderToolButtons() {
       location.hash = `#/tool/${encodeURIComponent(tool.id)}`;
       setStatus("Ready.");
     });
-    els.toolList.appendChild(b);
+    fragment.appendChild(b);
   });
+  els.toolList.appendChild(fragment);
 }
 
 function configureUI() {
@@ -991,6 +1058,7 @@ async function runConversion() {
   try {
     if (state.isBusy) return;
     if (!canUse()) throw new Error(t("error.freeLimit"));
+    await assertSessionCanUse();
     const files = Array.from(els.fileInput.files || []);
     if (!state.activeTool.htmlMode && files.length === 0) throw new Error(t("error.selectInput"));
     if (!state.activeTool.htmlMode) {
@@ -1004,7 +1072,7 @@ async function runConversion() {
 
     setStatus(t("status.converting"), "busy");
     await runTool(state.activeTool, files);
-    addUsage();
+    await secureConsumeUsage();
     if (state.pendingDownload) setStatus(t("status.doneOpenDownload"));
     else if (!els.status.textContent.startsWith("GIF converted")) {
       setStatus(t("status.doneCompleted"));
@@ -1034,7 +1102,7 @@ els.themeSwitch.addEventListener("change", () => {
 els.upgradeBtn.addEventListener("click", upgrade);
 els.toolSearch.addEventListener("input", (event) => {
   state.query = event.target.value || "";
-  renderToolButtons();
+  window.requestAnimationFrame(renderToolButtons);
 });
 els.sortFilter.addEventListener("change", (event) => {
   state.sortMode = event.target.value || "az";
@@ -1084,6 +1152,9 @@ if (els.languageSelect) {
 initTheme();
 initLanguage();
 initPlan();
+startUsageSession().catch((error) => {
+  setStatus(error.message || "Usage security service unavailable.", "error");
+});
 syncFilterButtons();
 syncPaymentFromReturn();
 window.addEventListener("hashchange", applyRoute);

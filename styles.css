@@ -18,6 +18,7 @@
   --iap-bg: linear-gradient(135deg, #1a1f35 0%, #15192a 50%, #12162a 100%);
   --iap-coral: rgba(124, 140, 255, 0.22);
   --cta-shadow: 0 4px 14px rgba(124, 140, 255, 0.28);
+  --select-bg: linear-gradient(135deg, rgba(124, 140, 255, 0.22), rgba(66, 215, 255, 0.16));
 }
 
 [data-theme="light"] {
@@ -40,6 +41,7 @@
   --iap-bg: linear-gradient(120deg, #eef2ff 0%, #e8f8ff 45%, #f0f4ff 100%);
   --iap-coral: rgba(87, 107, 255, 0.2);
   --cta-shadow: 0 6px 18px rgba(87, 107, 255, 0.22);
+  --select-bg: linear-gradient(135deg, rgba(87, 107, 255, 0.14), rgba(32, 166, 214, 0.14));
 }
 
 * {
@@ -94,9 +96,24 @@ body {
 }
 
 .brand {
-  font-size: 26px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
   font-weight: 800;
   letter-spacing: 0.3px;
+  text-transform: lowercase;
+}
+
+.brand-logo {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 8px 20px rgba(124, 140, 255, 0.28);
+  font-size: 20px;
 }
 
 .top-links {
@@ -108,10 +125,11 @@ body {
 .language-select {
   border: 1px solid var(--panel-border);
   border-radius: 12px;
-  background: var(--soft-bg);
+  background: var(--select-bg);
   color: var(--text);
   padding: 10px 12px;
   font: inherit;
+  min-width: 140px;
 }
 
 .filter-btn {
@@ -196,6 +214,7 @@ body {
   border: 1px solid var(--panel-border);
   border-radius: 24px;
   backdrop-filter: blur(10px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .tool-list-panel {
@@ -306,6 +325,16 @@ textarea:focus-visible {
   box-shadow: 0 6px 18px rgba(124, 140, 255, 0.15);
 }
 
+.card:hover,
+.feature-card:hover,
+.step-card:hover,
+.related-tool:hover,
+.faq-item:hover,
+.iap-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+}
+
 .tool-workspace {
   display: grid;
   gap: 18px;
@@ -318,7 +347,7 @@ textarea:focus-visible {
 .workspace-main-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0;
+  gap: 12px;
   align-items: stretch;
 }
 
@@ -326,15 +355,13 @@ textarea:focus-visible {
   background: linear-gradient(120deg, rgba(86, 107, 255, 0.25), rgba(32, 166, 214, 0.2));
   width: 100%;
   min-height: 360px;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+  border-radius: 26px;
 }
 
 .converter-card {
   width: 100%;
   min-height: 360px;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+  border-radius: 26px;
 }
 
 .converter-card .card-head h2,
@@ -756,6 +783,24 @@ button {
   font-size: 1.02rem;
 }
 
+.status-meter {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.status-meter__fill {
+  height: 100%;
+  width: 12%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 999px;
+  transition: width 0.22s ease;
+}
+
 .status.busy {
   color: var(--accent-2);
 }
@@ -783,10 +828,38 @@ button {
 .sort-filter {
   border: 1px solid var(--panel-border);
   border-radius: 14px;
-  background: var(--soft-bg);
+  background: var(--select-bg);
   color: var(--text);
   padding: 12px;
   font: inherit;
+}
+
+.sort-filter option,
+.language-select option {
+  color: #0d1b35;
+}
+
+.toast {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  max-width: min(92vw, 360px);
+  background: rgba(11, 20, 44, 0.92);
+  border: 1px solid rgba(255, 111, 145, 0.45);
+  color: #ffe6ec;
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 40;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .pill-filter {
@@ -855,6 +928,16 @@ button {
 @media (max-width: 960px) {
   .topbar {
     flex-wrap: wrap;
+    align-items: stretch;
+  }
+
+  .brand {
+    width: 100%;
+  }
+
+  .language-select,
+  .theme-switch {
+    flex: 1 1 auto;
   }
 
   .top-links {
@@ -911,6 +994,11 @@ button {
 
   .brand {
     font-size: 22px;
+  }
+
+  .brand-logo {
+    width: 34px;
+    height: 34px;
   }
 
   .card,
