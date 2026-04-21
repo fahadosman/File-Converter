@@ -25,7 +25,9 @@ const checkoutUrl = EASYPAISA_SANDBOX
 
 const payments = new Map();
 const usageSessions = new Map();
+const rateBucket = new Map();
 app.set("trust proxy", true);
+app.disable("x-powered-by");
 
 app.use(
   cors({
@@ -38,8 +40,36 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "no-referrer");
+  res.setHeader("Permissions-Policy", "geolocation=(), camera=(), microphone=()");
+  next();
+});
+
+app.use(express.json({ limit: "32kb" }));
+app.use(express.urlencoded({ extended: false, limit: "32kb" }));
+
+function checkRateLimit(req, res, next) {
+  const ip = String(req.ip || req.headers["x-forwarded-for"] || "unknown");
+  const now = Date.now();
+  const windowMs = 60 * 1000;
+  const maxHits = 80;
+  const prev = rateBucket.get(ip) || { count: 0, resetAt: now + windowMs };
+  if (now > prev.resetAt) {
+    prev.count = 0;
+    prev.resetAt = now + windowMs;
+  }
+  prev.count += 1;
+  rateBucket.set(ip, prev);
+  if (prev.count > maxHits) {
+    return res.status(429).json({ error: "Too many requests. Please retry shortly." });
+  }
+  return next();
+}
+
+app.use(checkRateLimit);
 
 function parseCookies(req) {
   const source = req.headers.cookie || "";

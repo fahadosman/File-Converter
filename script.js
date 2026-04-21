@@ -124,6 +124,7 @@ const state = {
   pendingDownload: null,
   toastTimer: null,
   securityApiReady: Boolean(SECURITY_API_BASE),
+  convertedFileSignature: null,
 };
 
 const TOOL_ICONS = {
@@ -178,6 +179,10 @@ const els = {
   fileGroup: document.getElementById("fileGroup"),
   fileInput: document.getElementById("fileInput"),
   fileInputLabel: document.getElementById("fileInputLabel"),
+  selectedFileRow: document.getElementById("selectedFileRow"),
+  selectedFileName: document.getElementById("selectedFileName"),
+  replaceFileBtn: document.getElementById("replaceFileBtn"),
+  removeFileBtn: document.getElementById("removeFileBtn"),
   htmlInputGroup: document.getElementById("htmlInputGroup"),
   htmlContent: document.getElementById("htmlContent"),
   convertBtn: document.getElementById("convertBtn"),
@@ -188,6 +193,7 @@ const els = {
   upgradeBtn: document.getElementById("upgradeBtn"),
   premiumTag: document.getElementById("premiumTag"),
   premiumTagTop: document.getElementById("premiumTagTop"),
+  premiumImageBadge: document.getElementById("premiumImageBadge"),
   iapBanner: document.querySelector(".iap-banner"),
   downloadBtn: document.getElementById("downloadBtn"),
   downloadInfo: document.getElementById("downloadInfo"),
@@ -321,7 +327,11 @@ function showToastWithType(message, type = "error") {
 
 function setBusy(busy) {
   state.isBusy = busy;
-  els.convertBtn.disabled = busy;
+  if (state.activeTool.htmlMode) {
+    els.convertBtn.disabled = busy;
+  } else {
+    updateFileSelectionUI(Array.from(els.fileInput.files || []));
+  }
   els.appShell.classList.toggle("is-busy", busy);
 }
 
@@ -350,6 +360,7 @@ function refreshPlan() {
     els.upgradeBtn.disabled = true;
     if (els.premiumTag) els.premiumTag.classList.remove("hidden");
     if (els.premiumTagTop) els.premiumTagTop.classList.remove("hidden");
+    if (els.premiumImageBadge) els.premiumImageBadge.classList.remove("hidden");
     if (els.iapBanner) els.iapBanner.classList.add("hidden");
     return;
   }
@@ -358,6 +369,7 @@ function refreshPlan() {
   els.upgradeBtn.disabled = false;
   if (els.premiumTag) els.premiumTag.classList.add("hidden");
   if (els.premiumTagTop) els.premiumTagTop.classList.add("hidden");
+  if (els.premiumImageBadge) els.premiumImageBadge.classList.add("hidden");
   if (els.iapBanner) els.iapBanner.classList.remove("hidden");
 }
 
@@ -388,6 +400,33 @@ function closePremiumLimitDialog() {
 
 function canUse() {
   return state.isPremium || state.usageCount < FREE_LIMIT;
+}
+
+function buildFileSignature(file, toolId) {
+  if (!file) return "";
+  return [toolId, file.name || "", file.size || 0, file.lastModified || 0].join("|");
+}
+
+function updateFileSelectionUI(files) {
+  const list = Array.isArray(files) ? files : [];
+  if (state.activeTool.htmlMode) {
+    if (els.selectedFileRow) els.selectedFileRow.classList.add("hidden");
+    els.convertBtn.disabled = state.isBusy;
+    return;
+  }
+
+  if (!list.length) {
+    if (els.selectedFileRow) els.selectedFileRow.classList.add("hidden");
+    els.convertBtn.disabled = true;
+    return;
+  }
+
+  const signature = buildFileSignature(list[0], state.activeTool.id);
+  if (els.selectedFileName) {
+    els.selectedFileName.textContent = list.length > 1 ? `${list.length} files selected` : list[0].name;
+  }
+  if (els.selectedFileRow) els.selectedFileRow.classList.remove("hidden");
+  els.convertBtn.disabled = state.isBusy || signature === state.convertedFileSignature;
 }
 
 function addUsage() {
@@ -1118,12 +1157,14 @@ function configureUI() {
   els.toolDescription.textContent = activeTool.description;
   els.fileInput.value = "";
   els.htmlContent.value = "";
+  state.convertedFileSignature = null;
   clearPendingDownload();
   els.fileGroup.classList.toggle("hidden", Boolean(activeTool.htmlMode));
   els.htmlInputGroup.classList.toggle("hidden", !activeTool.htmlMode);
   els.fileInputLabel.textContent = activeTool.multiple ? t("tool.inputFiles") : t("tool.inputFile");
   els.fileInput.accept = activeTool.accept || "";
   els.fileInput.multiple = Boolean(activeTool.multiple);
+  updateFileSelectionUI([]);
 }
 
 function setCategoryFilter(category) {
@@ -1145,6 +1186,10 @@ async function runConversion() {
     if (!state.activeTool.htmlMode) {
       const invalid = files.find((file) => !fileMatchesAccept(file, state.activeTool.accept));
       if (invalid) throw new Error(t("error.invalidType", { name: invalid.name, accept: state.activeTool.accept }));
+      const signature = buildFileSignature(files[0], state.activeTool.id);
+      if (signature && signature === state.convertedFileSignature) {
+        throw new Error("This selected file is already converted. Please choose or reselect another file.");
+      }
     }
 
     setBusy(true);
@@ -1153,6 +1198,9 @@ async function runConversion() {
 
     setStatus(t("status.converting"), "busy");
     await runTool(state.activeTool, files);
+    if (!state.activeTool.htmlMode && files[0]) {
+      state.convertedFileSignature = buildFileSignature(files[0], state.activeTool.id);
+    }
     await secureConsumeUsage();
     if (state.pendingDownload) setStatus(t("status.doneOpenDownload"));
     else if (!els.status.textContent.startsWith("GIF converted")) {
@@ -1172,7 +1220,9 @@ async function runConversion() {
 function resetForm() {
   els.fileInput.value = "";
   els.htmlContent.value = "";
+  state.convertedFileSignature = null;
   clearPendingDownload();
+  updateFileSelectionUI([]);
   setStatus(t("status.resetComplete"));
 }
 
@@ -1189,6 +1239,22 @@ if (els.premiumDialogCloseBtn) els.premiumDialogCloseBtn.addEventListener("click
 if (els.premiumLimitDialog) {
   els.premiumLimitDialog.addEventListener("click", (event) => {
     if (event.target?.dataset?.premiumClose === "true") closePremiumLimitDialog();
+  });
+}
+if (els.replaceFileBtn) {
+  els.replaceFileBtn.addEventListener("click", () => {
+    if (state.isBusy) return;
+    els.fileInput.click();
+  });
+}
+if (els.removeFileBtn) {
+  els.removeFileBtn.addEventListener("click", () => {
+    if (state.isBusy) return;
+    els.fileInput.value = "";
+    state.convertedFileSignature = null;
+    clearPendingDownload();
+    updateFileSelectionUI([]);
+    setStatus("File removed. Select a new file to convert.");
   });
 }
 els.toolSearch.addEventListener("input", (event) => {
@@ -1226,10 +1292,13 @@ els.downloadBtn.addEventListener("click", () => {
 });
 els.fileInput.addEventListener("change", () => {
   const files = Array.from(els.fileInput.files || []);
+  state.convertedFileSignature = null;
+  updateFileSelectionUI(files);
   if (!files.length || state.activeTool.htmlMode) return;
   const invalid = files.find((file) => !fileMatchesAccept(file, state.activeTool.accept));
   if (!invalid) return;
   els.fileInput.value = "";
+  updateFileSelectionUI([]);
   setStatus(t("error.allowedForTool", { accept: state.activeTool.accept, tool: state.activeTool.name }), "error");
 });
 

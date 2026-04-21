@@ -4,6 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>file converters</title>
+  <script>
+    (function () {
+      try {
+        var savedTheme = localStorage.getItem("convertpro-theme");
+        if (savedTheme === "light" || savedTheme === "dark") {
+          document.documentElement.setAttribute("data-theme", savedTheme);
+        }
+      } catch (e) {}
+    })();
+  </script>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,11 +27,15 @@
   <div class="background-glow" aria-hidden="true"></div>
 
   <main class="app-shell">
+    <div id="premiumImageBadge" class="premium-image-badge hidden" aria-label="Premium badge">👑</div>
     <header class="topbar">
       <div class="brand">
         <span class="brand-logo" aria-hidden="true">📁</span>
         <span>file converters</span>
-        <span id="premiumTagTop" class="premium-tag premium-tag--top hidden">PREMIUM USER</span>
+        <span id="premiumTagTop" class="premium-tag premium-tag--top hidden">
+          <span class="premium-tag__logo" aria-hidden="true">👑</span>
+          PREMIUM USER
+        </span>
       </div>
       <nav class="top-links" aria-label="Primary navigation">
         <button class="filter-btn active" type="button" data-filter="all">All Tools</button>
@@ -152,6 +166,13 @@
                 <label for="fileInput" id="fileInputLabel" data-i18n="tool.inputFile">Input file</label>
                 <input id="fileInput" type="file" />
                 <small class="file-helper" data-i18n="tool.fileHelper">Only files matching the selected converter are accepted.</small>
+                <div id="selectedFileRow" class="selected-file-row hidden">
+                  <span id="selectedFileName" class="selected-file-name">No file selected</span>
+                  <div class="selected-file-actions">
+                    <button id="replaceFileBtn" class="ghost-btn" type="button">Replace</button>
+                    <button id="removeFileBtn" class="ghost-btn" type="button">Remove</button>
+                  </div>
+                </div>
               </div>
 
               <div id="htmlInputGroup" class="field-group hidden">
@@ -213,8 +234,11 @@
   </main>
 
   <section class="rating-strip">
-    <h3 data-i18n="rating.title">⭐ User Rating</h3>
-    <p data-i18n="rating.text"><strong>4.8 / 5</strong> based on converter experience and output quality.</p>
+    <div class="rating-dialog">
+      <h3 data-i18n="rating.title">⭐ User Rating</h3>
+      <div class="rating-dialog__stars" aria-hidden="true">★★★★★</div>
+      <p><strong>4.8 / 5</strong> based on converter experience and output quality.</p>
+    </div>
   </section>
 
   <footer class="site-footer">
@@ -254,16 +278,33 @@
     <div class="auth-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="premiumLimitTitle">
       <div class="auth-head">
         <h3 id="premiumLimitTitle">Upgrade to Premium</h3>
-        <button id="premiumDialogCloseBtn" class="ghost-btn auth-close-btn" type="button">Close</button>
+        <button id="premiumDialogCloseBtn" class="auth-close-icon" type="button" aria-label="Close dialog">×</button>
       </div>
-      <p class="iap-plan-line">
-        You have used all 5 free conversions. Upgrade now to continue with unlimited file conversions.
-      </p>
-      <ul class="iap-banner__list">
-        <li>Unlimited conversions with no free-plan cap</li>
-        <li>Priority processing and faster workflow</li>
-        <li>Access to all premium converter features</li>
-      </ul>
+      <div class="premium-dialog-content">
+        <h4 class="premium-dialog-title">Upgrade to Premium</h4>
+        <p class="premium-dialog-subtitle">
+          You have used all 5 free conversions. Unlock all features for seamless processing.
+        </p>
+        <ul class="iap-banner__list premium-dialog-list">
+          <li>Unlimited conversions with no free-plan cap</li>
+          <li>Priority processing and faster workflow</li>
+          <li>Access to all premium converter formats and tools</li>
+        </ul>
+        <div class="premium-benefits-grid">
+          <article class="premium-benefit-card">
+            <h5>Power User Tools</h5>
+            <p>Convert up to 50 files per workflow and save time with batch processing.</p>
+          </article>
+          <article class="premium-benefit-card">
+            <h5>Secure Handling</h5>
+            <p>Files are processed with privacy-focused handling and fast cleanup.</p>
+          </article>
+          <article class="premium-benefit-card">
+            <h5>Exclusive Formats</h5>
+            <p>Unlock advanced conversion formats and premium export quality.</p>
+          </article>
+        </div>
+      </div>
       <div class="actions">
         <button id="premiumDialogUpgradeBtn" class="primary-btn cta-btn" type="button">
           <span class="iap-cta__icon" aria-hidden="true">👑</span>
