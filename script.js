@@ -4,7 +4,8 @@ const PLAN_KEY = "convertpro-plan";
 const USAGE_KEY = "convertpro-usage-count";
 const LANG_KEY = "convertpro-language";
 const LOCALES = window.APP_LOCALES || {};
-const PAYMENTS_API_BASE = "http://localhost:8787";
+const PAYMENTS_API_BASE =
+  window.__PAYMENTS_API_BASE__ || (window.location.hostname === "localhost" ? "http://localhost:8787" : "");
 
 const LIBS = {
   pdfjs: {
@@ -379,8 +380,12 @@ async function startEasyPaisaCheckout() {
 async function syncPaymentFromReturn() {
   try {
     const params = new URLSearchParams(window.location.search);
-    const orderRef = params.get("orderRef");
-    const paymentState = params.get("payment");
+    // Some callback flows can append query inside hash routes.
+    const hashPart = window.location.hash || "";
+    const hashQuery = hashPart.includes("?") ? hashPart.split("?")[1] : "";
+    const hashParams = new URLSearchParams(hashQuery);
+    const orderRef = params.get("orderRef") || hashParams.get("orderRef");
+    const paymentState = params.get("payment") || hashParams.get("payment");
     if (!orderRef || !paymentState) return;
 
     if (paymentState !== "success") {
@@ -404,7 +409,11 @@ async function syncPaymentFromReturn() {
 
     params.delete("payment");
     params.delete("orderRef");
-    const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${window.location.hash}`;
+    hashParams.delete("payment");
+    hashParams.delete("orderRef");
+    const cleanedHashBase = hashPart.includes("?") ? hashPart.split("?")[0] : hashPart;
+    const cleanHash = hashParams.toString() ? `${cleanedHashBase}?${hashParams.toString()}` : cleanedHashBase;
+    const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${cleanHash}`;
     window.history.replaceState({}, "", clean);
   } catch (error) {
     setStatus(error.message || t("error.paymentVerifyFailed"), "error");

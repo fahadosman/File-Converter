@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
@@ -7,16 +8,22 @@ const app = express();
 const PORT = Number(process.env.PORT || 8787);
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 const FRONTEND_RETURN_URL = process.env.FRONTEND_RETURN_URL || `${FRONTEND_ORIGIN}/#/`;
+const APP_BASE_URL = process.env.APP_BASE_URL || "";
 const EASYPAISA_STORE_ID = process.env.EASYPAISA_STORE_ID || "";
 const EASYPAISA_HASH_KEY = process.env.EASYPAISA_HASH_KEY || "";
 const EASYPAISA_SANDBOX = String(process.env.EASYPAISA_SANDBOX || "true") === "true";
 const PREMIUM_AMOUNT_PKR = Number(process.env.PREMIUM_AMOUNT_PKR || 1);
+const EASYPAISA_PAYMENT_METHOD = process.env.EASYPAISA_PAYMENT_METHOD || "MA_PAYMENT_METHOD";
+const EASYPAISA_ACCOUNT_NUMBER = process.env.EASYPAISA_ACCOUNT_NUMBER || "";
+const EASYPAISA_ACCOUNT_FIELD = process.env.EASYPAISA_ACCOUNT_FIELD || "mobileNum";
+const EASYPAISA_EXPIRY_MINUTES = Number(process.env.EASYPAISA_EXPIRY_MINUTES || 30);
 
 const checkoutUrl = EASYPAISA_SANDBOX
   ? "https://easypaystg.easypaisa.com.pk/easypay/Index.jsf"
   : "https://easypay.easypaisa.com.pk/easypay/Index.jsf";
 
 const payments = new Map();
+app.set("trust proxy", true);
 
 app.use(cors({ origin: FRONTEND_ORIGIN, credentials: false }));
 app.use(express.json());
@@ -49,6 +56,26 @@ function buildMerchantHash(fields, key) {
   return encrypted.toString("base64");
 }
 
+function buildCallbackUrl(req) {
+  if (APP_BASE_URL) return `${APP_BASE_URL.replace(/\/$/, "")}/api/payments/easypaisa/callback`;
+  return `${req.protocol}://${req.get("host")}/api/payments/easypaisa/callback`;
+}
+
+function expiryDate(minutes) {
+  const date = new Date(Date.now() + Math.max(1, minutes) * 60 * 1000);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())} ${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
+}
+
+function appendQuery(url, query) {
+  const [base, hash = ""] = String(url).split("#");
+  const sep = base.includes("?") ? "&" : "?";
+  const q = Object.entries(query)
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+    .join("&");
+  return `${base}${sep}${q}${hash ? `#${hash}` : ""}`;
+}
+
 app.post("/api/payments/easypaisa/create", (req, res) => {
   try {
     if (!EASYPAISA_STORE_ID) {
@@ -57,7 +84,7 @@ app.post("/api/payments/easypaisa/create", (req, res) => {
 
     const ref = orderRef();
     const amount = normalizeAmount(PREMIUM_AMOUNT_PKR);
-    const callbackUrl = `${req.protocol}://${req.get("host")}/api/payments/easypaisa/callback`;
+    const callbackUrl = buildCallbackUrl(req);
 
     const fields = {
       storeId: EASYPAISA_STORE_ID,
@@ -65,8 +92,10 @@ app.post("/api/payments/easypaisa/create", (req, res) => {
       postBackURL: callbackUrl,
       orderRefNum: ref,
       autoRedirect: "1",
-      paymentMethod: "MA_PAYMENT_METHOD",
+      paymentMethod: EASYPAISA_PAYMENT_METHOD,
+      expiryDate: expiryDate(EASYPAISA_EXPIRY_MINUTES),
     };
+    if (EASYPAISA_ACCOUNT_NUMBER) fields[EASYPAISA_ACCOUNT_FIELD] = EASYPAISA_ACCOUNT_NUMBER;
 
     const merchantHashedReq = buildMerchantHash(fields, EASYPAISA_HASH_KEY);
     if (merchantHashedReq) fields.merchantHashedReq = merchantHashedReq;
@@ -102,7 +131,7 @@ app.post("/api/payments/easypaisa/callback", (req, res) => {
   }
 
   const result = paymentState ? "success" : "failed";
-  const redirectUrl = `${FRONTEND_RETURN_URL}${FRONTEND_RETURN_URL.includes("?") ? "&" : "?"}payment=${result}&orderRef=${encodeURIComponent(ref)}`;
+  const redirectUrl = appendQuery(FRONTEND_RETURN_URL, { payment: result, orderRef: ref });
   return res.redirect(302, redirectUrl);
 });
 

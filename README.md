@@ -39,6 +39,9 @@ npm install
 2. Copy `.env.example` to `.env` and set:
    - `EASYPAISA_STORE_ID`
    - `EASYPAISA_HASH_KEY`
+   - `EASYPAISA_ACCOUNT_NUMBER` (set to your EasyPaisa number, e.g. `03105842702`)
+   - `EASYPAISA_ACCOUNT_FIELD` (`mobileNum` by default; switch only if your merchant setup expects another field)
+   - `APP_BASE_URL` (public HTTPS URL of payment-server in live)
    - `EASYPAISA_SANDBOX` (`true` for staging)
 
 3. Start payment server:
