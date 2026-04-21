@@ -2,6 +2,8 @@
 const THEME_KEY = "convertpro-theme";
 const PLAN_KEY = "convertpro-plan";
 const USAGE_KEY = "convertpro-usage-count";
+const LANG_KEY = "convertpro-language";
+const LOCALES = window.APP_LOCALES || {};
 
 const LIBS = {
   pdfjs: {
@@ -30,39 +32,39 @@ const tools = [
   { id: "merge-pdf", name: "Merge PDF", accept: ".pdf", multiple: true, description: "Combine PDFs into one", deps: ["pdfLib"] },
   { id: "split-pdf", name: "Split PDF", accept: ".pdf", description: "Split each page to separate PDF", deps: ["pdfLib", "jszip"] },
   { id: "compress-pdf", name: "Compress PDF", accept: ".pdf", description: "Optimize PDF size", deps: ["pdfLib"] },
-  { id: "pdf-to-word", name: "PDF -> Word", accept: ".pdf", description: "PDF text to DOCX", deps: ["pdfjs", "docx"] },
-  { id: "pdf-to-ppt", name: "PDF -> PowerPoint", accept: ".pdf", description: "PDF pages to PPT", deps: ["pdfjs", "pptx"] },
-  { id: "pdf-to-excel", name: "PDF -> Excel", accept: ".pdf", description: "PDF pages to XLSX", deps: ["pdfjs", "xlsx"] },
-  { id: "pdf-to-jpg", name: "PDF -> JPG", accept: ".pdf", description: "PDF pages to JPG ZIP", deps: ["pdfjs", "jszip"] },
-  { id: "word-to-pdf", name: "Word -> PDF", accept: ".docx", description: "DOCX to PDF", deps: ["mammoth", "html2pdf"] },
-  { id: "ppt-to-pdf", name: "PowerPoint -> PDF", accept: ".pptx", description: "PPTX text to PDF", deps: ["jszip", "jspdf"] },
-  { id: "excel-to-pdf", name: "Excel -> PDF", accept: ".xlsx,.xls", description: "Sheets to PDF", deps: ["xlsx", "html2pdf"] },
-  { id: "jpg-to-pdf", name: "JPG -> PDF", accept: "image/*", multiple: true, description: "Images to PDF", deps: ["jspdf"] },
-  { id: "html-to-pdf", name: "HTML -> PDF", htmlMode: true, description: "Paste HTML to PDF", deps: ["html2pdf"] },
-  { id: "pdfa-converter", name: "PDF -> PDF/A", accept: ".pdf", description: "Archival best effort", deps: ["pdfLib"] },
+  { id: "pdf-to-word", name: "PDF to Word", accept: ".pdf", description: "PDF text to DOCX", deps: ["pdfjs", "docx"] },
+  { id: "pdf-to-ppt", name: "PDF to PowerPoint", accept: ".pdf", description: "PDF pages to PPT", deps: ["pdfjs", "pptx"] },
+  { id: "pdf-to-excel", name: "PDF to Excel", accept: ".pdf", description: "PDF pages to XLSX", deps: ["pdfjs", "xlsx"] },
+  { id: "pdf-to-jpg", name: "PDF to JPG", accept: ".pdf", description: "PDF pages to JPG ZIP", deps: ["pdfjs", "jszip"] },
+  { id: "word-to-pdf", name: "Word to PDF", accept: ".docx", description: "DOCX to PDF", deps: ["mammoth", "html2pdf"] },
+  { id: "ppt-to-pdf", name: "PowerPoint to PDF", accept: ".pptx", description: "PPTX text to PDF", deps: ["jszip", "jspdf"] },
+  { id: "excel-to-pdf", name: "Excel to PDF", accept: ".xlsx,.xls", description: "Sheets to PDF", deps: ["xlsx", "html2pdf"] },
+  { id: "jpg-to-pdf", name: "JPG to PDF", accept: "image/*", multiple: true, description: "Images to PDF", deps: ["jspdf"] },
+  { id: "html-to-pdf", name: "HTML to PDF", htmlMode: true, description: "Paste HTML to PDF", deps: ["html2pdf"] },
+  { id: "pdfa-converter", name: "PDF to PDF/A", accept: ".pdf", description: "Archival best effort", deps: ["pdfLib"] },
   { id: "ocr-pdf", name: "OCR PDF", accept: ".pdf", description: "Scanned PDF to text PDF", deps: ["pdfjs", "jspdf", "tesseract"] },
-  { id: "pdf-to-epub", name: "PDF -> EPUB", accept: ".pdf", description: "PDF text into EPUB", deps: ["pdfjs", "jszip"] },
-  { id: "epub-to-pdf", name: "EPUB -> PDF", accept: ".epub", description: "EPUB text to PDF", deps: ["jszip", "jspdf"] },
-  { id: "pdf-to-mobi", name: "PDF -> MOBI", accept: ".pdf", description: "Experimental MOBI", deps: ["pdfjs"] },
-  { id: "mobi-to-pdf", name: "MOBI -> PDF", accept: ".mobi,.azw,.azw3", description: "MOBI text to PDF", deps: ["jspdf"] },
-  { id: "pdf-to-md", name: "PDF -> Markdown", accept: ".pdf", description: "PDF text to MD", deps: ["pdfjs"] },
-  { id: "md-to-pdf", name: "Markdown -> PDF", accept: ".md,.markdown,.txt", description: "MD to PDF", deps: ["marked", "html2pdf"] },
-  { id: "pdf-to-latex", name: "PDF -> LaTeX", accept: ".pdf", description: "PDF text to TEX", deps: ["pdfjs"] },
-  { id: "latex-to-pdf", name: "LaTeX -> PDF", accept: ".tex,.txt", description: "TEX preview to PDF", deps: ["jspdf"] },
-  { id: "pdf-to-jsonxml", name: "PDF -> JSON/XML", accept: ".pdf", description: "Structured extraction", deps: ["pdfjs", "jszip"] },
-  { id: "json-to-pdf", name: "JSON -> PDF", accept: ".json", description: "JSON to PDF", deps: ["jspdf"] },
-  { id: "xml-to-pdf", name: "XML -> PDF", accept: ".xml", description: "XML to PDF", deps: ["jspdf"] },
-  { id: "docx-to-odt", name: "DOCX -> ODT", accept: ".docx", description: "Best effort ODT", deps: ["mammoth", "jszip"] },
-  { id: "odt-to-docx", name: "ODT -> DOCX", accept: ".odt", description: "ODT text to DOCX", deps: ["jszip", "docx"] },
-  { id: "rtf-to-docx", name: "RTF -> DOCX", accept: ".rtf", description: "RTF to DOCX", deps: ["docx"] },
-  { id: "docx-to-rtf", name: "DOCX -> RTF", accept: ".docx", description: "DOCX to RTF", deps: ["mammoth"] },
-  { id: "png-to-jpg", name: "PNG -> JPG", accept: ".png", description: "PNG image to JPG", deps: [] },
-  { id: "jpg-to-png", name: "JPG -> PNG", accept: ".jpg,.jpeg", description: "JPG image to PNG", deps: [] },
-  { id: "webp-to-jpgpng", name: "WebP -> JPG/PNG", accept: ".webp", description: "WebP to raster", deps: [] },
-  { id: "heic-to-jpg", name: "HEIC -> JPG", accept: ".heic,.heif", description: "HEIC to JPG", deps: ["heic2any"] },
-  { id: "svg-to-raster", name: "SVG -> PNG/JPG", accept: ".svg", description: "SVG to raster", deps: [] },
-  { id: "tiff-to-raster", name: "TIFF -> JPG/PNG", accept: ".tif,.tiff", description: "TIFF to raster", deps: ["utif"] },
-  { id: "gif-to-mp4", name: "GIF -> MP4", accept: ".gif", description: "WebM fallback", deps: [] },
+  { id: "pdf-to-epub", name: "PDF to EPUB", accept: ".pdf", description: "PDF text into EPUB", deps: ["pdfjs", "jszip"] },
+  { id: "epub-to-pdf", name: "EPUB to PDF", accept: ".epub", description: "EPUB text to PDF", deps: ["jszip", "jspdf"] },
+  { id: "pdf-to-mobi", name: "PDF to MOBI", accept: ".pdf", description: "Experimental MOBI", deps: ["pdfjs"] },
+  { id: "mobi-to-pdf", name: "MOBI to PDF", accept: ".mobi,.azw,.azw3", description: "MOBI text to PDF", deps: ["jspdf"] },
+  { id: "pdf-to-md", name: "PDF to Markdown", accept: ".pdf", description: "PDF text to MD", deps: ["pdfjs"] },
+  { id: "md-to-pdf", name: "Markdown to PDF", accept: ".md,.markdown,.txt", description: "MD to PDF", deps: ["marked", "html2pdf"] },
+  { id: "pdf-to-latex", name: "PDF to LaTeX", accept: ".pdf", description: "PDF text to TEX", deps: ["pdfjs"] },
+  { id: "latex-to-pdf", name: "LaTeX to PDF", accept: ".tex,.txt", description: "TEX preview to PDF", deps: ["jspdf"] },
+  { id: "pdf-to-jsonxml", name: "PDF to JSON/XML", accept: ".pdf", description: "Structured extraction", deps: ["pdfjs", "jszip"] },
+  { id: "json-to-pdf", name: "JSON to PDF", accept: ".json", description: "JSON to PDF", deps: ["jspdf"] },
+  { id: "xml-to-pdf", name: "XML to PDF", accept: ".xml", description: "XML to PDF", deps: ["jspdf"] },
+  { id: "docx-to-odt", name: "DOCX to ODT", accept: ".docx", description: "Best effort ODT", deps: ["mammoth", "jszip"] },
+  { id: "odt-to-docx", name: "ODT to DOCX", accept: ".odt", description: "ODT text to DOCX", deps: ["jszip", "docx"] },
+  { id: "rtf-to-docx", name: "RTF to DOCX", accept: ".rtf", description: "RTF to DOCX", deps: ["docx"] },
+  { id: "docx-to-rtf", name: "DOCX to RTF", accept: ".docx", description: "DOCX to RTF", deps: ["mammoth"] },
+  { id: "png-to-jpg", name: "PNG to JPG", accept: ".png", description: "PNG image to JPG", deps: [] },
+  { id: "jpg-to-png", name: "JPG to PNG", accept: ".jpg,.jpeg", description: "JPG image to PNG", deps: [] },
+  { id: "webp-to-jpgpng", name: "WebP to JPG/PNG", accept: ".webp", description: "WebP to raster", deps: [] },
+  { id: "heic-to-jpg", name: "HEIC to JPG", accept: ".heic,.heif", description: "HEIC to JPG", deps: ["heic2any"] },
+  { id: "svg-to-raster", name: "SVG to PNG/JPG", accept: ".svg", description: "SVG to raster", deps: [] },
+  { id: "tiff-to-raster", name: "TIFF to JPG/PNG", accept: ".tif,.tiff", description: "TIFF to raster", deps: ["utif"] },
+  { id: "gif-to-mp4", name: "GIF to MP4", accept: ".gif", description: "WebM fallback", deps: [] },
 ];
 
 const TOOL_META = {
@@ -108,6 +110,7 @@ const loadedLibPromises = new Map();
 const state = {
   activeTool: tools[0],
   theme: "dark",
+  language: "en",
   isPremium: false,
   usageCount: 0,
   isBusy: false,
@@ -158,6 +161,9 @@ const TOOL_ICONS = {
 
 const els = {
   appShell: document.querySelector(".app-shell"),
+  viewHome: document.getElementById("viewHome"),
+  viewTool: document.getElementById("viewTool"),
+  backToTools: document.getElementById("backToTools"),
   toolList: document.getElementById("toolList"),
   toolSearch: document.getElementById("toolSearch"),
   sortFilter: document.getElementById("sortFilter"),
@@ -179,11 +185,74 @@ const els = {
   topFilterButtons: Array.from(document.querySelectorAll(".filter-btn")),
   pillFilters: Array.from(document.querySelectorAll(".pill-filter")),
   relatedToolButtons: Array.from(document.querySelectorAll(".related-tool")),
+  languageSelect: document.getElementById("languageSelect"),
 };
 
 const base = (n) => n.replace(/\.[^/.]+$/, "");
 const readText = (f) => f.text();
 const readBuf = (f) => f.arrayBuffer();
+
+function t(key, vars = {}) {
+  const dict = LOCALES[state.language] || LOCALES.en || {};
+  const fallback = (LOCALES.en || {})[key] || key;
+  const template = dict[key] || fallback;
+  return String(template).replace(/\{(\w+)\}/g, (_, token) => (vars[token] ?? `{${token}}`));
+}
+
+function applyStaticTranslations() {
+  document.querySelectorAll("[data-i18n]").forEach((node) => {
+    const key = node.getAttribute("data-i18n");
+    if (!key) return;
+    node.innerHTML = t(key);
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((node) => {
+    const key = node.getAttribute("data-i18n-placeholder");
+    if (!key) return;
+    node.setAttribute("placeholder", t(key));
+  });
+
+  const topMap = { all: "All Tools", workflow: "Workflows", organize: "Organize PDF", convert: "Convert PDF" };
+  const pillMap = { all: "All", workflow: "Workflows", organize: "Organize PDF", convert: "Convert PDF", images: "Images", ebooks: "eBooks" };
+  els.topFilterButtons.forEach((btn) => {
+    btn.textContent = t(`nav.top.${btn.dataset.filter}`) === `nav.top.${btn.dataset.filter}` ? topMap[btn.dataset.filter] : t(`nav.top.${btn.dataset.filter}`);
+  });
+  els.pillFilters.forEach((pill) => {
+    pill.textContent = t(`nav.pill.${pill.dataset.filter}`) === `nav.pill.${pill.dataset.filter}` ? pillMap[pill.dataset.filter] : t(`nav.pill.${pill.dataset.filter}`);
+  });
+}
+
+function localizeTools() {
+  tools.forEach((tool) => {
+    const nameKey = `tools.${tool.id}.name`;
+    const descKey = `tools.${tool.id}.description`;
+    const localizedName = t(nameKey);
+    const localizedDesc = t(descKey);
+    if (localizedName !== nameKey) tool.name = localizedName;
+    if (localizedDesc !== descKey) tool.description = localizedDesc;
+  });
+
+  els.relatedToolButtons.forEach((button) => {
+    const tool = tools.find((item) => item.id === button.dataset.toolId);
+    if (tool) button.textContent = tool.name;
+  });
+}
+
+function applyLanguage(language) {
+  state.language = LOCALES[language] ? language : "en";
+  document.documentElement.lang = state.language;
+  if (els.languageSelect) els.languageSelect.value = state.language;
+  localStorage.setItem(LANG_KEY, state.language);
+  applyStaticTranslations();
+  localizeTools();
+  refreshPlan();
+  configureUI();
+  renderToolButtons();
+}
+
+function initLanguage() {
+  const stored = localStorage.getItem(LANG_KEY);
+  applyLanguage(stored && LOCALES[stored] ? stored : "en");
+}
 
 function setStatus(message, type = "ok") {
   els.status.textContent = message;
@@ -216,14 +285,15 @@ function toggleTheme() {
 }
 
 function refreshPlan() {
+  const crown = '<span class="iap-cta__icon" aria-hidden="true">👑</span> ';
   if (state.isPremium) {
-    els.planStatus.textContent = "Premium Active: unlimited conversions";
-    els.upgradeBtn.textContent = "Premium Enabled";
+    els.planStatus.textContent = t("plan.active");
+    els.upgradeBtn.innerHTML = `${crown}${t("plan.enabled")}`;
     els.upgradeBtn.disabled = true;
     return;
   }
-  els.planStatus.textContent = `Free Plan: ${state.usageCount}/${FREE_LIMIT} conversions used`;
-  els.upgradeBtn.textContent = "$1 / month Upgrade";
+  els.planStatus.textContent = t("plan.free", { used: state.usageCount, limit: FREE_LIMIT });
+  els.upgradeBtn.innerHTML = `${crown}${t("plan.getPremium")}`;
   els.upgradeBtn.disabled = false;
 }
 
@@ -234,11 +304,11 @@ function initPlan() {
 }
 
 function upgrade() {
-  if (!window.confirm("Activate premium plan for $1/month? (demo unlock)")) return;
+  if (!window.confirm(t("dialog.activatePremium"))) return;
   state.isPremium = true;
   localStorage.setItem(PLAN_KEY, "premium");
   refreshPlan();
-  setStatus("Premium activated.");
+  setStatus(t("status.premiumActivated"));
 }
 
 function canUse() {
@@ -255,7 +325,7 @@ function addUsage() {
 function dl(blob, name) {
   state.pendingDownload = { blob, name };
   els.downloadBtn.disabled = false;
-  els.downloadInfo.textContent = `${name} is ready. Click Download File to save it.`;
+  els.downloadInfo.textContent = t("download.ready", { name });
 }
 
 function triggerDownload() {
@@ -271,7 +341,7 @@ function triggerDownload() {
   URL.revokeObjectURL(u);
 }
 
-function clearPendingDownload(message = "After conversion, your file will appear here for manual download.") {
+function clearPendingDownload(message = t("download.waiting")) {
   state.pendingDownload = null;
   els.downloadBtn.disabled = true;
   els.downloadInfo.textContent = message;
@@ -425,7 +495,7 @@ async function runTool(tool, files) {
 
   if (tool.id === "html-to-pdf") {
     const html = els.htmlContent.value.trim();
-    if (!html) throw new Error("Paste HTML first.");
+    if (!html) throw new Error(t("tool.htmlPlaceholder"));
     const d = document.createElement("div");
     d.style.background = "#fff";
     d.style.color = "#000";
@@ -436,7 +506,7 @@ async function runTool(tool, files) {
     return;
   }
 
-  if (!file) throw new Error("Please select input file first.");
+  if (!file) throw new Error(t("error.selectInput"));
 
   if (tool.id === "pdf-to-word") {
     const pages = await pdfPages(await readBuf(file));
@@ -805,6 +875,43 @@ function syncFilterButtons() {
   });
 }
 
+function showHomeView() {
+  if (!els.viewHome || !els.viewTool) return;
+  els.viewHome.classList.remove("hidden");
+  els.viewHome.removeAttribute("hidden");
+  els.viewTool.classList.add("hidden");
+  els.viewTool.setAttribute("hidden", "");
+}
+
+function showToolView() {
+  if (!els.viewHome || !els.viewTool) return;
+  els.viewTool.classList.remove("hidden");
+  els.viewTool.removeAttribute("hidden");
+  els.viewHome.classList.add("hidden");
+  els.viewHome.setAttribute("hidden", "");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function getToolFromHash() {
+  const m = (location.hash || "").match(/#\/tool\/([^/?#]+)/);
+  if (!m) return null;
+  const id = decodeURIComponent(m[1]);
+  return tools.find((t) => t.id === id) || null;
+}
+
+function applyRoute() {
+  const fromHash = getToolFromHash();
+  if (fromHash) {
+    state.activeTool = fromHash;
+    configureUI();
+    showToolView();
+    setStatus(t("status.ready"));
+    return;
+  }
+  showHomeView();
+  renderToolButtons();
+}
+
 function renderToolButtons() {
   const visibleTools = getVisibleTools();
   els.toolList.innerHTML = "";
@@ -818,11 +925,14 @@ function renderToolButtons() {
     const name = document.createElement("span");
     name.className = "tool-name";
     name.textContent = tool.name;
-    b.append(icon, name);
+    const desc = document.createElement("p");
+    desc.className = "tool-desc";
+    desc.textContent = tool.description || "";
+    b.append(icon, name, desc);
     b.addEventListener("click", () => {
       state.activeTool = tool;
       configureUI();
-      renderToolButtons();
+      location.hash = `#/tool/${encodeURIComponent(tool.id)}`;
       setStatus("Ready.");
     });
     els.toolList.appendChild(b);
@@ -830,17 +940,17 @@ function renderToolButtons() {
 }
 
 function configureUI() {
-  const t = state.activeTool;
-  els.toolTitle.textContent = t.name;
-  els.toolDescription.textContent = t.description;
+  const activeTool = state.activeTool;
+  els.toolTitle.textContent = activeTool.name;
+  els.toolDescription.textContent = activeTool.description;
   els.fileInput.value = "";
   els.htmlContent.value = "";
   clearPendingDownload();
-  els.fileGroup.classList.toggle("hidden", Boolean(t.htmlMode));
-  els.htmlInputGroup.classList.toggle("hidden", !t.htmlMode);
-  els.fileInputLabel.textContent = t.multiple ? "Input files" : "Input file";
-  els.fileInput.accept = t.accept || "";
-  els.fileInput.multiple = Boolean(t.multiple);
+  els.fileGroup.classList.toggle("hidden", Boolean(activeTool.htmlMode));
+  els.htmlInputGroup.classList.toggle("hidden", !activeTool.htmlMode);
+  els.fileInputLabel.textContent = activeTool.multiple ? t("tool.inputFiles") : t("tool.inputFile");
+  els.fileInput.accept = activeTool.accept || "";
+  els.fileInput.multiple = Boolean(activeTool.multiple);
 }
 
 function setCategoryFilter(category) {
@@ -852,25 +962,25 @@ function setCategoryFilter(category) {
 async function runConversion() {
   try {
     if (state.isBusy) return;
-    if (!canUse()) throw new Error("Free limit reached. Upgrade to premium ($1/month).");
+    if (!canUse()) throw new Error(t("error.freeLimit"));
     const files = Array.from(els.fileInput.files || []);
-    if (!state.activeTool.htmlMode && files.length === 0) throw new Error("Please select input file first.");
+    if (!state.activeTool.htmlMode && files.length === 0) throw new Error(t("error.selectInput"));
     if (!state.activeTool.htmlMode) {
       const invalid = files.find((file) => !fileMatchesAccept(file, state.activeTool.accept));
-      if (invalid) throw new Error(`Invalid file type: ${invalid.name}. Please choose only ${state.activeTool.accept} files.`);
+      if (invalid) throw new Error(t("error.invalidType", { name: invalid.name, accept: state.activeTool.accept }));
     }
 
     setBusy(true);
-    setStatus("Loading converter runtime...", "busy");
+    setStatus(t("status.loadingRuntime"), "busy");
     await ensureDeps(state.activeTool);
 
-    setStatus("Converting...", "busy");
+    setStatus(t("status.converting"), "busy");
     await runTool(state.activeTool, files);
     addUsage();
-    if (state.pendingDownload) setStatus("Done. Open Download Center to save your file.");
+    if (state.pendingDownload) setStatus(t("status.doneOpenDownload"));
     else if (!els.status.textContent.startsWith("GIF converted")) {
-      setStatus("Done. Conversion completed.");
-      els.downloadInfo.textContent = "This converter downloads directly from the browser.";
+      setStatus(t("status.doneCompleted"));
+      els.downloadInfo.textContent = t("download.browserDirect");
     }
   } catch (err) {
     setStatus(err.message || "Conversion failed.", "error");
@@ -883,7 +993,7 @@ function resetForm() {
   els.fileInput.value = "";
   els.htmlContent.value = "";
   clearPendingDownload();
-  setStatus("Reset complete.");
+  setStatus(t("status.resetComplete"));
 }
 
 els.convertBtn.addEventListener("click", runConversion);
@@ -914,14 +1024,18 @@ els.relatedToolButtons.forEach((button) => {
     if (!nextTool) return;
     state.activeTool = nextTool;
     configureUI();
-    renderToolButtons();
-    setStatus(`${nextTool.name} selected.`);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    location.hash = `#/tool/${encodeURIComponent(nextTool.id)}`;
+    setStatus(t("status.openingTool", { name: nextTool.name }));
   });
 });
+if (els.backToTools) {
+  els.backToTools.addEventListener("click", () => {
+    location.hash = "#/";
+  });
+}
 els.downloadBtn.addEventListener("click", () => {
   triggerDownload();
-  setStatus("Download started.");
+  setStatus(t("status.downloadStarted"));
 });
 els.fileInput.addEventListener("change", () => {
   const files = Array.from(els.fileInput.files || []);
@@ -929,11 +1043,19 @@ els.fileInput.addEventListener("change", () => {
   const invalid = files.find((file) => !fileMatchesAccept(file, state.activeTool.accept));
   if (!invalid) return;
   els.fileInput.value = "";
-  setStatus(`Only ${state.activeTool.accept} files are allowed for ${state.activeTool.name}.`, "error");
+  setStatus(t("error.allowedForTool", { accept: state.activeTool.accept, tool: state.activeTool.name }), "error");
 });
 
+if (els.languageSelect) {
+  els.languageSelect.addEventListener("change", (event) => {
+    applyLanguage(event.target.value);
+    setStatus(t("status.ready"));
+  });
+}
+
 initTheme();
+initLanguage();
 initPlan();
-configureUI();
-renderToolButtons();
 syncFilterButtons();
+window.addEventListener("hashchange", applyRoute);
+applyRoute();

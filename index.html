@@ -24,212 +24,220 @@
         <button class="filter-btn" type="button" data-filter="organize">Organize PDF</button>
         <button class="filter-btn" type="button" data-filter="convert">Convert PDF</button>
       </nav>
+      <select id="languageSelect" class="language-select" aria-label="Select language">
+        <option value="en">English</option>
+        <option value="ru">Russian</option>
+        <option value="es">Spanish</option>
+      </select>
       <label class="theme-switch" for="themeSwitch" aria-label="Toggle dark and light mode">
         <input id="themeSwitch" type="checkbox" />
         <span class="slider"></span>
-        <span class="switch-label">Dark / Light</span>
       </label>
     </header>
 
-    <header class="hero">
-      <div class="hero-top">
-        <div>
-          <h1>Every tool you need to work with PDFs in one place</h1>
-          <p>
-            Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use!
-            Merge, split, compress, convert, rotate, unlock and watermark PDFs with just a few clicks.
-          </p>
+    <div id="viewHome" class="view view--home">
+      <header class="hero">
+        <div class="hero-top">
+          <div>
+          <h1 data-i18n="hero.title">Every tool you need to work with PDFs in one place</h1>
+          <p data-i18n="hero.subtitle">
+              Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use!
+              Merge, split, compress, convert, rotate, unlock and watermark PDFs with just a few clicks.
+            </p>
+          </div>
         </div>
-      </div>
-      <div class="hero-pills">
-        <span class="pill-filter active" data-filter="all">All</span>
-        <span class="pill-filter" data-filter="workflow">Workflows</span>
-        <span class="pill-filter" data-filter="organize">Organize PDF</span>
-        <span class="pill-filter" data-filter="convert">Convert PDF</span>
-        <span class="pill-filter" data-filter="images">Images</span>
-        <span class="pill-filter" data-filter="ebooks">eBooks</span>
-      </div>
-    </header>
+        <div class="hero-pills">
+          <span class="pill-filter active" data-filter="all">All</span>
+          <span class="pill-filter" data-filter="workflow">Workflows</span>
+          <span class="pill-filter" data-filter="organize">Organize PDF</span>
+          <span class="pill-filter" data-filter="convert">Convert PDF</span>
+          <span class="pill-filter" data-filter="images">Images</span>
+          <span class="pill-filter" data-filter="ebooks">eBooks</span>
+        </div>
+      </header>
 
-    <section class="layout single-column">
       <section class="tool-list-panel">
         <div class="tools-head">
-          <h2>All Converters</h2>
+          <h2 data-i18n="tools.allConverters">All Converters</h2>
           <div class="filter-row">
-            <input id="toolSearch" class="tool-search" type="search" placeholder="Search converters..." />
+            <input id="toolSearch" class="tool-search" type="search" placeholder="Search converters..." data-i18n-placeholder="tools.searchPlaceholder" />
             <select id="sortFilter" class="sort-filter" aria-label="Sort converters">
-              <option value="az">Sort: A to Z</option>
-              <option value="za">Sort: Z to A</option>
-              <option value="popular">Sort: Popular</option>
-              <option value="newest">Sort: Newest</option>
+              <option value="az" data-i18n="sort.az">Sort: A to Z</option>
+              <option value="za" data-i18n="sort.za">Sort: Z to A</option>
+              <option value="popular" data-i18n="sort.popular">Sort: Popular</option>
+              <option value="newest" data-i18n="sort.newest">Sort: Newest</option>
             </select>
           </div>
         </div>
         <div id="toolList" class="tool-grid" aria-label="Converter tools"></div>
       </section>
 
+      <section class="info-section">
+        <h2 data-i18n="info.why.title">Why choose Convert EveryFile?</h2>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <h3 data-i18n="info.why.highQuality.title">High Quality</h3>
+            <p data-i18n="info.why.highQuality.text">Smart text extraction and structured output with readable formatting.</p>
+          </article>
+          <article class="feature-card">
+            <h3 data-i18n="info.why.secureFiles.title">Secure Files</h3>
+            <p data-i18n="info.why.secureFiles.text">Files are processed in-browser for better privacy and local safety.</p>
+          </article>
+          <article class="feature-card">
+            <h3 data-i18n="info.why.multipleFormats.title">Multiple Formats</h3>
+            <p data-i18n="info.why.multipleFormats.text">Work with PDF, Office, image, and eBook formats in one workspace.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="info-section">
+        <h2 data-i18n="info.how.title">How to convert PDF to Word</h2>
+        <div class="steps-grid">
+          <article class="step-card" data-i18n="info.how.step1"><strong>1.</strong> Open a converter from the grid.</article>
+          <article class="step-card" data-i18n="info.how.step2"><strong>2.</strong> Upload your file on the tool page.</article>
+          <article class="step-card" data-i18n="info.how.step3"><strong>3.</strong> Click Convert and wait for completion.</article>
+          <article class="step-card" data-i18n="info.how.step4"><strong>4.</strong> Download from the Download Center.</article>
+        </div>
+      </section>
+
+      <section class="info-section">
+        <h2 data-i18n="faq.title">FAQ</h2>
+        <details class="faq-item" open>
+          <summary data-i18n="faq.q1">Can I convert scanned PDF files?</summary>
+          <p data-i18n="faq.a1">Yes, OCR-supported tools are available for scanned documents.</p>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq.q2">Will my formatting be preserved?</summary>
+          <p data-i18n="faq.a2">The converter keeps structure as close as possible and optimizes for editability.</p>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq.q3">Can I use this for free?</summary>
+          <p data-i18n="faq.a3">Yes. Free usage is available with a monthly limit. Premium unlocks unlimited usage.</p>
+        </details>
+      </section>
+
+      <section class="info-section">
+        <h2 data-i18n="related.title">Related PDF tools</h2>
+        <div class="related-grid">
+          <button type="button" class="related-tool" data-tool-id="merge-pdf">Merge PDF</button>
+          <button type="button" class="related-tool" data-tool-id="split-pdf">Split PDF</button>
+          <button type="button" class="related-tool" data-tool-id="compress-pdf">Compress PDF</button>
+          <button type="button" class="related-tool" data-tool-id="pdf-to-ppt">PDF to PowerPoint</button>
+          <button type="button" class="related-tool" data-tool-id="pdf-to-excel">PDF to Excel</button>
+          <button type="button" class="related-tool" data-tool-id="jpg-to-pdf">JPG to PDF</button>
+        </div>
+      </section>
+    </div>
+
+    <div id="viewTool" class="view view--tool hidden" hidden>
+      <div class="tool-page-bar">
+        <button type="button" id="backToTools" class="back-btn ghost-btn" data-i18n="nav.backAllConverters">← All converters</button>
+      </div>
+
       <section class="tool-workspace">
         <section class="workspace-main-grid">
           <article class="card converter-card">
             <div class="card-head">
               <h2 id="toolTitle">PDF to Word</h2>
-              <p id="toolDescription">Select a tool from the left menu to begin.</p>
+              <p id="toolDescription" data-i18n="tool.selectPrompt">Select a tool from the grid to begin.</p>
             </div>
 
             <div class="card-body">
               <div id="fileGroup" class="field-group">
-                <label for="fileInput" id="fileInputLabel">Input file</label>
+                <label for="fileInput" id="fileInputLabel" data-i18n="tool.inputFile">Input file</label>
                 <input id="fileInput" type="file" />
-                <small class="file-helper">Only files matching the selected converter are accepted.</small>
+                <small class="file-helper" data-i18n="tool.fileHelper">Only files matching the selected converter are accepted.</small>
               </div>
 
               <div id="htmlInputGroup" class="field-group hidden">
-                <label for="htmlContent">HTML Content</label>
-                <textarea id="htmlContent" rows="12" placeholder="Paste HTML content here..."></textarea>
+                <label for="htmlContent" data-i18n="tool.htmlContent">HTML Content</label>
+                <textarea id="htmlContent" rows="12" placeholder="Paste HTML content here..." data-i18n-placeholder="tool.htmlPlaceholder"></textarea>
               </div>
 
               <div class="actions">
-                <button id="convertBtn" class="primary-btn" type="button">Convert Now</button>
-                <button id="resetBtn" class="ghost-btn" type="button">Reset</button>
+                <button id="convertBtn" class="primary-btn cta-btn" type="button" data-i18n="actions.convertNow">Convert Now</button>
+                <button id="resetBtn" class="ghost-btn" type="button" data-i18n="actions.reset">Reset</button>
               </div>
             </div>
           </article>
 
           <article class="card download-card" id="downloadCard">
-            <h3>Download Center</h3>
-            <p id="downloadInfo">After conversion, your file will appear here for manual download.</p>
-            <button id="downloadBtn" class="primary-btn" type="button" disabled>Download File</button>
+            <h3 data-i18n="download.title">Download Center</h3>
+            <p id="downloadInfo" data-i18n="download.waiting">After conversion, your file will appear here for manual download.</p>
+            <button id="downloadBtn" class="primary-btn cta-btn" type="button" disabled data-i18n="download.button">Download File</button>
           </article>
         </section>
 
         <article class="card status-card">
-          <h3>Progress</h3>
-          <div id="status" class="status">Ready.</div>
+          <h3 data-i18n="status.title">Progress</h3>
+          <div id="status" class="status" data-i18n="status.ready">Ready.</div>
         </article>
 
-        <article class="card premium-card iap-card">
-          <h3>Premium Upgrade</h3>
-          <p id="planStatus">Free Plan: 0/5 conversions used</p>
-          <ul class="premium-features">
-            <li>Unlimited conversions</li>
-            <li>Priority conversion queue</li>
-            <li>Advanced format tools</li>
-            <li>No wait between jobs</li>
-          </ul>
-          <button id="upgradeBtn" class="primary-btn" type="button">$1 / month Upgrade</button>
+        <article class="iap-banner" aria-labelledby="iap-heading">
+          <div class="iap-banner__text">
+            <h3 id="iap-heading">Get more with Premium</h3>
+            <ul class="iap-banner__list">
+              <li>Full access to every converter and priority processing</li>
+              <li>Advanced tools, larger files, and fewer limits on your workflow</li>
+              <li>Connect tools and build custom conversion flows</li>
+            </ul>
+            <p id="planStatus" class="iap-plan-line">Free Plan: 0/5 conversions used</p>
+            <button id="upgradeBtn" class="iap-cta cta-btn" type="button">
+              <span class="iap-cta__icon" aria-hidden="true">👑</span>
+              Get Premium
+            </button>
+          </div>
+          <div class="iap-banner__visual" aria-hidden="true">
+            <div class="iap-banner__coral"></div>
+            <div class="iap-banner__doc">
+              <span class="iap-banner__doc-line"></span>
+              <div class="iap-banner__doc-block"></div>
+              <div class="iap-banner__doc-block iap-banner__doc-block--sm"></div>
+            </div>
+            <span class="iap-banner__spark">✦</span>
+          </div>
         </article>
-
-        <section class="info-section">
-          <h2>Why choose Convert EveryFile?</h2>
-          <div class="feature-grid">
-            <article class="feature-card">
-              <h3>High Quality</h3>
-              <p>Smart text extraction and structured output with readable formatting.</p>
-            </article>
-            <article class="feature-card">
-              <h3>Secure Files</h3>
-              <p>Files are processed in-browser for better privacy and local safety.</p>
-            </article>
-            <article class="feature-card">
-              <h3>Multiple Formats</h3>
-              <p>Work with PDF, Office, image, and eBook formats in one workspace.</p>
-            </article>
-          </div>
-        </section>
-
-        <section class="info-section">
-          <h2>How to convert PDF to Word</h2>
-          <div class="steps-grid">
-            <article class="step-card"><strong>1.</strong> Select <em>PDF to Word</em> tool.</article>
-            <article class="step-card"><strong>2.</strong> Upload your PDF file.</article>
-            <article class="step-card"><strong>3.</strong> Click Convert and wait for completion.</article>
-            <article class="step-card"><strong>4.</strong> Download DOCX from Download Center.</article>
-          </div>
-        </section>
-
-        <section class="info-section">
-          <h2>FAQ</h2>
-          <details class="faq-item" open>
-            <summary>Can I convert scanned PDF files?</summary>
-            <p>Yes, OCR-supported tools are available for scanned documents.</p>
-          </details>
-          <details class="faq-item">
-            <summary>Will my formatting be preserved?</summary>
-            <p>The converter keeps structure as close as possible and optimizes for editability.</p>
-          </details>
-          <details class="faq-item">
-            <summary>Can I use this for free?</summary>
-            <p>Yes. Free usage is available with a monthly limit. Premium unlocks unlimited usage.</p>
-          </details>
-        </section>
-
-        <section class="info-section">
-          <h2>Related PDF tools</h2>
-          <div class="related-grid">
-            <button type="button" class="related-tool" data-tool-id="merge-pdf">Merge PDF</button>
-            <button type="button" class="related-tool" data-tool-id="split-pdf">Split PDF</button>
-            <button type="button" class="related-tool" data-tool-id="compress-pdf">Compress PDF</button>
-            <button type="button" class="related-tool" data-tool-id="pdf-to-ppt">PDF to PowerPoint</button>
-            <button type="button" class="related-tool" data-tool-id="pdf-to-excel">PDF to Excel</button>
-            <button type="button" class="related-tool" data-tool-id="jpg-to-pdf">JPG to PDF</button>
-          </div>
-        </section>
       </section>
-    </section>
+    </div>
   </main>
 
   <section class="rating-strip">
-    <h3>⭐ User Rating</h3>
-    <p><strong>4.8 / 5</strong> based on converter experience and output quality.</p>
+    <h3 data-i18n="rating.title">⭐ User Rating</h3>
+    <p data-i18n="rating.text"><strong>4.8 / 5</strong> based on converter experience and output quality.</p>
   </section>
 
   <footer class="site-footer">
     <div class="footer-grid">
       <section class="footer-col">
-        <h4>Product</h4>
-        <a href="#">Home</a>
-        <a href="#">Features</a>
-        <a href="#">Pricing</a>
-        <a href="#">Tools</a>
-        <a href="#">FAQ</a>
+        <h4 data-i18n="footer.product.title">Product</h4>
+        <a href="#" data-i18n="footer.product.home">Home</a>
+        <a href="#" data-i18n="footer.product.features">Features</a>
+        <a href="#" data-i18n="footer.product.pricing">Pricing</a>
+        <a href="#" data-i18n="footer.product.tools">Tools</a>
+        <a href="#" data-i18n="footer.product.faq">FAQ</a>
       </section>
       <section class="footer-col">
-        <h4>Resources</h4>
-        <a href="#">iLovePDF Desktop</a>
-        <a href="#">iLovePDF Mobile</a>
-        <a href="#">iLoveSign</a>
-        <a href="#">iLoveAPI</a>
-        <a href="#">iLoveIMG</a>
+        <h4 data-i18n="footer.solutions.title">Solutions</h4>
+        <a href="#" data-i18n="footer.solutions.business">Business</a>
+        <a href="#" data-i18n="footer.solutions.education">Education</a>
       </section>
       <section class="footer-col">
-        <h4>Solutions</h4>
-        <a href="#">Business</a>
-        <a href="#">Education</a>
+        <h4 data-i18n="footer.legal.title">Legal</h4>
+        <a href="#" data-i18n="footer.legal.security">Security</a>
+        <a href="#" data-i18n="footer.legal.privacy">Privacy policy</a>
+        <a href="#" data-i18n="footer.legal.terms">Terms &amp; conditions</a>
+        <a href="#" data-i18n="footer.legal.cookies">Cookies</a>
       </section>
       <section class="footer-col">
-        <h4>Legal</h4>
-        <a href="#">Security</a>
-        <a href="#">Privacy policy</a>
-        <a href="#">Terms &amp; conditions</a>
-        <a href="#">Cookies</a>
-      </section>
-      <section class="footer-col">
-        <h4>Company</h4>
-        <a href="#">About us</a>
-        <a href="#">Contact us</a>
-        <a href="#">Blog</a>
-        <a href="#">Press</a>
-      </section>
-      <section class="footer-col">
-        <h4>Stores</h4>
-        <a href="#">Google Play</a>
-        <a href="#">App Store</a>
-        <a href="#">Mac Store</a>
-        <a href="#">Microsoft Store</a>
+        <h4 data-i18n="footer.company.title">Company</h4>
+        <a href="#" data-i18n="footer.company.about">About us</a>
+        <a href="#" data-i18n="footer.company.contact">Contact us</a>
       </section>
     </div>
+    <div class="footer-copyline" data-i18n="footer.copyline">Copyright ©2026 fahad usman All Rights Reserved.</div>
   </footer>
 
+  <script src="locales.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
