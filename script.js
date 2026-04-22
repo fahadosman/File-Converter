@@ -123,6 +123,7 @@ const state = {
   pendingDownload: null,
   toastTimer: null,
   securityApiReady: Boolean(SECURITY_API_BASE),
+  sessionValidated: false,
   convertedFileSignature: null,
 };
 
@@ -356,6 +357,7 @@ function toggleThemeWithSound() {
 
 function refreshPlan() {
   const crown = '<span class="iap-cta__icon" aria-hidden="true">👑</span> ';
+  const shouldShowIap = !state.isPremium && (state.sessionValidated || !state.securityApiReady);
   if (els.brandTitle) {
     els.brandTitle.textContent = "File Converters";
   }
@@ -371,8 +373,8 @@ function refreshPlan() {
   els.planStatus.textContent = t("plan.free", { used: state.usageCount, limit: FREE_LIMIT });
   els.upgradeBtn.innerHTML = `${crown}${t("plan.getPremium")} - $2`;
   els.upgradeBtn.disabled = false;
-  if (els.iapBanner) els.iapBanner.classList.remove("hidden");
-  if (els.glassPricingGrid) els.glassPricingGrid.classList.remove("hidden");
+  if (els.iapBanner) els.iapBanner.classList.toggle("hidden", !shouldShowIap);
+  if (els.glassPricingGrid) els.glassPricingGrid.classList.toggle("hidden", !shouldShowIap);
 }
 
 function persistPlanState() {
@@ -444,7 +446,8 @@ function updateFileSelectionUI(files) {
 }
 
 function canUse() {
-  return state.isPremium || state.usageCount < FREE_LIMIT;
+  // Access decisions must come from backend-backed session checks.
+  return state.sessionValidated && (state.isPremium || state.usageCount < FREE_LIMIT);
 }
 
 function addUsageFallback() {
@@ -464,6 +467,7 @@ async function startUsageSession() {
   if (!response.ok) throw new Error("Usage security service unavailable.");
   const payload = await response.json();
   state.securityApiReady = true;
+  state.sessionValidated = true;
   syncUsageCount(payload.usageCount, { maxWithCurrent: true });
   const backendPremium = Boolean(payload.isPremium);
   state.isPremium = state.isPremium || backendPremium;
@@ -473,18 +477,16 @@ async function startUsageSession() {
 
 async function assertSessionCanUse() {
   if (!state.securityApiReady) {
-    if (!canUse()) {
-      const error = new Error(t("error.freeLimit"));
-      error.code = "FREE_LIMIT_REACHED";
-      throw error;
-    }
-    return;
+    const error = new Error("Usage validation service is unavailable. Please retry in a moment.");
+    error.code = "USAGE_VALIDATION_UNAVAILABLE";
+    throw error;
   }
   const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/status`, {
     credentials: "include",
   });
   if (!response.ok) throw new Error("Unable to verify usage security.");
   const payload = await response.json();
+  state.sessionValidated = true;
   syncUsageCount(payload.usageCount, { maxWithCurrent: true });
   const backendPremium = Boolean(payload.isPremium);
   state.isPremium = state.isPremium || backendPremium;
@@ -499,8 +501,9 @@ async function assertSessionCanUse() {
 
 async function secureConsumeUsage() {
   if (!state.securityApiReady) {
-    addUsageFallback();
-    return;
+    const error = new Error("Usage validation service is unavailable. Please retry in a moment.");
+    error.code = "USAGE_VALIDATION_UNAVAILABLE";
+    throw error;
   }
   const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/consume`, {
     method: "POST",
@@ -526,6 +529,7 @@ async function secureConsumeUsage() {
     throw new Error(payload.error || "Usage security check failed.");
   }
   syncUsageCount(payload.usageCount || state.usageCount, { maxWithCurrent: true });
+  state.sessionValidated = true;
   const backendPremium = Boolean(payload.isPremium);
   state.isPremium = state.isPremium || backendPremium;
   persistPlanState();
@@ -595,16 +599,8 @@ async function syncPaymentFromReturn() {
       setStatus(t("status.premiumActivated"));
       showToastWithType(t("status.premiumActivated"), "success");
     }
-    const paidFallback =
-      paymentState === "success" || premiumState === "1" || Boolean(sessionId);
-    if (!state.isPremium && paidFallback) {
-      state.isPremium = true;
-      persistPlanState();
-      closePremiumLimitDialog();
-      refreshPlan();
-      setStatus(t("status.premiumActivated"));
-      showToastWithType(t("status.premiumActivated"), "success");
-    }
+    // Never trust frontend redirect/session parameters for premium unlock.
+    // Premium is granted only after backend verification endpoint confirms success.
 
     params.delete("session_id");
     params.delete("payment");
@@ -1395,6 +1391,7 @@ initLanguage();
 initPlan();
 startUsageSession().catch((error) => {
   state.securityApiReady = false;
+  state.sessionValidated = false;
   // Keep UI usable if backend verification is temporarily unavailable.
   console.warn(error.message || "Secure usage server is offline.");
   refreshPlan();
