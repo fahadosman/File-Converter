@@ -146,8 +146,16 @@ body {
 }
 
 .brand-crown {
-  font-size: 18px;
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffcc61, #ff9d1f);
+  box-shadow: 0 6px 14px rgba(255, 157, 31, 0.35);
+  font-size: 14px;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .top-links {

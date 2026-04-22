@@ -422,6 +422,16 @@ function updateFileSelectionUI(files) {
   els.convertBtn.disabled = state.isBusy || signature === state.convertedFileSignature;
 }
 
+function canUse() {
+  return state.isPremium || state.usageCount < FREE_LIMIT;
+}
+
+function addUsageFallback() {
+  if (state.isPremium) return;
+  state.usageCount += 1;
+  refreshPlan();
+}
+
 async function startUsageSession() {
   if (!SECURITY_API_BASE) throw new Error("Secure usage server URL is not configured.");
   const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/start`, {
@@ -440,7 +450,12 @@ async function startUsageSession() {
 
 async function assertSessionCanUse() {
   if (!state.securityApiReady) {
-    throw new Error("Secure usage verification is unavailable. Please try again in a moment.");
+    if (!canUse()) {
+      const error = new Error(t("error.freeLimit"));
+      error.code = "FREE_LIMIT_REACHED";
+      throw error;
+    }
+    return;
   }
   const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/status`, {
     credentials: "include",
@@ -459,7 +474,8 @@ async function assertSessionCanUse() {
 
 async function secureConsumeUsage() {
   if (!state.securityApiReady) {
-    throw new Error("Secure usage verification is unavailable. Please try again in a moment.");
+    addUsageFallback();
+    return;
   }
   const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/consume`, {
     method: "POST",
@@ -1197,6 +1213,10 @@ function setCategoryFilter(category) {
 async function runConversion() {
   try {
     if (state.isBusy) return;
+    if (!canUse()) {
+      openPremiumLimitDialog();
+      return;
+    }
     await assertSessionCanUse();
     await secureConsumeUsage();
     const files = Array.from(els.fileInput.files || []);
@@ -1330,7 +1350,7 @@ initLanguage();
 initPlan();
 startUsageSession().catch((error) => {
   state.securityApiReady = false;
-  // Keep UI usable, but block conversions unless backend verification is online.
+  // Keep UI usable if backend verification is temporarily unavailable.
   console.warn(error.message || "Secure usage server is offline.");
   refreshPlan();
 });
