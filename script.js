@@ -6,7 +6,9 @@ const LANG_KEY = "convertpro-language";
 const DEVICE_ID_KEY = "convertpro-device-id";
 const LOCALES = window.APP_LOCALES || {};
 const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_dRmaEW2JvbXe7970Tl2kw01";
-const SECURITY_API_BASE = window.__PAYMENTS_API_BASE__ || "";
+const SECURITY_API_BASE =
+  window.__PAYMENTS_API_BASE__ ||
+  (/^https?:$/i.test(window.location.protocol) ? window.location.origin : "");
 
 const LIBS = {
   pdfjs: {
@@ -376,7 +378,8 @@ function refreshPlan() {
 function initPlan() {
   state.deviceId = getOrCreateDeviceId();
   state.isPremium = localStorage.getItem(planStorageKey()) === "premium";
-  state.usageCount = Number(localStorage.getItem(usageStorageKey()) || "0");
+  // Usage count is trusted only from the backend session service.
+  state.usageCount = 0;
   refreshPlan();
 }
 
@@ -399,7 +402,9 @@ function closePremiumLimitDialog() {
 }
 
 function canUse() {
-  return state.isPremium || state.usageCount < FREE_LIMIT;
+  if (state.isPremium) return true;
+  if (!state.securityApiReady) return false;
+  return state.usageCount < FREE_LIMIT;
 }
 
 function buildFileSignature(file, toolId) {
@@ -437,10 +442,7 @@ function addUsage() {
 }
 
 async function startUsageSession() {
-  if (!SECURITY_API_BASE) {
-    state.securityApiReady = false;
-    return;
-  }
+  if (!SECURITY_API_BASE) throw new Error("Secure usage server URL is not configured.");
   const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/start`, {
     method: "POST",
     credentials: "include",
@@ -470,10 +472,7 @@ async function assertSessionCanUse() {
 
 async function secureConsumeUsage() {
   if (state.isPremium) return;
-  if (!state.securityApiReady) {
-    addUsage();
-    return;
-  }
+  if (!state.securityApiReady) throw new Error("Secure usage server is required for free conversions.");
   const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/consume`, {
     method: "POST",
     credentials: "include",
@@ -1176,11 +1175,15 @@ function setCategoryFilter(category) {
 async function runConversion() {
   try {
     if (state.isBusy) return;
+    if (!state.isPremium && !state.securityApiReady) {
+      throw new Error("Secure usage server is required. Start payment-server.js to continue.");
+    }
     if (!canUse()) {
       openPremiumLimitDialog();
       return;
     }
     await assertSessionCanUse();
+    await secureConsumeUsage();
     const files = Array.from(els.fileInput.files || []);
     if (!state.activeTool.htmlMode && files.length === 0) throw new Error(t("error.selectInput"));
     if (!state.activeTool.htmlMode) {
@@ -1201,7 +1204,6 @@ async function runConversion() {
     if (!state.activeTool.htmlMode && files[0]) {
       state.convertedFileSignature = buildFileSignature(files[0], state.activeTool.id);
     }
-    await secureConsumeUsage();
     if (state.pendingDownload) setStatus(t("status.doneOpenDownload"));
     else if (!els.status.textContent.startsWith("GIF converted")) {
       setStatus(t("status.doneCompleted"));
@@ -1314,7 +1316,7 @@ initLanguage();
 initPlan();
 startUsageSession().catch((error) => {
   state.securityApiReady = false;
-  setStatus("Secure usage server is offline. Using local limit tracking.", "error");
+  setStatus(error.message || "Secure usage server is offline. Free conversions are blocked.", "error");
 });
 syncFilterButtons();
 syncPaymentFromReturn();
