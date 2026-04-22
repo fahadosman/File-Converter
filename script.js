@@ -193,6 +193,7 @@ const els = {
   planStatus: document.getElementById("planStatus"),
   upgradeBtn: document.getElementById("upgradeBtn"),
   iapBanner: document.querySelector(".iap-banner"),
+  glassPricingGrid: document.querySelector(".glass-pricing-grid"),
   downloadBtn: document.getElementById("downloadBtn"),
   downloadInfo: document.getElementById("downloadInfo"),
   topFilterButtons: Array.from(document.querySelectorAll(".filter-btn")),
@@ -364,12 +365,14 @@ function refreshPlan() {
     els.upgradeBtn.innerHTML = `${crown}${t("plan.enabled")}`;
     els.upgradeBtn.disabled = true;
     if (els.iapBanner) els.iapBanner.classList.add("hidden");
+    if (els.glassPricingGrid) els.glassPricingGrid.classList.add("hidden");
     return;
   }
   els.planStatus.textContent = t("plan.free", { used: state.usageCount, limit: FREE_LIMIT });
   els.upgradeBtn.innerHTML = `${crown}${t("plan.getPremium")} - $2`;
   els.upgradeBtn.disabled = false;
   if (els.iapBanner) els.iapBanner.classList.remove("hidden");
+  if (els.glassPricingGrid) els.glassPricingGrid.classList.remove("hidden");
 }
 
 function persistPlanState() {
