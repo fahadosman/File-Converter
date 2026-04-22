@@ -746,26 +746,36 @@ button {
 }
 
 .premium-tag--top {
-  position: fixed;
-  top: 12px;
-  left: 12px;
-  right: auto;
-  width: 60px;
-  height: 90px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   padding: 0;
-  margin: 0;
+  margin: 0 2px 0 4px;
   background: transparent;
   border: 0;
   box-shadow: none;
-  color: #ffd24a;
-  filter: drop-shadow(0 0 6px rgba(255, 210, 74, 0.45)) drop-shadow(0 3px 8px rgba(131, 93, 0, 0.35));
-  z-index: 80;
+  color: inherit;
 }
 
-.premium-top-logo {
-  width: 100%;
-  height: 100%;
-  display: block;
+.premium-badge-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 28px;
+  line-height: 1;
+  color: #fff;
+  background: linear-gradient(180deg, #ffae47, #ff8509);
+  box-shadow: 0 8px 18px rgba(255, 133, 9, 0.45);
+}
+
+.premium-badge-text {
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #f5f6ff;
+  white-space: nowrap;
 }
 
 .iap-banner__list {
