@@ -745,15 +745,20 @@ button {
 }
 
 .premium-tag--top {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 82;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 0 2px;
-  margin: 0 2px 0 4px;
+  padding: 4px 8px;
+  margin: 0;
   background: transparent;
   border: 0;
   box-shadow: none;
   color: inherit;
+  pointer-events: none;
 }
 
 .premium-badge-icon {
