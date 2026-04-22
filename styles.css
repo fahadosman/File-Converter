@@ -120,6 +120,13 @@ body {
   min-height: 64px;
 }
 
+.topbar-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
@@ -131,12 +138,16 @@ body {
 }
 
 .brand-logo {
-  display: block;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   object-fit: cover;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+}
+
+.brand-crown {
+  font-size: 18px;
+  line-height: 1;
 }
 
 .top-links {
@@ -677,33 +688,60 @@ button {
   background: rgba(124, 140, 255, 0.12);
 }
 
-.bulb-indicator {
-  display: inline-grid;
-  place-items: center;
-  width: 54px;
-  height: 54px;
+.theme-toggle {
   border: 0;
   background: transparent;
   padding: 0;
-  font-size: 40px;
-  line-height: 1;
   cursor: pointer;
-  user-select: none;
-  transition: transform 0.2s ease, filter 0.2s ease;
 }
 
-.bulb-indicator:hover {
-  transform: translateY(-1px) scale(1.05);
-  filter: drop-shadow(0 0 8px rgba(255, 220, 120, 0.45));
+.theme-toggle__track {
+  width: 56px;
+  height: 26px;
+  border-radius: 999px;
+  padding: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #f2f2f2, #e4e4e4);
+  box-shadow: inset 0 0 0 1px rgba(16, 16, 16, 0.08);
 }
 
-.bulb-indicator:focus-visible {
-  outline: 2px solid var(--accent-2);
-  outline-offset: 2px;
+.theme-toggle__sun {
+  font-size: 12px;
+  margin-left: 6px;
+  color: #9a9a9a;
 }
 
-[data-theme="light"] .bulb-indicator {
-  filter: drop-shadow(0 0 6px rgba(255, 196, 64, 0.35));
+.theme-toggle__knob {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #2f2f2f;
+  color: #fff;
+  transform: translateX(0);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.theme-toggle__moon {
+  font-size: 11px;
+  line-height: 1;
+}
+
+[data-theme="light"] .theme-toggle__track {
+  background: linear-gradient(135deg, #23252f, #171821);
+}
+
+[data-theme="light"] .theme-toggle__sun {
+  color: #f7f7f7;
+}
+
+[data-theme="light"] .theme-toggle__knob {
+  transform: translateX(-30px);
+  background: #f4f4f4;
+  color: #2f2f2f;
 }
 
 .iap-banner {
@@ -1215,12 +1253,17 @@ button {
   }
 
   .brand {
-    width: 100%;
+  width: auto;
   }
 
   .language-select {
     flex: 1 1 220px;
     max-width: none;
+  }
+
+  .topbar-controls {
+    width: 100%;
+    justify-content: flex-end;
   }
 
   .top-links {
@@ -1279,11 +1322,6 @@ button {
     font-size: 22px;
   }
 
-  .brand-logo {
-    width: 40px;
-    height: 40px;
-  }
-
   .premium-image-badge {
     width: 52px;
     height: 52px;
@@ -1315,10 +1353,18 @@ button {
     min-width: 0;
   }
 
-  .bulb-indicator {
-    width: 46px;
-    height: 46px;
-    font-size: 34px;
+  .theme-toggle__track {
+    width: 50px;
+    height: 24px;
+  }
+
+  .theme-toggle__knob {
+    width: 18px;
+    height: 18px;
+  }
+
+  [data-theme="light"] .theme-toggle__knob {
+    transform: translateX(-26px);
   }
 
   .premium-dialog-title {

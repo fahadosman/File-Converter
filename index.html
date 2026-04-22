@@ -13,12 +13,9 @@
   />
   <script>
     (function () {
-      try {
-        var savedTheme = localStorage.getItem("convertpro-theme");
-        if (savedTheme === "light" || savedTheme === "dark") {
-          document.documentElement.setAttribute("data-theme", savedTheme);
-        }
-      } catch (e) {}
+      var prefersLight =
+        window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+      document.documentElement.setAttribute("data-theme", prefersLight ? "light" : "dark");
       if (window.__PAYMENTS_API_BASE__) return;
       if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
         window.__PAYMENTS_API_BASE__ = "http://localhost:8787";
@@ -31,28 +28,27 @@
   <div class="background-glow" aria-hidden="true"></div>
 
   <main class="app-shell">
-    <div id="premiumImageBadge" class="premium-image-badge hidden" aria-label="Premium badge">👑</div>
-    <span id="premiumTagTop" class="premium-tag premium-tag--top hidden" aria-label="Premium user">
-      <span class="premium-badge-icon" aria-hidden="true">♕</span>
-      <span class="premium-badge-text">PREMIUM USER</span>
-    </span>
     <header class="topbar">
       <div class="brand">
         <img class="brand-logo" src="favicon.svg" alt="File Converters logo" />
-        <span>File Converters</span>
+        <span id="brandCrown" class="brand-crown hidden" aria-label="Premium user">👑</span>
+        <span id="brandTitle">File Converters</span>
       </div>
-      <nav class="top-links" aria-label="Primary navigation">
-        <button class="filter-btn active" type="button" data-filter="all">All Tools</button>
-        <button class="filter-btn" type="button" data-filter="workflow">Workflows</button>
-        <button class="filter-btn" type="button" data-filter="organize">Organize PDF</button>
-        <button class="filter-btn" type="button" data-filter="convert">Convert PDF</button>
-      </nav>
-      <select id="languageSelect" class="language-select" aria-label="Select language">
-        <option value="en">English</option>
-        <option value="ru">Russian</option>
-        <option value="es">Spanish</option>
-      </select>
-      <button id="themeBulb" class="bulb-indicator" type="button" aria-label="Toggle light and dark mode" title="Theme: Dark">💡</button>
+      <div class="topbar-controls">
+        <select id="languageSelect" class="language-select" aria-label="Select language">
+          <option value="en">English</option>
+          <option value="ru">Russian</option>
+          <option value="es">Spanish</option>
+        </select>
+        <button id="themeBulb" class="theme-toggle" type="button" aria-label="Switch to light mode" title="Theme: Dark">
+          <span class="theme-toggle__track">
+            <span class="theme-toggle__sun" aria-hidden="true">☀</span>
+            <span class="theme-toggle__knob" aria-hidden="true">
+              <span class="theme-toggle__moon">☾</span>
+            </span>
+          </span>
+        </button>
+      </div>
     </header>
 
     <div id="viewHome" class="view view--home">
@@ -207,7 +203,6 @@
           <div class="iap-banner__text">
             <h3 id="iap-heading">
               Get more with Premium
-              <span id="premiumTag" class="premium-tag hidden">PREMIUM</span>
             </h3>
             <ul class="iap-banner__list">
               <li>Full access to every converter and priority processing</li>

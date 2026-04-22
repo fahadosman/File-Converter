@@ -87,7 +87,7 @@ function getOrCreateUsageSession(req, res) {
   let session = sessionId ? usageSessions.get(sessionId) : null;
   if (!session) {
     sessionId = crypto.randomBytes(24).toString("hex");
-    session = { usageCount: 0, createdAt: Date.now(), updatedAt: Date.now() };
+    session = { usageCount: 0, isPremium: false, createdAt: Date.now(), updatedAt: Date.now() };
     usageSessions.set(sessionId, session);
     res.setHeader("Set-Cookie", `fc_session_id=${sessionId}; HttpOnly; Path=/; SameSite=Lax; Max-Age=2592000`);
   }
@@ -97,22 +97,47 @@ function getOrCreateUsageSession(req, res) {
 
 app.post("/api/usage/session/start", (req, res) => {
   const { session } = getOrCreateUsageSession(req, res);
-  return res.json({ usageCount: session.usageCount, freeLimit: FREE_LIMIT });
+  return res.json({ usageCount: session.usageCount, isPremium: Boolean(session.isPremium), freeLimit: FREE_LIMIT });
 });
 
 app.get("/api/usage/session/status", (req, res) => {
   const { session } = getOrCreateUsageSession(req, res);
-  return res.json({ usageCount: session.usageCount, freeLimit: FREE_LIMIT });
+  return res.json({ usageCount: session.usageCount, isPremium: Boolean(session.isPremium), freeLimit: FREE_LIMIT });
 });
 
 app.post("/api/usage/session/consume", (req, res) => {
   const { session } = getOrCreateUsageSession(req, res);
+  if (session.isPremium) {
+    return res.json({ usageCount: session.usageCount, isPremium: true, freeLimit: FREE_LIMIT });
+  }
   if (session.usageCount >= FREE_LIMIT) {
-    return res.status(403).json({ error: "Free conversion limit reached.", usageCount: session.usageCount, freeLimit: FREE_LIMIT });
+    return res.status(403).json({ error: "Free conversion limit reached.", usageCount: session.usageCount, isPremium: false, freeLimit: FREE_LIMIT });
   }
   session.usageCount += 1;
   session.updatedAt = Date.now();
-  return res.json({ usageCount: session.usageCount, freeLimit: FREE_LIMIT });
+  return res.json({ usageCount: session.usageCount, isPremium: false, freeLimit: FREE_LIMIT });
+});
+
+app.get("/api/payments/session/status", (req, res) => {
+  const { session } = getOrCreateUsageSession(req, res);
+  return res.json({ isPremium: Boolean(session.isPremium) });
+});
+
+app.post("/api/payments/session/activate", (req, res) => {
+  const { session } = getOrCreateUsageSession(req, res);
+  const orderRef = String(req.body?.orderRef || "").trim();
+  if (!orderRef) {
+    return res.status(400).json({ error: "orderRef is required." });
+  }
+
+  const paymentRecord = payments.get(orderRef);
+  if (!paymentRecord || paymentRecord.status !== "success") {
+    return res.status(403).json({ error: "Payment is not verified.", isPremium: Boolean(session.isPremium) });
+  }
+
+  session.isPremium = true;
+  session.updatedAt = Date.now();
+  return res.json({ isPremium: true });
 });
 
 function orderRef() {
