@@ -25,6 +25,7 @@ const checkoutUrl = EASYPAISA_SANDBOX
 
 const payments = new Map();
 const usageSessions = new Map();
+const usageIdentityBucket = new Map();
 const rateBucket = new Map();
 app.set("trust proxy", true);
 app.disable("x-powered-by");
@@ -81,17 +82,40 @@ function parseCookies(req) {
   }, {});
 }
 
+function getUsageIdentityKey(req) {
+  const ip = String(req.ip || req.headers["x-forwarded-for"] || "unknown").split(",")[0].trim();
+  const ua = String(req.headers["user-agent"] || "unknown").trim().toLowerCase();
+  const raw = `${ip}|${ua}`;
+  return crypto.createHash("sha256").update(raw).digest("hex");
+}
+
+function syncIdentityUsage(identityKey, session) {
+  usageIdentityBucket.set(identityKey, {
+    usageCount: Number(session.usageCount || 0),
+    isPremium: Boolean(session.isPremium),
+    updatedAt: Date.now(),
+  });
+}
+
 function getOrCreateUsageSession(req, res) {
   const cookies = parseCookies(req);
+  const identityKey = getUsageIdentityKey(req);
   let sessionId = cookies.fc_session_id;
   let session = sessionId ? usageSessions.get(sessionId) : null;
+  const identityUsage = usageIdentityBucket.get(identityKey);
   if (!session) {
     sessionId = crypto.randomBytes(24).toString("hex");
-    session = { usageCount: 0, isPremium: false, createdAt: Date.now(), updatedAt: Date.now() };
+    session = {
+      usageCount: Number(identityUsage?.usageCount || 0),
+      isPremium: Boolean(identityUsage?.isPremium),
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
     usageSessions.set(sessionId, session);
     res.setHeader("Set-Cookie", `fc_session_id=${sessionId}; HttpOnly; Path=/; SameSite=Lax; Max-Age=2592000`);
   }
   session.updatedAt = Date.now();
+  syncIdentityUsage(identityKey, session);
   return { sessionId, session };
 }
 
@@ -115,6 +139,7 @@ app.post("/api/usage/session/consume", (req, res) => {
   }
   session.usageCount += 1;
   session.updatedAt = Date.now();
+  syncIdentityUsage(getUsageIdentityKey(req), session);
   return res.json({ usageCount: session.usageCount, isPremium: false, freeLimit: FREE_LIMIT });
 });
 
@@ -137,6 +162,7 @@ app.post("/api/payments/session/activate", (req, res) => {
 
   session.isPremium = true;
   session.updatedAt = Date.now();
+  syncIdentityUsage(getUsageIdentityKey(req), session);
   return res.json({ isPremium: true });
 });
 

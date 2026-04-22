@@ -179,9 +179,9 @@ body {
   color: var(--text);
   padding: 10px 40px 10px 12px;
   font: inherit;
-  min-width: 140px;
-  max-width: 220px;
-  width: 100%;
+  min-width: 120px;
+  max-width: 170px;
+  width: auto;
   appearance: none;
   background-image:
     linear-gradient(45deg, transparent 50%, var(--text) 50%),
@@ -1054,13 +1054,29 @@ button {
   border-radius: 14px;
   background: var(--select-bg);
   color: var(--text);
-  padding: 12px;
+  padding: 12px 40px 12px 12px;
   font: inherit;
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text) 50%),
+    linear-gradient(135deg, var(--text) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 3px),
+    calc(100% - 12px) calc(50% - 3px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
 }
 
 .sort-filter option,
 .language-select option {
-  color: #0d1b35;
+  background: #111a38;
+  color: #dfe7ff;
+}
+
+[data-theme="light"] .sort-filter option,
+[data-theme="light"] .language-select option {
+  background: #eef2ff;
+  color: #1a2b5c;
 }
 
 .toast {
@@ -1273,12 +1289,12 @@ button {
   }
 
   .language-select {
-    flex: 1 1 220px;
-    max-width: none;
+    min-width: 110px;
+    max-width: 150px;
   }
 
   .topbar-controls {
-    width: 100%;
+    width: auto;
     justify-content: flex-end;
   }
 
@@ -1303,6 +1319,10 @@ button {
 
   .filter-row {
     grid-template-columns: 1fr;
+  }
+
+  .sort-filter {
+    width: 100%;
   }
 
   .feature-grid,
@@ -1365,8 +1385,13 @@ button {
   }
 
   .language-select {
-    padding: 10px 36px 10px 10px;
-    min-width: 0;
+    min-width: 98px;
+    max-width: 130px;
+    padding: 9px 30px 9px 9px;
+  }
+
+  .sort-filter {
+    padding: 10px 34px 10px 10px;
   }
 
   .theme-toggle__track {
@@ -1428,6 +1453,20 @@ button {
 }
 
 @media (max-width: 430px) {
+  .topbar {
+    justify-content: space-between;
+  }
+
+  .topbar-controls {
+    gap: 6px;
+  }
+
+  .language-select {
+    min-width: 92px;
+    max-width: 118px;
+    font-size: 0.9rem;
+  }
+
   .top-links {
     gap: 8px;
   }
