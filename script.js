@@ -5,7 +5,6 @@ const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_dRmaEW2JvbXe7970Tl2kw01
 const SECURITY_API_BASE =
   window.__PAYMENTS_API_BASE__ ||
   (/^https?:$/i.test(window.location.protocol) ? window.location.origin : "");
-const IS_CONVERTER_PAGE = /\/converter\.html$/i.test(window.location.pathname);
 
 const LIBS = {
   pdfjs: {
@@ -1186,24 +1185,10 @@ function getToolFromHash() {
   return tools.find((t) => t.id === id) || null;
 }
 
-function getToolFromQuery() {
-  const params = new URLSearchParams(window.location.search);
-  const id = String(params.get("tool") || "").trim();
-  if (!id) return null;
-  return tools.find((tool) => tool.id === id) || null;
-}
-
 function applyRoute() {
-  const resolvedTool = getToolFromQuery() || getToolFromHash();
-  if (IS_CONVERTER_PAGE) {
-    state.activeTool = resolvedTool || state.activeTool || tools[0];
-    configureUI();
-    showToolView();
-    setStatus(t("status.ready"));
-    return;
-  }
-  if (resolvedTool) {
-    state.activeTool = resolvedTool;
+  const fromHash = getToolFromHash();
+  if (fromHash) {
+    state.activeTool = fromHash;
     configureUI();
     showToolView();
     setStatus(t("status.ready"));
@@ -1214,7 +1199,6 @@ function applyRoute() {
 }
 
 function renderToolButtons() {
-  if (!els.toolList) return;
   const visibleTools = getVisibleTools();
   els.toolList.innerHTML = "";
   const fragment = document.createDocumentFragment();
@@ -1233,7 +1217,10 @@ function renderToolButtons() {
     desc.textContent = tool.description || "";
     b.append(icon, name, desc);
     b.addEventListener("click", () => {
-      window.location.href = `converter.html?tool=${encodeURIComponent(tool.id)}`;
+      state.activeTool = tool;
+      configureUI();
+      location.hash = `#/tool/${encodeURIComponent(tool.id)}`;
+      setStatus("Ready.");
     });
     fragment.appendChild(b);
   });
@@ -1315,8 +1302,8 @@ function resetForm() {
   setStatus(t("status.resetComplete"));
 }
 
-if (els.convertBtn) els.convertBtn.addEventListener("click", runConversion);
-if (els.resetBtn) els.resetBtn.addEventListener("click", resetForm);
+els.convertBtn.addEventListener("click", runConversion);
+els.resetBtn.addEventListener("click", resetForm);
 if (els.themeBulb) {
   els.themeBulb.addEventListener("click", toggleThemeWithSound);
 }
@@ -1344,18 +1331,14 @@ if (els.removeFileBtn) {
     setStatus("File removed. Select a new file to convert.");
   });
 }
-if (els.toolSearch) {
-  els.toolSearch.addEventListener("input", (event) => {
-    state.query = event.target.value || "";
-    window.requestAnimationFrame(renderToolButtons);
-  });
-}
-if (els.sortFilter) {
-  els.sortFilter.addEventListener("change", (event) => {
-    state.sortMode = event.target.value || "az";
-    renderToolButtons();
-  });
-}
+els.toolSearch.addEventListener("input", (event) => {
+  state.query = event.target.value || "";
+  window.requestAnimationFrame(renderToolButtons);
+});
+els.sortFilter.addEventListener("change", (event) => {
+  state.sortMode = event.target.value || "az";
+  renderToolButtons();
+});
 els.topFilterButtons.forEach((button) => {
   button.addEventListener("click", () => setCategoryFilter(button.dataset.filter));
 });
@@ -1366,34 +1349,22 @@ els.relatedToolButtons.forEach((button) => {
   button.addEventListener("click", () => {
     const nextTool = tools.find((tool) => tool.id === button.dataset.toolId);
     if (!nextTool) return;
-    if (!IS_CONVERTER_PAGE) {
-      window.location.href = `converter.html?tool=${encodeURIComponent(nextTool.id)}`;
-      return;
-    }
     state.activeTool = nextTool;
     configureUI();
-    const nextUrl = `${window.location.pathname}?tool=${encodeURIComponent(nextTool.id)}`;
-    window.history.replaceState({}, "", nextUrl);
+    location.hash = `#/tool/${encodeURIComponent(nextTool.id)}`;
     setStatus(t("status.openingTool", { name: nextTool.name }));
   });
 });
 if (els.backToTools) {
   els.backToTools.addEventListener("click", () => {
-    if (IS_CONVERTER_PAGE) {
-      window.location.href = "index.html";
-      return;
-    }
     location.hash = "#/";
   });
 }
-if (els.downloadBtn) {
-  els.downloadBtn.addEventListener("click", () => {
-    triggerDownload();
-    setStatus(t("status.downloadStarted"));
-  });
-}
-if (els.fileInput) {
-  els.fileInput.addEventListener("change", () => {
+els.downloadBtn.addEventListener("click", () => {
+  triggerDownload();
+  setStatus(t("status.downloadStarted"));
+});
+els.fileInput.addEventListener("change", () => {
   const files = Array.from(els.fileInput.files || []);
   state.convertedFileSignature = null;
   updateFileSelectionUI(files);
@@ -1403,8 +1374,7 @@ if (els.fileInput) {
   els.fileInput.value = "";
   updateFileSelectionUI([]);
   setStatus(t("error.allowedForTool", { accept: state.activeTool.accept, tool: state.activeTool.name }), "error");
-  });
-}
+});
 
 if (els.languageSelect) {
   els.languageSelect.addEventListener("change", (event) => {
