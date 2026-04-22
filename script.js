@@ -499,6 +499,22 @@ async function startUsageSession() {
   refreshPlan();
 }
 
+async function fallbackSyncPremiumStatus() {
+  if (!SECURITY_API_BASE) return;
+  try {
+    const response = await fetch(`${SECURITY_API_BASE}/api/payments/session/status`, {
+      credentials: "include",
+    });
+    if (!response.ok) return;
+    const payload = await response.json().catch(() => ({}));
+    state.isPremium = Boolean(payload.isPremium);
+    if (state.isPremium) state.sessionValidated = true;
+    refreshPlan();
+  } catch (_) {
+    // Ignore fallback errors; primary flow already reports session failures.
+  }
+}
+
 async function assertSessionCanUse() {
   if (!state.securityApiReady) {
     if (!canUse()) {
@@ -1419,6 +1435,7 @@ startUsageSession().catch((error) => {
   state.sessionValidated = false;
   // Keep UI usable if backend verification is temporarily unavailable.
   console.warn(error.message || "Secure usage server is offline.");
+  fallbackSyncPremiumStatus();
   refreshPlan();
 });
 syncFilterButtons();
