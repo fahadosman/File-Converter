@@ -1,5 +1,4 @@
 ﻿const FREE_LIMIT = 5;
-const PREMIUM_OVERRIDE_KEY = "convertpro-premium-override";
 const LOCALES = window.APP_LOCALES || {};
 const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_dRmaEW2JvbXe7970Tl2kw01";
 const SECURITY_API_BASE =
@@ -190,6 +189,7 @@ const els = {
   themeBulb: document.getElementById("themeBulb"),
   brandCrown: document.getElementById("brandCrown"),
   brandTitle: document.getElementById("brandTitle"),
+  freePlanCard: document.getElementById("freePlanCard"),
   premiumStatusCard: document.getElementById("premiumStatusCard"),
   premiumStatusText: document.getElementById("premiumStatusText"),
   planStatus: document.getElementById("planStatus"),
@@ -357,11 +357,32 @@ function toggleThemeWithSound() {
 }
 
 function refreshPlan() {
+  const crown = '<span class="iap-cta__icon" aria-hidden="true">👑</span> ';
   document.body.classList.toggle("is-premium-user", Boolean(state.isPremium));
   if (els.brandTitle) {
     els.brandTitle.textContent = "File Converters";
   }
   if (els.brandCrown) els.brandCrown.classList.toggle("hidden", !state.isPremium);
+
+  if (els.freePlanCard) {
+    const showFreePlanCard = !state.isPremium;
+    els.freePlanCard.classList.toggle("hidden", !showFreePlanCard);
+    if (showFreePlanCard) els.freePlanCard.removeAttribute("hidden");
+    else els.freePlanCard.setAttribute("hidden", "");
+  }
+
+  if (els.planStatus) {
+    els.planStatus.textContent = state.isPremium
+      ? t("plan.active")
+      : t("plan.free", { used: state.usageCount, limit: FREE_LIMIT });
+  }
+
+  if (els.upgradeBtn) {
+    els.upgradeBtn.innerHTML = state.isPremium
+      ? `${crown}${t("plan.enabled")}`
+      : `${crown}${t("plan.getPremium")} - $2`;
+    els.upgradeBtn.disabled = Boolean(state.isPremium);
+  }
 
   if (els.premiumStatusCard) {
     const showPremiumCard = Boolean(state.isPremium);
@@ -623,7 +644,7 @@ function clearLegacyClientStorage() {
     "convertpro-plan",
     "convertpro-theme",
     "convertpro-usage-count",
-    PREMIUM_OVERRIDE_KEY,
+    "convertpro-premium-override",
   ];
   keysToDelete.forEach((key) => localStorage.removeItem(key));
   Object.keys(localStorage).forEach((key) => {
