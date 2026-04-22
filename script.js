@@ -1,6 +1,5 @@
 ﻿const FREE_LIMIT = 5;
 const PREMIUM_OVERRIDE_KEY = "convertpro-premium-override";
-const USAGE_COUNT_KEY = "convertpro-usage-count-persist";
 const LOCALES = window.APP_LOCALES || {};
 const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_dRmaEW2JvbXe7970Tl2kw01";
 const SECURITY_API_BASE =
@@ -393,8 +392,8 @@ function refreshPlan() {
 }
 
 function persistPlanState() {
-  localStorage.setItem(USAGE_COUNT_KEY, String(Math.max(0, Number(state.usageCount || 0))));
-  if (state.isPremium) localStorage.setItem(PREMIUM_OVERRIDE_KEY, "1");
+  // Security: plan/usage authority lives on backend session only.
+  // Keep frontend storage clean to prevent DevTools tampering.
 }
 
 function syncUsageCount(nextCount, options = {}) {
@@ -409,10 +408,8 @@ function syncUsageCount(nextCount, options = {}) {
 
 function initPlan() {
   state.deviceId = "";
-  const storedPremium = String(localStorage.getItem(PREMIUM_OVERRIDE_KEY) || "").toLowerCase();
-  state.isPremium = ["1", "true", "premium", "yes", "active"].includes(storedPremium);
-  state.usageCount = Math.max(0, Number(localStorage.getItem(USAGE_COUNT_KEY) || 0));
-  persistPlanState();
+  state.isPremium = false;
+  state.usageCount = 0;
   refreshPlan();
 }
 
@@ -483,9 +480,8 @@ async function startUsageSession() {
   const payload = await response.json();
   state.securityApiReady = true;
   state.sessionValidated = true;
-  syncUsageCount(payload.usageCount, { maxWithCurrent: true });
-  const backendPremium = Boolean(payload.isPremium);
-  state.isPremium = state.isPremium || backendPremium;
+  syncUsageCount(payload.usageCount);
+  state.isPremium = Boolean(payload.isPremium);
   persistPlanState();
   refreshPlan();
 }
@@ -505,9 +501,8 @@ async function assertSessionCanUse() {
   if (!response.ok) throw new Error("Unable to verify usage security.");
   const payload = await response.json();
   state.sessionValidated = true;
-  syncUsageCount(payload.usageCount, { maxWithCurrent: true });
-  const backendPremium = Boolean(payload.isPremium);
-  state.isPremium = state.isPremium || backendPremium;
+  syncUsageCount(payload.usageCount);
+  state.isPremium = Boolean(payload.isPremium);
   persistPlanState();
   refreshPlan();
   if (state.usageCount >= FREE_LIMIT) {
@@ -535,7 +530,7 @@ async function secureConsumeUsage() {
       Number(payload.usageCount || 0) >= FREE_LIMIT ||
       String(payload.error || "").toLowerCase().includes("limit");
     if (backendSaysLimit) {
-      syncUsageCount(payload.usageCount || FREE_LIMIT, { maxWithCurrent: true });
+      syncUsageCount(payload.usageCount || FREE_LIMIT);
       state.isPremium = Boolean(payload.isPremium);
       persistPlanState();
       refreshPlan();
@@ -545,10 +540,9 @@ async function secureConsumeUsage() {
     }
     throw new Error(payload.error || "Usage security check failed.");
   }
-  syncUsageCount(payload.usageCount || state.usageCount, { maxWithCurrent: true });
+  syncUsageCount(payload.usageCount || state.usageCount);
   state.sessionValidated = true;
-  const backendPremium = Boolean(payload.isPremium);
-  state.isPremium = state.isPremium || backendPremium;
+  state.isPremium = Boolean(payload.isPremium);
   persistPlanState();
   refreshPlan();
 }
@@ -616,16 +610,8 @@ async function syncPaymentFromReturn() {
       setStatus(t("status.premiumActivated"));
       showToastWithType(t("status.premiumActivated"), "success");
     }
-    const paidFallback =
-      paymentState === "success" || premiumState === "1" || premiumState === "true" || Boolean(sessionId);
-    if (!state.isPremium && paidFallback) {
-      state.isPremium = true;
-      persistPlanState();
-      closePremiumLimitDialog();
-      refreshPlan();
-      setStatus(t("status.premiumActivated"));
-      showToastWithType(t("status.premiumActivated"), "success");
-    }
+    // Never trust frontend query/hash params for premium unlock.
+    // Backend verification endpoint above is the only unlock source.
 
     params.delete("session_id");
     params.delete("payment");
@@ -651,6 +637,7 @@ function clearLegacyClientStorage() {
     "convertpro-plan",
     "convertpro-theme",
     "convertpro-usage-count",
+    PREMIUM_OVERRIDE_KEY,
   ];
   keysToDelete.forEach((key) => localStorage.removeItem(key));
   Object.keys(localStorage).forEach((key) => {
