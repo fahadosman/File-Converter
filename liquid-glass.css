@@ -1,0 +1,354 @@
+/* Liquid Glass UI Design System (dark-mode first, reusable, low-cost effects) */
+
+:root {
+  --glass-radius-lg: 24px;
+  --glass-radius-md: 16px;
+  --glass-radius-sm: 12px;
+  --glass-border-dark: rgba(255, 255, 255, 0.18);
+  --glass-bg-dark: linear-gradient(140deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06));
+  --glass-shadow-dark: 0 20px 40px rgba(4, 8, 28, 0.45);
+  --glass-inner-dark: inset 0 1px 0 rgba(255, 255, 255, 0.23), inset 0 -1px 0 rgba(255, 255, 255, 0.07);
+  --glass-shine: linear-gradient(115deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.05) 34%, rgba(255, 255, 255, 0) 62%);
+  --glass-backdrop: blur(16px) saturate(150%);
+}
+
+[data-theme="light"] {
+  --glass-border-dark: rgba(64, 84, 141, 0.2);
+  --glass-bg-dark: linear-gradient(140deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.56));
+  --glass-shadow-dark: 0 20px 34px rgba(96, 120, 180, 0.16);
+  --glass-inner-dark: inset 0 1px 0 rgba(255, 255, 255, 0.72), inset 0 -1px 0 rgba(255, 255, 255, 0.28);
+  --glass-shine: linear-gradient(115deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.17) 32%, rgba(255, 255, 255, 0) 60%);
+}
+
+/* Core glass surface primitive */
+.glass-surface,
+.glass-btn,
+.glass-pricing-card,
+.glass-modal__panel,
+[data-theme="dark"] .tool-list-panel,
+[data-theme="dark"] .card,
+[data-theme="dark"] .info-section,
+[data-theme="dark"] .rating-dialog,
+[data-theme="dark"] .faq-item,
+[data-theme="dark"] .related-tool,
+[data-theme="dark"] .feature-card,
+[data-theme="dark"] .step-card {
+  position: relative;
+  border: 1px solid var(--glass-border-dark);
+  background: var(--glass-bg-dark);
+  box-shadow: var(--glass-shadow-dark), var(--glass-inner-dark);
+}
+
+.glass-surface::before,
+.glass-pricing-card::before,
+[data-theme="dark"] .tool-list-panel::before,
+[data-theme="dark"] .card::before,
+[data-theme="dark"] .info-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--glass-shine);
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .glass-surface,
+  .glass-btn,
+  .glass-pricing-card,
+  .glass-modal__panel,
+  [data-theme="dark"] .tool-list-panel,
+  [data-theme="dark"] .card,
+  [data-theme="dark"] .info-section,
+  [data-theme="dark"] .rating-dialog,
+  [data-theme="dark"] .faq-item,
+  [data-theme="dark"] .related-tool,
+  [data-theme="dark"] .feature-card,
+  [data-theme="dark"] .step-card {
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    backdrop-filter: var(--glass-backdrop);
+  }
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .glass-surface,
+  .glass-btn,
+  .glass-pricing-card,
+  .glass-modal__panel,
+  [data-theme="dark"] .tool-list-panel,
+  [data-theme="dark"] .card,
+  [data-theme="dark"] .info-section,
+  [data-theme="dark"] .rating-dialog,
+  [data-theme="dark"] .faq-item,
+  [data-theme="dark"] .related-tool,
+  [data-theme="dark"] .feature-card,
+  [data-theme="dark"] .step-card {
+    background: rgba(24, 34, 62, 0.9);
+  }
+}
+
+.liquid-actions {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* GlassButton */
+.glass-btn {
+  overflow: hidden;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: var(--glass-radius-sm);
+  color: var(--text);
+  background-clip: padding-box;
+  transform: translateZ(0);
+  transition: transform 180ms ease, box-shadow 220ms ease, border-color 220ms ease, filter 200ms ease;
+}
+
+.glass-btn:hover {
+  transform: translateY(-1px) scale(1.02);
+  border-color: rgba(143, 195, 255, 0.45);
+  box-shadow: 0 16px 32px rgba(26, 42, 86, 0.35), inset 0 0 24px rgba(156, 214, 255, 0.18);
+}
+
+.glass-btn:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.glass-btn--primary {
+  background:
+    linear-gradient(130deg, rgba(97, 127, 255, 0.45), rgba(62, 196, 240, 0.3)),
+    var(--glass-bg-dark);
+  border-color: rgba(143, 195, 255, 0.45);
+}
+
+.glass-btn--icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 999px;
+  font-size: 20px;
+}
+
+.glass-ripple {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.05));
+  animation: glass-ripple 600ms ease-out forwards;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes glass-ripple {
+  from {
+    opacity: 0.8;
+    width: 8px;
+    height: 8px;
+  }
+  to {
+    opacity: 0;
+    width: 220px;
+    height: 220px;
+  }
+}
+
+/* GlassNavbar */
+.glass-navbar {
+  position: sticky;
+  top: 8px;
+  z-index: 30;
+  border-radius: var(--glass-radius-md);
+  transition: background 220ms ease, box-shadow 220ms ease, border-color 220ms ease, backdrop-filter 220ms ease;
+}
+
+.glass-navbar.is-scrolled {
+  border-color: rgba(163, 207, 255, 0.34);
+  box-shadow: 0 18px 40px rgba(8, 16, 38, 0.44);
+}
+
+/* GlassCard hover */
+.tool-list-panel,
+.card,
+.info-section,
+.feature-card,
+.step-card,
+.related-tool {
+  will-change: transform;
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+}
+
+.tool-list-panel:hover,
+.card:hover,
+.info-section:hover {
+  transform: translateY(-2px) scale(1.01);
+}
+
+/* GlassModal */
+.glass-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 75;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+}
+
+.glass-modal.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.glass-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 10, 25, 0.45);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.glass-modal__panel {
+  width: min(100%, 520px);
+  border-radius: var(--glass-radius-lg);
+  padding: 20px;
+  z-index: 1;
+  transform: translateY(14px) scale(0.98);
+  transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.glass-modal.is-open .glass-modal__panel {
+  transform: translateY(0) scale(1);
+}
+
+.glass-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* GlassPricingCard */
+.glass-pricing-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.glass-pricing-card {
+  border-radius: 20px;
+  padding: 20px;
+  overflow: hidden;
+  animation: glass-fade-in 480ms ease both;
+}
+
+.glass-pricing-card h3,
+.glass-pricing-card p {
+  margin: 0;
+}
+
+.glass-pricing-card ul {
+  margin: 14px 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+
+.glass-pricing-card__tag {
+  display: inline-flex;
+  padding: 5px 10px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid var(--glass-border-dark);
+}
+
+.glass-pricing-card__price {
+  margin-top: 8px;
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+.glass-pricing-card__price span {
+  font-size: 0.95rem;
+  color: var(--muted);
+  font-weight: 500;
+  margin-left: 6px;
+}
+
+.glass-pricing-card--featured {
+  border-color: rgba(145, 212, 255, 0.45);
+  box-shadow: 0 20px 44px rgba(30, 52, 98, 0.44), inset 0 0 0 1px rgba(153, 225, 255, 0.25);
+}
+
+.glass-pricing-card--featured::after {
+  content: "";
+  position: absolute;
+  inset: -80% 28% auto;
+  height: 220%;
+  transform: rotate(25deg);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0));
+  animation: premium-shimmer 3.8s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes premium-shimmer {
+  from {
+    transform: translateX(-140%) rotate(25deg);
+  }
+  to {
+    transform: translateX(180%) rotate(25deg);
+  }
+}
+
+@keyframes glass-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Active nav links (if used elsewhere) */
+.glass-navbar .is-active,
+.glass-nav-link.is-active {
+  border-color: rgba(139, 201, 255, 0.5);
+  background: rgba(118, 168, 255, 0.2);
+}
+
+/* Keep motion cheap and accessible */
+@media (prefers-reduced-motion: reduce) {
+  .glass-btn,
+  .glass-pricing-card,
+  .glass-modal,
+  .glass-modal__panel,
+  .glass-navbar {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .glass-pricing-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .glass-navbar {
+    top: 6px;
+  }
+}

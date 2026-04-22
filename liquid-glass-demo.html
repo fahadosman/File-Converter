@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Liquid Glass UI Demo</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="liquid-glass.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar glass-navbar" data-glass-navbar>
+      <div class="brand">Liquid Glass System</div>
+      <div class="liquid-actions">
+        <button class="glass-btn" type="button">Docs</button>
+        <button class="glass-btn glass-btn--primary" type="button" data-glass-open-modal="demoModal">Open Modal</button>
+      </div>
+    </header>
+
+    <section class="glass-pricing-grid" style="margin-top: 20px;">
+      <article class="glass-pricing-card">
+        <p class="glass-pricing-card__tag">Free</p>
+        <h3>Free</h3>
+        <p class="glass-pricing-card__price">$0<span>/month</span></p>
+        <ul>
+          <li>Basic usage</li>
+          <li>Community support</li>
+        </ul>
+        <button class="glass-btn" type="button">Current</button>
+      </article>
+      <article class="glass-pricing-card glass-pricing-card--featured">
+        <p class="glass-pricing-card__tag">Premium</p>
+        <h3>Premium</h3>
+        <p class="glass-pricing-card__price">$12<span>/month</span></p>
+        <ul>
+          <li>Unlimited projects</li>
+          <li>Priority support</li>
+        </ul>
+        <button class="glass-btn glass-btn--primary" type="button">Upgrade</button>
+      </article>
+    </section>
+  </main>
+
+  <div id="demoModal" class="glass-modal" aria-hidden="true">
+    <div class="glass-modal__backdrop" data-glass-close-modal></div>
+    <section class="glass-modal__panel" role="dialog" aria-modal="true" aria-label="Demo modal">
+      <header class="glass-modal__head">
+        <h3>Glass Modal</h3>
+        <button class="glass-btn glass-btn--icon" type="button" data-glass-close-modal aria-label="Close">×</button>
+      </header>
+      <p>Reusable modal suitable for SaaS dashboards, auth flows, and payment confirmation.</p>
+    </section>
+  </div>
+
+  <script src="liquid-glass-components.js"></script>
+  <script src="liquid-glass.js"></script>
+</body>
+</html>

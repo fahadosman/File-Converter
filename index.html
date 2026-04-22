@@ -23,12 +23,13 @@
     })();
   </script>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="liquid-glass.css" />
 </head>
 <body>
   <div class="background-glow" aria-hidden="true"></div>
 
   <main class="app-shell">
-    <header class="topbar">
+    <header class="topbar glass-navbar" data-glass-navbar>
       <div class="brand">
         <span class="brand-logo-wrap">
           <img class="brand-logo" src="favicon.svg" alt="File Converters logo" />
@@ -64,6 +65,14 @@
             </p>
           </div>
         </div>
+        <div class="liquid-actions">
+          <button class="glass-btn glass-btn--primary" type="button" data-glass-open-modal="liquidGlassModal">
+            Open Glass Preview
+          </button>
+          <button class="glass-btn" type="button">
+            Explore Components
+          </button>
+        </div>
         <div class="hero-pills">
           <span class="pill-filter active" data-filter="all">All</span>
           <span class="pill-filter" data-filter="workflow">Workflows</span>
@@ -88,6 +97,31 @@
           </div>
         </div>
         <div id="toolList" class="tool-grid" aria-label="Converter tools"></div>
+      </section>
+
+      <section class="glass-pricing-grid" aria-label="Pricing plans">
+        <article class="glass-pricing-card" data-plan="free">
+          <p class="glass-pricing-card__tag">Free</p>
+          <h3>Starter</h3>
+          <p class="glass-pricing-card__price">$0<span>/month</span></p>
+          <ul>
+            <li>5 free conversions</li>
+            <li>Core converter tools</li>
+            <li>Community support</li>
+          </ul>
+          <button type="button" class="glass-btn">Current Plan</button>
+        </article>
+        <article class="glass-pricing-card glass-pricing-card--featured" data-plan="premium">
+          <p class="glass-pricing-card__tag">Premium</p>
+          <h3>Pro</h3>
+          <p class="glass-pricing-card__price">$9.99<span>/month</span></p>
+          <ul>
+            <li>Unlimited conversions</li>
+            <li>Priority processing</li>
+            <li>All premium tools</li>
+          </ul>
+          <button id="glassPremiumBtn" type="button" class="glass-btn glass-btn--primary">Upgrade to Premium</button>
+        </article>
       </section>
 
       <section class="info-section">
@@ -271,6 +305,22 @@
   </footer>
 
   <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+  <div id="liquidGlassModal" class="glass-modal" aria-hidden="true">
+    <div class="glass-modal__backdrop" data-glass-close-modal></div>
+    <section class="glass-modal__panel" role="dialog" aria-modal="true" aria-labelledby="liquidGlassTitle">
+      <header class="glass-modal__head">
+        <h3 id="liquidGlassTitle">Liquid Glass UI</h3>
+        <button class="glass-btn glass-btn--icon" type="button" data-glass-close-modal aria-label="Close modal">×</button>
+      </header>
+      <p>
+        This modal demonstrates reusable glassmorphism surfaces, smooth transitions, and dark-mode-safe contrast.
+      </p>
+      <div class="liquid-actions">
+        <button class="glass-btn glass-btn--primary" type="button">Continue</button>
+        <button class="glass-btn" type="button" data-glass-close-modal>Cancel</button>
+      </div>
+    </section>
+  </div>
   <div id="premiumLimitDialog" class="auth-modal hidden" hidden>
     <div class="auth-modal__backdrop" data-premium-close="true"></div>
     <div class="auth-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="premiumLimitTitle">
@@ -313,6 +363,8 @@
   </div>
 
   <script src="locales.js"></script>
+  <script src="liquid-glass-components.js"></script>
+  <script src="liquid-glass.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
