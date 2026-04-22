@@ -363,6 +363,12 @@ function refreshPlan() {
     els.brandTitle.textContent = "File Converters";
   }
   if (els.brandCrown) els.brandCrown.classList.toggle("hidden", !state.isPremium);
+  if (els.glassPricingGrid) {
+    const showIap = !state.isPremium;
+    els.glassPricingGrid.classList.toggle("hidden", !showIap);
+    if (showIap) els.glassPricingGrid.removeAttribute("hidden");
+    else els.glassPricingGrid.setAttribute("hidden", "");
+  }
 
   if (els.freePlanCard) {
     const showFreePlanCard = !state.isPremium;
