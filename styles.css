@@ -117,6 +117,7 @@ body {
   gap: 14px;
   margin-bottom: 24px;
   flex-wrap: wrap;
+  min-height: 64px;
 }
 
 .brand {
@@ -745,9 +746,9 @@ button {
 }
 
 .premium-tag--top {
-  position: fixed;
-  top: 12px;
-  left: 12px;
+  position: absolute;
+  top: 22px;
+  left: 24px;
   z-index: 82;
   display: inline-flex;
   align-items: center;
@@ -761,13 +762,17 @@ button {
   pointer-events: none;
 }
 
+.premium-tag--top:not(.hidden) + .topbar .brand {
+  padding-left: 215px;
+}
+
 .premium-badge-icon {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 12px;
   display: inline-grid;
   place-items: center;
-  font-size: 28px;
+  font-size: 24px;
   line-height: 1;
   color: #fff;
   background: linear-gradient(180deg, #ffae47, #ff8509);
@@ -775,9 +780,9 @@ button {
 }
 
 .premium-badge-text {
-  font-size: 0.7rem;
+  font-size: 0.62rem;
   font-weight: 900;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: #f5f6ff;
   white-space: nowrap;
 }
@@ -1288,6 +1293,21 @@ button {
 
   .topbar {
     gap: 8px;
+  }
+
+  .premium-tag--top {
+    top: 16px;
+    left: 16px;
+    gap: 6px;
+    padding: 2px 6px;
+  }
+
+  .premium-tag--top:not(.hidden) + .topbar .brand {
+    padding-left: 0;
+  }
+
+  .premium-badge-text {
+    display: none;
   }
 
   .language-select {
