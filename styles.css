@@ -198,14 +198,22 @@ body {
 
 .hero-top {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: center;
   gap: 14px;
+}
+
+.hero-top > div {
+  width: 100%;
+  max-width: 980px;
+  margin-inline: auto;
+  text-align: center;
 }
 
 .hero h1 {
   margin: 0 0 10px;
   font-size: clamp(1.8rem, 2.8vw, 2.9rem);
+  font-family: Arial, sans-serif;
 }
 
 .hero p {
@@ -213,6 +221,7 @@ body {
   color: var(--muted);
   max-width: 820px;
   margin-inline: auto;
+  font-family: Arial, sans-serif;
 }
 
 .hero-pills {
@@ -738,18 +747,35 @@ button {
 
 .premium-tag--top {
   font-size: 0.66rem;
-  padding: 3px 8px;
+  padding: 2px 6px;
   margin-left: 2px;
+  gap: 8px;
 }
 
-.premium-tag__logo {
-  display: inline-grid;
-  place-items: center;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: rgba(166, 106, 0, 0.18);
-  font-size: 10px;
+.premium-logo-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  height: 30px;
+  border: 2px solid #223c66;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #f7f9ff, #e7eeff);
+  color: #1f3a66;
+  font-family: Arial, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 900;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.75);
+}
+
+.premium-user-word {
+  font-family: Arial, sans-serif;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: #1f3a66;
 }
 
 .iap-banner__list {

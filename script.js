@@ -385,7 +385,7 @@ function refreshPlan() {
     els.upgradeBtn.disabled = true;
     if (els.premiumTag) els.premiumTag.classList.remove("hidden");
     if (els.premiumTagTop) els.premiumTagTop.classList.remove("hidden");
-    if (els.premiumImageBadge) els.premiumImageBadge.classList.remove("hidden");
+    if (els.premiumImageBadge) els.premiumImageBadge.classList.add("hidden");
     if (els.iapBanner) els.iapBanner.classList.add("hidden");
     return;
   }
