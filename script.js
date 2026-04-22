@@ -1,4 +1,6 @@
 ﻿const FREE_LIMIT = 5;
+const PREMIUM_OVERRIDE_KEY = "convertpro-premium-override";
+const USAGE_COUNT_KEY = "convertpro-usage-count-persist";
 const LOCALES = window.APP_LOCALES || {};
 const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_dRmaEW2JvbXe7970Tl2kw01";
 const SECURITY_API_BASE =
@@ -121,7 +123,6 @@ const state = {
   pendingDownload: null,
   toastTimer: null,
   securityApiReady: Boolean(SECURITY_API_BASE),
-  sessionValidated: false,
   convertedFileSignature: null,
 };
 
@@ -189,13 +190,9 @@ const els = {
   themeBulb: document.getElementById("themeBulb"),
   brandCrown: document.getElementById("brandCrown"),
   brandTitle: document.getElementById("brandTitle"),
-  freePlanCard: document.getElementById("freePlanCard"),
-  premiumStatusCard: document.getElementById("premiumStatusCard"),
-  premiumStatusText: document.getElementById("premiumStatusText"),
   planStatus: document.getElementById("planStatus"),
   upgradeBtn: document.getElementById("upgradeBtn"),
   iapBanner: document.querySelector(".iap-banner"),
-  glassPricingGrid: document.getElementById("glassPricingGrid"),
   downloadBtn: document.getElementById("downloadBtn"),
   downloadInfo: document.getElementById("downloadInfo"),
   topFilterButtons: Array.from(document.querySelectorAll(".filter-btn")),
@@ -358,55 +355,26 @@ function toggleThemeWithSound() {
 
 function refreshPlan() {
   const crown = '<span class="iap-cta__icon" aria-hidden="true">👑</span> ';
-  document.body.classList.toggle("is-premium-user", Boolean(state.isPremium));
   if (els.brandTitle) {
     els.brandTitle.textContent = "File Converters";
   }
   if (els.brandCrown) els.brandCrown.classList.toggle("hidden", !state.isPremium);
-  if (els.glassPricingGrid) {
-    const showIap = !state.isPremium;
-    els.glassPricingGrid.classList.toggle("hidden", !showIap);
-    if (showIap) els.glassPricingGrid.removeAttribute("hidden");
-    else els.glassPricingGrid.setAttribute("hidden", "");
+  if (state.isPremium) {
+    els.planStatus.textContent = t("plan.active");
+    els.upgradeBtn.innerHTML = `${crown}${t("plan.enabled")}`;
+    els.upgradeBtn.disabled = true;
+    if (els.iapBanner) els.iapBanner.classList.add("hidden");
+    return;
   }
-
-  if (els.freePlanCard) {
-    const showFreePlanCard = !state.isPremium;
-    els.freePlanCard.classList.toggle("hidden", !showFreePlanCard);
-    if (showFreePlanCard) els.freePlanCard.removeAttribute("hidden");
-    else els.freePlanCard.setAttribute("hidden", "");
-  }
-
-  if (els.planStatus) {
-    els.planStatus.textContent = state.isPremium
-      ? t("plan.active")
-      : t("plan.free", { used: state.usageCount, limit: FREE_LIMIT });
-  }
-
-  if (els.upgradeBtn) {
-    els.upgradeBtn.innerHTML = state.isPremium
-      ? `${crown}${t("plan.enabled")}`
-      : `${crown}${t("plan.getPremium")} - $2`;
-    els.upgradeBtn.disabled = Boolean(state.isPremium);
-  }
-
-  if (els.premiumStatusCard) {
-    const showPremiumCard = Boolean(state.isPremium);
-    els.premiumStatusCard.classList.toggle("hidden", !showPremiumCard);
-    if (showPremiumCard) {
-      els.premiumStatusCard.removeAttribute("hidden");
-      if (els.premiumStatusText) {
-        els.premiumStatusText.textContent = "Unlimited conversions are active for your account.";
-      }
-    } else {
-      els.premiumStatusCard.setAttribute("hidden", "");
-    }
-  }
+  els.planStatus.textContent = t("plan.free", { used: state.usageCount, limit: FREE_LIMIT });
+  els.upgradeBtn.innerHTML = `${crown}${t("plan.getPremium")} - $2`;
+  els.upgradeBtn.disabled = false;
+  if (els.iapBanner) els.iapBanner.classList.remove("hidden");
 }
 
 function persistPlanState() {
-  // Security: plan/usage authority lives on backend session only.
-  // Keep frontend storage clean to prevent DevTools tampering.
+  localStorage.setItem(USAGE_COUNT_KEY, String(Math.max(0, Number(state.usageCount || 0))));
+  if (state.isPremium) localStorage.setItem(PREMIUM_OVERRIDE_KEY, "1");
 }
 
 function syncUsageCount(nextCount, options = {}) {
@@ -421,8 +389,9 @@ function syncUsageCount(nextCount, options = {}) {
 
 function initPlan() {
   state.deviceId = "";
-  state.isPremium = false;
-  state.usageCount = 0;
+  state.isPremium = localStorage.getItem(PREMIUM_OVERRIDE_KEY) === "1";
+  state.usageCount = Math.max(0, Number(localStorage.getItem(USAGE_COUNT_KEY) || 0));
+  persistPlanState();
   refreshPlan();
 }
 
@@ -492,27 +461,11 @@ async function startUsageSession() {
   if (!response.ok) throw new Error("Usage security service unavailable.");
   const payload = await response.json();
   state.securityApiReady = true;
-  state.sessionValidated = true;
-  syncUsageCount(payload.usageCount);
-  state.isPremium = Boolean(payload.isPremium);
+  syncUsageCount(payload.usageCount, { maxWithCurrent: true });
+  const backendPremium = Boolean(payload.isPremium);
+  state.isPremium = state.isPremium || backendPremium;
   persistPlanState();
   refreshPlan();
-}
-
-async function fallbackSyncPremiumStatus() {
-  if (!SECURITY_API_BASE) return;
-  try {
-    const response = await fetch(`${SECURITY_API_BASE}/api/payments/session/status`, {
-      credentials: "include",
-    });
-    if (!response.ok) return;
-    const payload = await response.json().catch(() => ({}));
-    state.isPremium = Boolean(payload.isPremium);
-    if (state.isPremium) state.sessionValidated = true;
-    refreshPlan();
-  } catch (_) {
-    // Ignore fallback errors; primary flow already reports session failures.
-  }
 }
 
 async function assertSessionCanUse() {
@@ -529,9 +482,9 @@ async function assertSessionCanUse() {
   });
   if (!response.ok) throw new Error("Unable to verify usage security.");
   const payload = await response.json();
-  state.sessionValidated = true;
-  syncUsageCount(payload.usageCount);
-  state.isPremium = Boolean(payload.isPremium);
+  syncUsageCount(payload.usageCount, { maxWithCurrent: true });
+  const backendPremium = Boolean(payload.isPremium);
+  state.isPremium = state.isPremium || backendPremium;
   persistPlanState();
   refreshPlan();
   if (state.usageCount >= FREE_LIMIT) {
@@ -559,7 +512,7 @@ async function secureConsumeUsage() {
       Number(payload.usageCount || 0) >= FREE_LIMIT ||
       String(payload.error || "").toLowerCase().includes("limit");
     if (backendSaysLimit) {
-      syncUsageCount(payload.usageCount || FREE_LIMIT);
+      syncUsageCount(payload.usageCount || FREE_LIMIT, { maxWithCurrent: true });
       state.isPremium = Boolean(payload.isPremium);
       persistPlanState();
       refreshPlan();
@@ -569,9 +522,9 @@ async function secureConsumeUsage() {
     }
     throw new Error(payload.error || "Usage security check failed.");
   }
-  syncUsageCount(payload.usageCount || state.usageCount);
-  state.sessionValidated = true;
-  state.isPremium = Boolean(payload.isPremium);
+  syncUsageCount(payload.usageCount || state.usageCount, { maxWithCurrent: true });
+  const backendPremium = Boolean(payload.isPremium);
+  state.isPremium = state.isPremium || backendPremium;
   persistPlanState();
   refreshPlan();
 }
@@ -639,8 +592,16 @@ async function syncPaymentFromReturn() {
       setStatus(t("status.premiumActivated"));
       showToastWithType(t("status.premiumActivated"), "success");
     }
-    // Never trust frontend query/hash params for premium unlock.
-    // Backend verification endpoint above is the only unlock source.
+    const paidFallback =
+      paymentState === "success" || premiumState === "1" || Boolean(sessionId);
+    if (!state.isPremium && paidFallback) {
+      state.isPremium = true;
+      persistPlanState();
+      closePremiumLimitDialog();
+      refreshPlan();
+      setStatus(t("status.premiumActivated"));
+      showToastWithType(t("status.premiumActivated"), "success");
+    }
 
     params.delete("session_id");
     params.delete("payment");
@@ -666,7 +627,6 @@ function clearLegacyClientStorage() {
     "convertpro-plan",
     "convertpro-theme",
     "convertpro-usage-count",
-    "convertpro-premium-override",
   ];
   keysToDelete.forEach((key) => localStorage.removeItem(key));
   Object.keys(localStorage).forEach((key) => {
@@ -1350,7 +1310,7 @@ els.resetBtn.addEventListener("click", resetForm);
 if (els.themeBulb) {
   els.themeBulb.addEventListener("click", toggleThemeWithSound);
 }
-if (els.upgradeBtn) els.upgradeBtn.addEventListener("click", upgrade);
+els.upgradeBtn.addEventListener("click", upgrade);
 if (els.premiumDialogUpgradeBtn) els.premiumDialogUpgradeBtn.addEventListener("click", upgrade);
 if (els.premiumDialogCloseBtn) els.premiumDialogCloseBtn.addEventListener("click", closePremiumLimitDialog);
 if (els.premiumLimitDialog) {
@@ -1432,10 +1392,8 @@ initLanguage();
 initPlan();
 startUsageSession().catch((error) => {
   state.securityApiReady = false;
-  state.sessionValidated = false;
   // Keep UI usable if backend verification is temporarily unavailable.
   console.warn(error.message || "Secure usage server is offline.");
-  fallbackSyncPremiumStatus();
   refreshPlan();
 });
 syncFilterButtons();

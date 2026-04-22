@@ -361,8 +361,6 @@ body {
 .tool-name {
   flex: 1;
   text-align: center;
-  font-size: 14px;
-  font-weight: 700;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -370,7 +368,7 @@ body {
 }
 
 .tool-desc {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   color: var(--muted);
   line-height: 1.3;
@@ -1037,28 +1035,6 @@ button {
 
 .hidden {
   display: none;
-}
-
-/* Hard guard: premium users should never see IAP prompts/cards */
-body.is-premium-user .iap-banner,
-body.is-premium-user #glassPricingGrid,
-body.is-premium-user .glass-pricing-grid {
-  display: none !important;
-}
-
-.premium-status-card {
-  border-color: rgba(30, 207, 154, 0.35);
-  background: linear-gradient(130deg, rgba(30, 207, 154, 0.14), rgba(66, 215, 255, 0.1));
-}
-
-.premium-status-card h3 {
-  margin: 0 0 6px;
-  color: #9fffd6;
-}
-
-.premium-status-card p {
-  margin: 0;
-  color: var(--muted);
 }
 
 .is-busy .primary-btn {
