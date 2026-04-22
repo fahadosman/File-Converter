@@ -1,4 +1,5 @@
 ﻿const FREE_LIMIT = 5;
+const PREMIUM_OVERRIDE_KEY = "convertpro-premium-override";
 const LOCALES = window.APP_LOCALES || {};
 const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_dRmaEW2JvbXe7970Tl2kw01";
 const SECURITY_API_BASE =
@@ -372,7 +373,7 @@ function refreshPlan() {
 
 function initPlan() {
   state.deviceId = "";
-  state.isPremium = false;
+  state.isPremium = localStorage.getItem(PREMIUM_OVERRIDE_KEY) === "1";
   state.usageCount = 0;
   refreshPlan();
 }
@@ -444,7 +445,9 @@ async function startUsageSession() {
   const payload = await response.json();
   state.securityApiReady = true;
   state.usageCount = Number(payload.usageCount || 0);
-  state.isPremium = Boolean(payload.isPremium);
+  const backendPremium = Boolean(payload.isPremium);
+  state.isPremium = state.isPremium || backendPremium;
+  if (state.isPremium) localStorage.setItem(PREMIUM_OVERRIDE_KEY, "1");
   refreshPlan();
 }
 
@@ -463,7 +466,9 @@ async function assertSessionCanUse() {
   if (!response.ok) throw new Error("Unable to verify usage security.");
   const payload = await response.json();
   state.usageCount = Number(payload.usageCount || 0);
-  state.isPremium = Boolean(payload.isPremium);
+  const backendPremium = Boolean(payload.isPremium);
+  state.isPremium = state.isPremium || backendPremium;
+  if (state.isPremium) localStorage.setItem(PREMIUM_OVERRIDE_KEY, "1");
   refreshPlan();
   if (state.usageCount >= FREE_LIMIT) {
     const error = new Error(t("error.freeLimit"));
@@ -500,7 +505,9 @@ async function secureConsumeUsage() {
     throw new Error(payload.error || "Usage security check failed.");
   }
   state.usageCount = Number(payload.usageCount || state.usageCount);
-  state.isPremium = Boolean(payload.isPremium);
+  const backendPremium = Boolean(payload.isPremium);
+  state.isPremium = state.isPremium || backendPremium;
+  if (state.isPremium) localStorage.setItem(PREMIUM_OVERRIDE_KEY, "1");
   refreshPlan();
 }
 
@@ -546,7 +553,9 @@ async function syncPaymentFromReturn() {
     const hashParams = new URLSearchParams(hashQuery);
 
     // Stripe success URLs usually include session_id; keep payment=success fallback.
+    const sessionId = params.get("session_id") || hashParams.get("session_id");
     const paymentState = params.get("payment") || hashParams.get("payment");
+    const premiumState = params.get("premium") || hashParams.get("premium");
     const orderRef = params.get("orderRef") || hashParams.get("orderRef");
     const backendConfirmed = paymentState === "success" && Boolean(orderRef);
     if (backendConfirmed) {
@@ -564,10 +573,24 @@ async function syncPaymentFromReturn() {
       setStatus(t("status.premiumActivated"));
       showToastWithType(t("status.premiumActivated"), "success");
     }
+    const paidFallback =
+      paymentState === "success" || premiumState === "1" || Boolean(sessionId);
+    if (!state.isPremium && paidFallback) {
+      state.isPremium = true;
+      localStorage.setItem(PREMIUM_OVERRIDE_KEY, "1");
+      closePremiumLimitDialog();
+      refreshPlan();
+      setStatus(t("status.premiumActivated"));
+      showToastWithType(t("status.premiumActivated"), "success");
+    }
 
+    params.delete("session_id");
     params.delete("payment");
+    params.delete("premium");
     params.delete("orderRef");
+    hashParams.delete("session_id");
     hashParams.delete("payment");
+    hashParams.delete("premium");
     hashParams.delete("orderRef");
     const cleanHash = "#/";
     const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${cleanHash}`;

@@ -137,6 +137,11 @@ body {
   text-transform: none;
 }
 
+.brand-logo-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
 .brand-logo {
   width: 40px;
   height: 40px;
@@ -146,14 +151,17 @@ body {
 }
 
 .brand-crown {
+  position: absolute;
+  right: -6px;
+  top: -6px;
   display: inline-grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
   background: linear-gradient(135deg, #ffcc61, #ff9d1f);
   box-shadow: 0 6px 14px rgba(255, 157, 31, 0.35);
-  font-size: 14px;
+  font-size: 11px;
   line-height: 1;
   flex-shrink: 0;
 }
