@@ -1037,6 +1037,13 @@ button {
   display: none;
 }
 
+/* Hard guard: premium users should never see IAP prompts/cards */
+body.is-premium-user .iap-banner,
+body.is-premium-user #glassPricingGrid,
+body.is-premium-user .glass-pricing-grid {
+  display: none !important;
+}
+
 .is-busy .primary-btn {
   opacity: 0.7;
   cursor: not-allowed;

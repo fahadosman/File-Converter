@@ -358,6 +358,7 @@ function toggleThemeWithSound() {
 function refreshPlan() {
   const crown = '<span class="iap-cta__icon" aria-hidden="true">👑</span> ';
   const shouldShowIap = !state.isPremium && (state.sessionValidated || !state.securityApiReady);
+  document.body.classList.toggle("is-premium-user", Boolean(state.isPremium));
   if (els.brandTitle) {
     els.brandTitle.textContent = "File Converters";
   }
@@ -401,7 +402,8 @@ function syncUsageCount(nextCount, options = {}) {
 
 function initPlan() {
   state.deviceId = "";
-  state.isPremium = localStorage.getItem(PREMIUM_OVERRIDE_KEY) === "1";
+  const storedPremium = String(localStorage.getItem(PREMIUM_OVERRIDE_KEY) || "").toLowerCase();
+  state.isPremium = storedPremium === "1" || storedPremium === "true";
   state.usageCount = Math.max(0, Number(localStorage.getItem(USAGE_COUNT_KEY) || 0));
   persistPlanState();
   refreshPlan();
