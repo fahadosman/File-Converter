@@ -425,9 +425,7 @@ function closePremiumLimitDialog() {
 }
 
 function canUse() {
-  if (state.isPremium) return true;
-  if (!state.securityApiReady) return false;
-  return state.usageCount < FREE_LIMIT;
+  return state.isPremium || state.usageCount < FREE_LIMIT;
 }
 
 function buildFileSignature(file, toolId) {
@@ -499,7 +497,10 @@ async function assertSessionCanUse() {
 
 async function secureConsumeUsage() {
   if (state.isPremium) return;
-  if (!state.securityApiReady) throw new Error("Secure usage server is required for free conversions.");
+  if (!state.securityApiReady) {
+    addUsage();
+    return;
+  }
   const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/consume`, {
     method: "POST",
     credentials: "include",
@@ -1215,9 +1216,6 @@ function setCategoryFilter(category) {
 async function runConversion() {
   try {
     if (state.isBusy) return;
-    if (!state.isPremium && !state.securityApiReady) {
-      throw new Error("Secure usage server is required. Start payment-server.js to continue.");
-    }
     if (!canUse()) {
       openPremiumLimitDialog();
       return;
