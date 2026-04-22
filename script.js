@@ -1354,7 +1354,10 @@ initLanguage();
 initPlan();
 startUsageSession().catch((error) => {
   state.securityApiReady = false;
-  setStatus(error.message || "Secure usage server is offline. Free conversions are blocked.", "error");
+  // Avoid showing a noisy startup error toast on every refresh.
+  // We still block free conversion securely and show an error only when user tries to convert.
+  console.warn(error.message || "Secure usage server is offline.");
+  refreshPlan();
 });
 syncFilterButtons();
 syncPaymentFromReturn();

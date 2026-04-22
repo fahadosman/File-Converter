@@ -13,6 +13,12 @@
   />
   <script>
     (function () {
+      try {
+        var savedTheme = localStorage.getItem("convertpro-theme");
+        if (savedTheme === "light" || savedTheme === "dark") {
+          document.documentElement.setAttribute("data-theme", savedTheme);
+        }
+      } catch (e) {}
       if (window.__PAYMENTS_API_BASE__) return;
       if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
         window.__PAYMENTS_API_BASE__ = "http://localhost:8787";
