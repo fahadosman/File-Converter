@@ -126,7 +126,7 @@ body {
   font-size: 24px;
   font-weight: 800;
   letter-spacing: 0.3px;
-  text-transform: lowercase;
+  text-transform: none;
 }
 
 .brand-logo {
@@ -669,52 +669,32 @@ button {
   background: rgba(124, 140, 255, 0.12);
 }
 
-.theme-switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--panel-border);
-  background: var(--soft-bg);
+.bulb-indicator {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  background: transparent;
+  font-size: 24px;
+  line-height: 1;
   cursor: pointer;
-  max-width: 160px;
-  width: 100%;
+  user-select: none;
+  transition: transform 0.2s ease, text-shadow 0.2s ease;
 }
 
-.theme-switch input {
-  display: none;
+.bulb-indicator:hover {
+  transform: translateY(-1px) scale(1.05);
+  text-shadow: 0 0 10px rgba(255, 208, 89, 0.8), 0 0 16px rgba(255, 208, 89, 0.45);
 }
 
-.theme-switch .slider {
-  width: 52px;
-  height: 28px;
-  border-radius: 999px;
-  background: rgba(120, 134, 178, 0.5);
-  position: relative;
-  transition: 0.25s ease;
-  flex-shrink: 0;
-}
-
-.theme-switch .slider::after {
-  content: "";
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  position: absolute;
-  left: 3px;
-  top: 3px;
-  background: #f7fbff;
-  transition: 0.25s ease;
-}
-
-.theme-switch input:checked + .slider::after {
-  transform: translateX(24px);
-}
-
-.theme-switch:focus-within {
+.bulb-indicator:focus-visible {
   outline: 2px solid var(--accent-2);
   outline-offset: 2px;
+}
+
+[data-theme="light"] .bulb-indicator {
+  text-shadow: 0 0 10px rgba(255, 196, 64, 0.45);
 }
 
 .iap-banner {
@@ -1203,8 +1183,7 @@ button {
     width: 100%;
   }
 
-  .language-select,
-  .theme-switch {
+  .language-select {
     flex: 1 1 220px;
     max-width: none;
   }
@@ -1286,25 +1265,10 @@ button {
     min-width: 0;
   }
 
-  .theme-switch {
-    max-width: none;
-    padding: 6px 10px;
-  }
-
-  .theme-switch .slider {
-    width: 44px;
-    height: 24px;
-  }
-
-  .theme-switch .slider::after {
-    width: 18px;
-    height: 18px;
-    left: 3px;
-    top: 3px;
-  }
-
-  .theme-switch input:checked + .slider::after {
-    transform: translateX(20px);
+  .bulb-indicator {
+    width: 30px;
+    height: 30px;
+    font-size: 24px;
   }
 
   .premium-dialog-title {

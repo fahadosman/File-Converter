@@ -190,7 +190,7 @@ const els = {
   convertBtn: document.getElementById("convertBtn"),
   resetBtn: document.getElementById("resetBtn"),
   status: document.getElementById("status"),
-  themeSwitch: document.getElementById("themeSwitch"),
+  themeBulb: document.getElementById("themeBulb"),
   planStatus: document.getElementById("planStatus"),
   upgradeBtn: document.getElementById("upgradeBtn"),
   premiumTag: document.getElementById("premiumTag"),
@@ -340,18 +340,41 @@ function setBusy(busy) {
 function applyTheme(theme) {
   state.theme = theme;
   document.documentElement.setAttribute("data-theme", theme);
-  if (els.themeSwitch) els.themeSwitch.checked = theme === "light";
+  if (els.themeBulb) {
+    const readable = theme === "light" ? "Light" : "Dark";
+    els.themeBulb.setAttribute("title", `Theme: ${readable}`);
+    els.themeBulb.setAttribute("aria-label", `Switch to ${theme === "light" ? "dark" : "light"} mode`);
+  }
 }
 
 function initTheme() {
-  const t = localStorage.getItem(THEME_KEY);
-  applyTheme(t === "light" || t === "dark" ? t : "dark");
+  const savedTheme = localStorage.getItem(THEME_KEY);
+  applyTheme(savedTheme === "light" || savedTheme === "dark" ? savedTheme : "dark");
 }
 
-function toggleTheme() {
-  const n = state.theme === "dark" ? "light" : "dark";
-  applyTheme(n);
-  localStorage.setItem(THEME_KEY, n);
+function playThemeToggleSound(isLightMode) {
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtx) return;
+  const ctx = new AudioCtx();
+  const oscillator = ctx.createOscillator();
+  const gain = ctx.createGain();
+  oscillator.type = "triangle";
+  oscillator.frequency.setValueAtTime(isLightMode ? 960 : 620, ctx.currentTime);
+  oscillator.frequency.exponentialRampToValueAtTime(isLightMode ? 1280 : 460, ctx.currentTime + 0.08);
+  gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
+  oscillator.connect(gain);
+  gain.connect(ctx.destination);
+  oscillator.start();
+  oscillator.stop(ctx.currentTime + 0.13);
+}
+
+function toggleThemeWithSound() {
+  const nextTheme = state.theme === "dark" ? "light" : "dark";
+  applyTheme(nextTheme);
+  localStorage.setItem(THEME_KEY, nextTheme);
+  playThemeToggleSound(nextTheme === "light");
 }
 
 function refreshPlan() {
@@ -467,7 +490,11 @@ async function assertSessionCanUse() {
   state.usageCount = Number(payload.usageCount || 0);
   localStorage.setItem(usageStorageKey(), String(state.usageCount));
   refreshPlan();
-  if (state.usageCount >= FREE_LIMIT) throw new Error(t("error.freeLimit"));
+  if (state.usageCount >= FREE_LIMIT) {
+    const error = new Error(t("error.freeLimit"));
+    error.code = "FREE_LIMIT_REACHED";
+    throw error;
+  }
 }
 
 async function secureConsumeUsage() {
@@ -480,7 +507,20 @@ async function secureConsumeUsage() {
     body: JSON.stringify({}),
   });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.error || "Usage security check failed.");
+  if (!response.ok) {
+    const backendSaysLimit =
+      response.status === 403 ||
+      Number(payload.usageCount || 0) >= FREE_LIMIT ||
+      String(payload.error || "").toLowerCase().includes("limit");
+    if (backendSaysLimit) {
+      state.usageCount = Number(payload.usageCount || FREE_LIMIT);
+      refreshPlan();
+      const error = new Error(t("error.freeLimit"));
+      error.code = "FREE_LIMIT_REACHED";
+      throw error;
+    }
+    throw new Error(payload.error || "Usage security check failed.");
+  }
   state.usageCount = Number(payload.usageCount || state.usageCount);
   localStorage.setItem(usageStorageKey(), String(state.usageCount));
   refreshPlan();
@@ -1210,7 +1250,7 @@ async function runConversion() {
       els.downloadInfo.textContent = t("download.browserDirect");
     }
   } catch (err) {
-    if ((err.message || "").includes(t("error.freeLimit"))) {
+    if (err?.code === "FREE_LIMIT_REACHED" || (err.message || "").includes(t("error.freeLimit"))) {
       openPremiumLimitDialog();
     }
     setStatus(err.message || "Conversion failed.", "error");
@@ -1230,11 +1270,9 @@ function resetForm() {
 
 els.convertBtn.addEventListener("click", runConversion);
 els.resetBtn.addEventListener("click", resetForm);
-els.themeSwitch.addEventListener("change", () => {
-  const nextTheme = els.themeSwitch.checked ? "light" : "dark";
-  applyTheme(nextTheme);
-  localStorage.setItem(THEME_KEY, nextTheme);
-});
+if (els.themeBulb) {
+  els.themeBulb.addEventListener("click", toggleThemeWithSound);
+}
 els.upgradeBtn.addEventListener("click", upgrade);
 if (els.premiumDialogUpgradeBtn) els.premiumDialogUpgradeBtn.addEventListener("click", upgrade);
 if (els.premiumDialogCloseBtn) els.premiumDialogCloseBtn.addEventListener("click", closePremiumLimitDialog);

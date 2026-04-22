@@ -3,17 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>file converters</title>
-  <script>
-    (function () {
-      try {
-        var savedTheme = localStorage.getItem("convertpro-theme");
-        if (savedTheme === "light" || savedTheme === "dark") {
-          document.documentElement.setAttribute("data-theme", savedTheme);
-        }
-      } catch (e) {}
-    })();
-  </script>
+  <title>File Converters</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -21,6 +11,14 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet"
   />
+  <script>
+    (function () {
+      if (window.__PAYMENTS_API_BASE__) return;
+      if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+        window.__PAYMENTS_API_BASE__ = "http://localhost:8787";
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -31,7 +29,7 @@
     <header class="topbar">
       <div class="brand">
         <span class="brand-logo" aria-hidden="true">📁</span>
-        <span>file converters</span>
+        <span>File Converters</span>
         <span id="premiumTagTop" class="premium-tag premium-tag--top hidden">
           <span class="premium-tag__logo" aria-hidden="true">👑</span>
           PREMIUM USER
@@ -48,10 +46,7 @@
         <option value="ru">Russian</option>
         <option value="es">Spanish</option>
       </select>
-      <label class="theme-switch" for="themeSwitch" aria-label="Toggle dark and light mode">
-        <input id="themeSwitch" type="checkbox" />
-        <span class="slider"></span>
-      </label>
+      <button id="themeBulb" class="bulb-indicator" type="button" aria-label="Toggle light and dark mode" title="Theme: Dark">💡</button>
     </header>
 
     <div id="viewHome" class="view view--home">
