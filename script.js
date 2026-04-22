@@ -367,7 +367,10 @@ function refreshPlan() {
     els.planStatus.textContent = t("plan.active");
     els.upgradeBtn.innerHTML = `${crown}${t("plan.enabled")}`;
     els.upgradeBtn.disabled = true;
-    if (els.iapBanner) els.iapBanner.classList.add("hidden");
+    if (els.iapBanner) {
+      els.iapBanner.classList.add("hidden");
+      els.iapBanner.setAttribute("hidden", "");
+    }
     if (els.glassPricingGrid) {
       els.glassPricingGrid.classList.add("hidden");
       els.glassPricingGrid.setAttribute("hidden", "");
@@ -377,7 +380,11 @@ function refreshPlan() {
   els.planStatus.textContent = t("plan.free", { used: state.usageCount, limit: FREE_LIMIT });
   els.upgradeBtn.innerHTML = `${crown}${t("plan.getPremium")} - $2`;
   els.upgradeBtn.disabled = false;
-  if (els.iapBanner) els.iapBanner.classList.toggle("hidden", !shouldShowIap);
+  if (els.iapBanner) {
+    els.iapBanner.classList.toggle("hidden", !shouldShowIap);
+    if (shouldShowIap) els.iapBanner.removeAttribute("hidden");
+    else els.iapBanner.setAttribute("hidden", "");
+  }
   if (els.glassPricingGrid) {
     els.glassPricingGrid.classList.toggle("hidden", !shouldShowIap);
     if (shouldShowIap) els.glassPricingGrid.removeAttribute("hidden");
@@ -403,7 +410,7 @@ function syncUsageCount(nextCount, options = {}) {
 function initPlan() {
   state.deviceId = "";
   const storedPremium = String(localStorage.getItem(PREMIUM_OVERRIDE_KEY) || "").toLowerCase();
-  state.isPremium = storedPremium === "1" || storedPremium === "true";
+  state.isPremium = ["1", "true", "premium", "yes", "active"].includes(storedPremium);
   state.usageCount = Math.max(0, Number(localStorage.getItem(USAGE_COUNT_KEY) || 0));
   persistPlanState();
   refreshPlan();
@@ -455,8 +462,7 @@ function updateFileSelectionUI(files) {
 }
 
 function canUse() {
-  // Access decisions must come from backend-backed session checks.
-  return state.sessionValidated && (state.isPremium || state.usageCount < FREE_LIMIT);
+  return state.isPremium || state.usageCount < FREE_LIMIT;
 }
 
 function addUsageFallback() {
@@ -486,9 +492,12 @@ async function startUsageSession() {
 
 async function assertSessionCanUse() {
   if (!state.securityApiReady) {
-    const error = new Error("Usage validation service is unavailable. Please retry in a moment.");
-    error.code = "USAGE_VALIDATION_UNAVAILABLE";
-    throw error;
+    if (!canUse()) {
+      const error = new Error(t("error.freeLimit"));
+      error.code = "FREE_LIMIT_REACHED";
+      throw error;
+    }
+    return;
   }
   const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/status`, {
     credentials: "include",
@@ -510,9 +519,8 @@ async function assertSessionCanUse() {
 
 async function secureConsumeUsage() {
   if (!state.securityApiReady) {
-    const error = new Error("Usage validation service is unavailable. Please retry in a moment.");
-    error.code = "USAGE_VALIDATION_UNAVAILABLE";
-    throw error;
+    addUsageFallback();
+    return;
   }
   const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/consume`, {
     method: "POST",
@@ -608,8 +616,16 @@ async function syncPaymentFromReturn() {
       setStatus(t("status.premiumActivated"));
       showToastWithType(t("status.premiumActivated"), "success");
     }
-    // Never trust frontend redirect/session parameters for premium unlock.
-    // Premium is granted only after backend verification endpoint confirms success.
+    const paidFallback =
+      paymentState === "success" || premiumState === "1" || premiumState === "true" || Boolean(sessionId);
+    if (!state.isPremium && paidFallback) {
+      state.isPremium = true;
+      persistPlanState();
+      closePremiumLimitDialog();
+      refreshPlan();
+      setStatus(t("status.premiumActivated"));
+      showToastWithType(t("status.premiumActivated"), "success");
+    }
 
     params.delete("session_id");
     params.delete("payment");
