@@ -1,5 +1,6 @@
 ﻿const FREE_LIMIT = 5;
 const PREMIUM_OVERRIDE_KEY = "convertpro-premium-override";
+const USAGE_COUNT_KEY = "convertpro-usage-count-persist";
 const LOCALES = window.APP_LOCALES || {};
 const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_dRmaEW2JvbXe7970Tl2kw01";
 const SECURITY_API_BASE =
@@ -366,15 +367,31 @@ function refreshPlan() {
     return;
   }
   els.planStatus.textContent = t("plan.free", { used: state.usageCount, limit: FREE_LIMIT });
-  els.upgradeBtn.innerHTML = `${crown}${t("plan.getPremium")}`;
+  els.upgradeBtn.innerHTML = `${crown}${t("plan.getPremium")} - $2`;
   els.upgradeBtn.disabled = false;
   if (els.iapBanner) els.iapBanner.classList.remove("hidden");
+}
+
+function persistPlanState() {
+  localStorage.setItem(USAGE_COUNT_KEY, String(Math.max(0, Number(state.usageCount || 0))));
+  if (state.isPremium) localStorage.setItem(PREMIUM_OVERRIDE_KEY, "1");
+}
+
+function syncUsageCount(nextCount, options = {}) {
+  const numeric = Math.max(0, Number(nextCount || 0));
+  if (options.maxWithCurrent) {
+    state.usageCount = Math.max(Number(state.usageCount || 0), numeric);
+  } else {
+    state.usageCount = numeric;
+  }
+  persistPlanState();
 }
 
 function initPlan() {
   state.deviceId = "";
   state.isPremium = localStorage.getItem(PREMIUM_OVERRIDE_KEY) === "1";
-  state.usageCount = 0;
+  state.usageCount = Math.max(0, Number(localStorage.getItem(USAGE_COUNT_KEY) || 0));
+  persistPlanState();
   refreshPlan();
 }
 
@@ -429,7 +446,7 @@ function canUse() {
 
 function addUsageFallback() {
   if (state.isPremium) return;
-  state.usageCount += 1;
+  syncUsageCount(state.usageCount + 1);
   refreshPlan();
 }
 
@@ -444,10 +461,10 @@ async function startUsageSession() {
   if (!response.ok) throw new Error("Usage security service unavailable.");
   const payload = await response.json();
   state.securityApiReady = true;
-  state.usageCount = Number(payload.usageCount || 0);
+  syncUsageCount(payload.usageCount, { maxWithCurrent: true });
   const backendPremium = Boolean(payload.isPremium);
   state.isPremium = state.isPremium || backendPremium;
-  if (state.isPremium) localStorage.setItem(PREMIUM_OVERRIDE_KEY, "1");
+  persistPlanState();
   refreshPlan();
 }
 
@@ -465,10 +482,10 @@ async function assertSessionCanUse() {
   });
   if (!response.ok) throw new Error("Unable to verify usage security.");
   const payload = await response.json();
-  state.usageCount = Number(payload.usageCount || 0);
+  syncUsageCount(payload.usageCount, { maxWithCurrent: true });
   const backendPremium = Boolean(payload.isPremium);
   state.isPremium = state.isPremium || backendPremium;
-  if (state.isPremium) localStorage.setItem(PREMIUM_OVERRIDE_KEY, "1");
+  persistPlanState();
   refreshPlan();
   if (state.usageCount >= FREE_LIMIT) {
     const error = new Error(t("error.freeLimit"));
@@ -495,8 +512,9 @@ async function secureConsumeUsage() {
       Number(payload.usageCount || 0) >= FREE_LIMIT ||
       String(payload.error || "").toLowerCase().includes("limit");
     if (backendSaysLimit) {
-      state.usageCount = Number(payload.usageCount || FREE_LIMIT);
+      syncUsageCount(payload.usageCount || FREE_LIMIT, { maxWithCurrent: true });
       state.isPremium = Boolean(payload.isPremium);
+      persistPlanState();
       refreshPlan();
       const error = new Error(t("error.freeLimit"));
       error.code = "FREE_LIMIT_REACHED";
@@ -504,10 +522,10 @@ async function secureConsumeUsage() {
     }
     throw new Error(payload.error || "Usage security check failed.");
   }
-  state.usageCount = Number(payload.usageCount || state.usageCount);
+  syncUsageCount(payload.usageCount || state.usageCount, { maxWithCurrent: true });
   const backendPremium = Boolean(payload.isPremium);
   state.isPremium = state.isPremium || backendPremium;
-  if (state.isPremium) localStorage.setItem(PREMIUM_OVERRIDE_KEY, "1");
+  persistPlanState();
   refreshPlan();
 }
 
@@ -568,6 +586,7 @@ async function syncPaymentFromReturn() {
       const activatePayload = await activateResponse.json().catch(() => ({}));
       if (!activateResponse.ok) throw new Error(activatePayload.error || t("error.paymentVerifyFailed"));
       state.isPremium = Boolean(activatePayload.isPremium);
+      persistPlanState();
       closePremiumLimitDialog();
       refreshPlan();
       setStatus(t("status.premiumActivated"));
@@ -577,7 +596,7 @@ async function syncPaymentFromReturn() {
       paymentState === "success" || premiumState === "1" || Boolean(sessionId);
     if (!state.isPremium && paidFallback) {
       state.isPremium = true;
-      localStorage.setItem(PREMIUM_OVERRIDE_KEY, "1");
+      persistPlanState();
       closePremiumLimitDialog();
       refreshPlan();
       setStatus(t("status.premiumActivated"));

@@ -25,14 +25,14 @@
 .glass-btn,
 .glass-pricing-card,
 .glass-modal__panel,
-[data-theme="dark"] .tool-list-panel,
-[data-theme="dark"] .card,
-[data-theme="dark"] .info-section,
-[data-theme="dark"] .rating-dialog,
-[data-theme="dark"] .faq-item,
-[data-theme="dark"] .related-tool,
-[data-theme="dark"] .feature-card,
-[data-theme="dark"] .step-card {
+.tool-list-panel,
+.card,
+.info-section,
+.rating-dialog,
+.faq-item,
+.related-tool,
+.feature-card,
+.step-card {
   position: relative;
   border: 1px solid var(--glass-border-dark);
   background: var(--glass-bg-dark);
@@ -41,9 +41,9 @@
 
 .glass-surface::before,
 .glass-pricing-card::before,
-[data-theme="dark"] .tool-list-panel::before,
-[data-theme="dark"] .card::before,
-[data-theme="dark"] .info-section::before {
+.tool-list-panel::before,
+.card::before,
+.info-section::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -58,14 +58,14 @@
   .glass-btn,
   .glass-pricing-card,
   .glass-modal__panel,
-  [data-theme="dark"] .tool-list-panel,
-  [data-theme="dark"] .card,
-  [data-theme="dark"] .info-section,
-  [data-theme="dark"] .rating-dialog,
-  [data-theme="dark"] .faq-item,
-  [data-theme="dark"] .related-tool,
-  [data-theme="dark"] .feature-card,
-  [data-theme="dark"] .step-card {
+  .tool-list-panel,
+  .card,
+  .info-section,
+  .rating-dialog,
+  .faq-item,
+  .related-tool,
+  .feature-card,
+  .step-card {
     -webkit-backdrop-filter: var(--glass-backdrop);
     backdrop-filter: var(--glass-backdrop);
   }
@@ -76,16 +76,42 @@
   .glass-btn,
   .glass-pricing-card,
   .glass-modal__panel,
-  [data-theme="dark"] .tool-list-panel,
-  [data-theme="dark"] .card,
-  [data-theme="dark"] .info-section,
-  [data-theme="dark"] .rating-dialog,
-  [data-theme="dark"] .faq-item,
-  [data-theme="dark"] .related-tool,
-  [data-theme="dark"] .feature-card,
-  [data-theme="dark"] .step-card {
+  .tool-list-panel,
+  .card,
+  .info-section,
+  .rating-dialog,
+  .faq-item,
+  .related-tool,
+  .feature-card,
+  .step-card {
     background: rgba(24, 34, 62, 0.9);
   }
+}
+
+[data-theme="light"] .tool-list-panel,
+[data-theme="light"] .card,
+[data-theme="light"] .info-section,
+[data-theme="light"] .rating-dialog,
+[data-theme="light"] .faq-item,
+[data-theme="light"] .related-tool,
+[data-theme="light"] .feature-card,
+[data-theme="light"] .step-card {
+  background: var(--glass-bg-dark);
+}
+
+/* Liquid glass style for theme toggle itself */
+.theme-toggle {
+  border-radius: 999px;
+  border: 1px solid var(--glass-border-dark);
+  background: var(--glass-bg-dark);
+  box-shadow: var(--glass-shadow-dark), var(--glass-inner-dark);
+  padding: 4px;
+  transition: transform 180ms ease, box-shadow 220ms ease, border-color 220ms ease;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-1px) scale(1.03);
+  border-color: rgba(143, 195, 255, 0.45);
 }
 
 .liquid-actions {

@@ -12,7 +12,7 @@ const APP_BASE_URL = process.env.APP_BASE_URL || "";
 const EASYPAISA_STORE_ID = process.env.EASYPAISA_STORE_ID || "";
 const EASYPAISA_HASH_KEY = process.env.EASYPAISA_HASH_KEY || "";
 const EASYPAISA_SANDBOX = String(process.env.EASYPAISA_SANDBOX || "true") === "true";
-const PREMIUM_AMOUNT_PKR = Number(process.env.PREMIUM_AMOUNT_PKR || 1);
+const PREMIUM_AMOUNT_PKR = Number(process.env.PREMIUM_AMOUNT_PKR || 2);
 const EASYPAISA_PAYMENT_METHOD = process.env.EASYPAISA_PAYMENT_METHOD || "MA_PAYMENT_METHOD";
 const EASYPAISA_ACCOUNT_NUMBER = process.env.EASYPAISA_ACCOUNT_NUMBER || "";
 const EASYPAISA_ACCOUNT_FIELD = process.env.EASYPAISA_ACCOUNT_FIELD || "mobileNum";
