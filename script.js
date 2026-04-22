@@ -190,6 +190,8 @@ const els = {
   themeBulb: document.getElementById("themeBulb"),
   brandCrown: document.getElementById("brandCrown"),
   brandTitle: document.getElementById("brandTitle"),
+  premiumStatusCard: document.getElementById("premiumStatusCard"),
+  premiumStatusText: document.getElementById("premiumStatusText"),
   planStatus: document.getElementById("planStatus"),
   upgradeBtn: document.getElementById("upgradeBtn"),
   iapBanner: document.querySelector(".iap-banner"),
@@ -355,39 +357,23 @@ function toggleThemeWithSound() {
 }
 
 function refreshPlan() {
-  const crown = '<span class="iap-cta__icon" aria-hidden="true">👑</span> ';
-  const shouldShowIap = !state.isPremium && (state.sessionValidated || !state.securityApiReady);
   document.body.classList.toggle("is-premium-user", Boolean(state.isPremium));
   if (els.brandTitle) {
     els.brandTitle.textContent = "File Converters";
   }
   if (els.brandCrown) els.brandCrown.classList.toggle("hidden", !state.isPremium);
-  if (state.isPremium) {
-    els.planStatus.textContent = t("plan.active");
-    els.upgradeBtn.innerHTML = `${crown}${t("plan.enabled")}`;
-    els.upgradeBtn.disabled = true;
-    if (els.iapBanner) {
-      els.iapBanner.classList.add("hidden");
-      els.iapBanner.setAttribute("hidden", "");
+
+  if (els.premiumStatusCard) {
+    const showPremiumCard = Boolean(state.isPremium);
+    els.premiumStatusCard.classList.toggle("hidden", !showPremiumCard);
+    if (showPremiumCard) {
+      els.premiumStatusCard.removeAttribute("hidden");
+      if (els.premiumStatusText) {
+        els.premiumStatusText.textContent = "Unlimited conversions are active for your account.";
+      }
+    } else {
+      els.premiumStatusCard.setAttribute("hidden", "");
     }
-    if (els.glassPricingGrid) {
-      els.glassPricingGrid.classList.add("hidden");
-      els.glassPricingGrid.setAttribute("hidden", "");
-    }
-    return;
-  }
-  els.planStatus.textContent = t("plan.free", { used: state.usageCount, limit: FREE_LIMIT });
-  els.upgradeBtn.innerHTML = `${crown}${t("plan.getPremium")} - $2`;
-  els.upgradeBtn.disabled = false;
-  if (els.iapBanner) {
-    els.iapBanner.classList.toggle("hidden", !shouldShowIap);
-    if (shouldShowIap) els.iapBanner.removeAttribute("hidden");
-    else els.iapBanner.setAttribute("hidden", "");
-  }
-  if (els.glassPricingGrid) {
-    els.glassPricingGrid.classList.toggle("hidden", !shouldShowIap);
-    if (shouldShowIap) els.glassPricingGrid.removeAttribute("hidden");
-    else els.glassPricingGrid.setAttribute("hidden", "");
   }
 }
 
@@ -1321,7 +1307,7 @@ els.resetBtn.addEventListener("click", resetForm);
 if (els.themeBulb) {
   els.themeBulb.addEventListener("click", toggleThemeWithSound);
 }
-els.upgradeBtn.addEventListener("click", upgrade);
+if (els.upgradeBtn) els.upgradeBtn.addEventListener("click", upgrade);
 if (els.premiumDialogUpgradeBtn) els.premiumDialogUpgradeBtn.addEventListener("click", upgrade);
 if (els.premiumDialogCloseBtn) els.premiumDialogCloseBtn.addEventListener("click", closePremiumLimitDialog);
 if (els.premiumLimitDialog) {

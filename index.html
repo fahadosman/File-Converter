@@ -91,30 +91,6 @@
         <div id="toolList" class="tool-grid" aria-label="Converter tools"></div>
       </section>
 
-      <section id="glassPricingGrid" class="glass-pricing-grid hidden" aria-label="Pricing plans" hidden>
-        <article class="glass-pricing-card" data-plan="free">
-          <p class="glass-pricing-card__tag">Free</p>
-          <h3>Starter</h3>
-          <p class="glass-pricing-card__price">$0<span>/month</span></p>
-          <ul>
-            <li>5 free conversions</li>
-            <li>Core converter tools</li>
-            <li>Community support</li>
-          </ul>
-          <button type="button" class="glass-btn">Current Plan</button>
-        </article>
-        <article class="glass-pricing-card glass-pricing-card--featured" data-plan="premium">
-          <p class="glass-pricing-card__tag">Premium</p>
-          <h3>Pro</h3>
-          <p class="glass-pricing-card__price">$2<span>/month</span></p>
-          <ul>
-            <li>Unlimited conversions</li>
-            <li>Priority processing</li>
-            <li>All premium tools</li>
-          </ul>
-          <button id="glassPremiumBtn" type="button" class="glass-btn glass-btn--primary">Upgrade to Premium</button>
-        </article>
-      </section>
 
       <section class="info-section">
         <h2 data-i18n="info.why.title">Why choose Convert EveryFile?</h2>
@@ -227,32 +203,11 @@
           <div id="status" class="status" data-i18n="status.ready">Ready.</div>
         </article>
 
-        <article class="iap-banner hidden" hidden aria-labelledby="iap-heading">
-          <div class="iap-banner__text">
-            <h3 id="iap-heading">
-              Get more with Premium
-            </h3>
-            <ul class="iap-banner__list">
-              <li>Full access to every converter and priority processing</li>
-              <li>Advanced tools, larger files, and fewer limits on your workflow</li>
-              <li>Connect tools and build custom conversion flows</li>
-            </ul>
-            <p id="planStatus" class="iap-plan-line">Free Plan: 0/5 conversions used</p>
-            <button id="upgradeBtn" class="iap-cta cta-btn" type="button">
-              <span class="iap-cta__icon" aria-hidden="true">👑</span>
-              Get Premium
-            </button>
-          </div>
-          <div class="iap-banner__visual" aria-hidden="true">
-            <div class="iap-banner__coral"></div>
-            <div class="iap-banner__doc">
-              <span class="iap-banner__doc-line"></span>
-              <div class="iap-banner__doc-block"></div>
-              <div class="iap-banner__doc-block iap-banner__doc-block--sm"></div>
-            </div>
-            <span class="iap-banner__spark">✦</span>
-          </div>
+        <article id="premiumStatusCard" class="card premium-status-card hidden" hidden aria-live="polite">
+          <h3>You are a Premium user now</h3>
+          <p id="premiumStatusText">Unlimited conversions are active for your account.</p>
         </article>
+
       </section>
     </div>
   </main>
