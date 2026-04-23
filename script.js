@@ -1182,17 +1182,42 @@ function showToolView() {
   window.scrollTo({ top: 0, behavior: "auto" });
 }
 
-function getToolFromHash() {
-  const m = (location.hash || "").match(/\/tool\/([^/?#]+)/);
+function getToolFromPath() {
+  const m = (window.location.pathname || "").match(/^\/tool\/([^/?#]+)\/?$/);
   if (!m) return null;
   const id = decodeURIComponent(m[1]);
   return tools.find((t) => t.id === id) || null;
 }
 
+function navigateToTool(toolId, options = {}) {
+  const route = `/tool/${encodeURIComponent(toolId)}`;
+  if (options.replace) window.history.replaceState({}, "", route);
+  else window.history.pushState({}, "", route);
+}
+
+function navigateHome(options = {}) {
+  if (options.replace) window.history.replaceState({}, "", "/");
+  else window.history.pushState({}, "", "/");
+}
+
+function normalizeLegacyHashRoute() {
+  const hash = window.location.hash || "";
+  if (!hash || hash === "#") return;
+  if (hash === "#/") {
+    window.history.replaceState({}, "", "/");
+    return;
+  }
+  const toolMatch = hash.match(/^#\/tool\/([^/?#]+)/);
+  if (!toolMatch) return;
+  const toolId = decodeURIComponent(toolMatch[1] || "");
+  if (!toolId) return;
+  window.history.replaceState({}, "", `/tool/${encodeURIComponent(toolId)}`);
+}
+
 function applyRoute() {
-  const fromHash = getToolFromHash();
-  if (fromHash) {
-    state.activeTool = fromHash;
+  const fromPath = getToolFromPath();
+  if (fromPath) {
+    state.activeTool = fromPath;
     configureUI();
     showToolView();
     setStatus(t("status.ready"));
@@ -1223,7 +1248,7 @@ function renderToolButtons() {
     b.addEventListener("click", () => {
       state.activeTool = tool;
       configureUI();
-      location.hash = `/tool/${encodeURIComponent(tool.id)}`;
+      navigateToTool(tool.id);
       setStatus("Ready.");
     });
     fragment.appendChild(b);
@@ -1355,14 +1380,13 @@ els.relatedToolButtons.forEach((button) => {
     if (!nextTool) return;
     state.activeTool = nextTool;
     configureUI();
-    location.hash = `/tool/${encodeURIComponent(nextTool.id)}`;
+    navigateToTool(nextTool.id);
     setStatus(t("status.openingTool", { name: nextTool.name }));
   });
 });
 if (els.backToTools) {
   els.backToTools.addEventListener("click", () => {
-    // Keep canonical homepage URL without hash.
-    window.history.replaceState({}, "", `${window.location.pathname}${window.location.search || ""}`);
+    navigateHome();
     applyRoute();
   });
 }
@@ -1393,11 +1417,7 @@ clearLegacyClientStorage();
 initTheme();
 initLanguage();
 initPlan();
-// Normalize legacy hash-home URLs to clean root URL.
-if (window.location.hash === "#/") {
-  const clean = `${window.location.pathname}${window.location.search || ""}`;
-  window.history.replaceState({}, "", clean);
-}
+normalizeLegacyHashRoute();
 startUsageSession().catch((error) => {
   state.securityApiReady = false;
   // Keep UI usable if backend verification is temporarily unavailable.
@@ -1406,5 +1426,5 @@ startUsageSession().catch((error) => {
 });
 syncFilterButtons();
 syncPaymentFromReturn();
-window.addEventListener("hashchange", applyRoute);
+window.addEventListener("popstate", applyRoute);
 applyRoute();
