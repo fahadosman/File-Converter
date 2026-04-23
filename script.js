@@ -1391,6 +1391,11 @@ clearLegacyClientStorage();
 initTheme();
 initLanguage();
 initPlan();
+// Normalize legacy hash-home URLs to clean root URL.
+if (window.location.hash === "#/") {
+  const clean = `${window.location.pathname}${window.location.search || ""}`;
+  window.history.replaceState({}, "", clean);
+}
 startUsageSession().catch((error) => {
   state.securityApiReady = false;
   // Keep UI usable if backend verification is temporarily unavailable.
