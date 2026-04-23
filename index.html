@@ -16,8 +16,10 @@
       var prefersLight =
         window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
       document.documentElement.setAttribute("data-theme", prefersLight ? "light" : "dark");
-      // Stripe-only mode: do not auto-wire EasyPaisa/session backend.
-      // Set window.__PAYMENTS_API_BASE__ manually only when a compatible backend is running.
+      if (!window.__PAYMENTS_API_BASE__ &&
+        (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+        window.__PAYMENTS_API_BASE__ = "http://localhost:8899";
+      }
     })();
   </script>
   <link rel="stylesheet" href="styles.css" />

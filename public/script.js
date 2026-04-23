@@ -2,11 +2,15 @@
 const PREMIUM_OVERRIDE_KEY = "convertpro-premium-override";
 const USAGE_COUNT_KEY = "convertpro-usage-count-persist";
 const LOCALES = window.APP_LOCALES || {};
-const STRIPE_PUBLISHABLE_KEY = "pk_live_51TOXLnAJnvIxlBRV5R1QGuyedrnKYSTQLyxQVyajHjaAP0w6anlKQCC7qCreF4EzgbFhFeUjBpuvF2s98UWBChPT00GE6xHEoA";
+const STRIPE_PUBLISHABLE_KEY = String(window.__STRIPE_PUBLISHABLE_KEY__ || "pk_live_51TOXLnAJnvIxlBRV5R1QGuyedrnKYSTQLyxQVyajHjaAP0w6anlKQCC7qCreF4EzgbFhFeUjBpuvF2s98UWBChPT00GE6xHEoA").trim();
 const STRIPE_CHECKOUT_URL = String(window.__STRIPE_CHECKOUT_URL__ || "").trim();
 const SECURITY_API_BASE =
   window.__PAYMENTS_API_BASE__ ||
-  (/^https?:$/i.test(window.location.protocol) ? window.location.origin : "");
+  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+    ? "http://localhost:8899"
+    : /^https?:$/i.test(window.location.protocol)
+      ? window.location.origin
+      : "");
 
 const LIBS = {
   pdfjs: {
@@ -610,7 +614,9 @@ async function startStripeCheckout() {
         }
       );
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.error || "Unable to generate Stripe checkout URL.");
+      if (!response.ok) {
+        throw new Error(payload.details || payload.error || "Unable to generate Stripe checkout URL.");
+      }
       checkoutUrl = String(payload.url || "").trim();
     }
 

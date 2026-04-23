@@ -223,8 +223,18 @@ app.get("/api/stripe/checkout-link", paymentLimiter, async (req, res) => {
     if (!priceId) return res.status(400).json({ error: "No active Stripe price found for selected plan." });
 
     const customerId = await createOrGetCustomer(user);
-    const successBase = String(FRONTEND_RETURN_URL || FRONTEND_ORIGIN || "").replace(/\/$/, "");
-    const cancelBase = String(FRONTEND_ORIGIN || successBase).replace(/\/$/, "");
+
+    const successUrl = new URL(FRONTEND_RETURN_URL || FRONTEND_ORIGIN);
+    successUrl.hash = "";
+    successUrl.search = "";
+    successUrl.searchParams.set("session_id", "{CHECKOUT_SESSION_ID}");
+    successUrl.searchParams.set("payment", "success");
+    successUrl.searchParams.set("premium", "1");
+
+    const cancelUrl = new URL(FRONTEND_ORIGIN || FRONTEND_RETURN_URL);
+    cancelUrl.hash = "";
+    cancelUrl.search = "";
+    cancelUrl.searchParams.set("payment", "cancelled");
 
     const session = await stripe.checkout.sessions.create(
       {
@@ -232,8 +242,8 @@ app.get("/api/stripe/checkout-link", paymentLimiter, async (req, res) => {
         customer: customerId,
         line_items: [{ price: priceId, quantity: 1 }],
         allow_promotion_codes: true,
-        success_url: `${successBase}/?session_id={CHECKOUT_SESSION_ID}&payment=success&premium=1`,
-        cancel_url: `${cancelBase}/?payment=cancelled`,
+        success_url: successUrl.toString(),
+        cancel_url: cancelUrl.toString(),
         metadata: { userId, planCode, productId: STRIPE_PRODUCT_ID || "" },
       },
       { idempotencyKey: req.headers["idempotency-key"] || randomId("checkout_link") }
@@ -242,7 +252,11 @@ app.get("/api/stripe/checkout-link", paymentLimiter, async (req, res) => {
     if (!session.url) return res.status(500).json({ error: "Unable to create Stripe checkout link." });
     return res.json({ url: session.url, planCode, productId: STRIPE_PRODUCT_ID || null });
   } catch (error) {
-    return res.status(500).json({ error: "Unable to generate Stripe checkout link." });
+    console.error("Stripe checkout link generation failed:", error?.message || error);
+    return res.status(500).json({
+      error: "Unable to generate Stripe checkout link.",
+      details: String(error?.message || "Unknown Stripe error"),
+    });
   }
 });
 
