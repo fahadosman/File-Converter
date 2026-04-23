@@ -94,6 +94,43 @@ body {
   transition: none;
 }
 
+.apple-performance body {
+  background: var(--bg);
+}
+
+.apple-performance .card,
+.apple-performance .tool-list-panel,
+.apple-performance .iap-banner,
+.apple-performance .tool-btn {
+  box-shadow: none !important;
+}
+
+.apple-performance .background-glow {
+  display: none;
+}
+
+.apple-performance .card,
+.apple-performance .tool-list-panel,
+.apple-performance .auth-modal__dialog {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.apple-performance .status-meter__fill {
+  animation: none;
+}
+
+.is-scrolling .card,
+.is-scrolling .tool-list-panel,
+.is-scrolling .iap-banner,
+.is-scrolling .tool-btn,
+.is-scrolling .filter-btn,
+.is-scrolling .pill-filter {
+  transition: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
 .info-section,
 .rating-strip,
 .site-footer {

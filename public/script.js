@@ -214,6 +214,7 @@ const IS_SAFARI =
   /^((?!chrome|android).)*safari/i.test(navigator.userAgent || "") &&
   !/crios|fxios|edgios/i.test(navigator.userAgent || "");
 const IS_MAC = /mac/i.test(navigator.platform || navigator.userAgent || "");
+const IS_APPLE_DEVICE = /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent || "");
 let renderToolButtonsRaf = 0;
 
 function scheduleRenderToolButtons() {
@@ -343,6 +344,25 @@ function initTheme() {
   applyTheme(prefersLight ? "light" : "dark");
   if (IS_SAFARI) document.documentElement.classList.add("safari-optimized");
   if (IS_MAC) document.documentElement.classList.add("mac-performance");
+  if (IS_APPLE_DEVICE) document.documentElement.classList.add("apple-performance");
+}
+
+function initScrollPerformanceMode() {
+  if (!IS_APPLE_DEVICE) return;
+  let rafId = 0;
+  let scrollEndTimer = 0;
+  const onScroll = () => {
+    if (rafId) return;
+    rafId = requestAnimationFrame(() => {
+      rafId = 0;
+      document.documentElement.classList.add("is-scrolling");
+      if (scrollEndTimer) clearTimeout(scrollEndTimer);
+      scrollEndTimer = window.setTimeout(() => {
+        document.documentElement.classList.remove("is-scrolling");
+      }, 140);
+    });
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
 }
 
 function playThemeToggleSound(isLightMode) {
@@ -1447,6 +1467,7 @@ if (els.languageSelect) {
 
 clearLegacyClientStorage();
 initTheme();
+initScrollPerformanceMode();
 initLanguage();
 initPlan();
 normalizeLegacyHashRoute();
