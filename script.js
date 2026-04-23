@@ -4,9 +4,10 @@ const USAGE_COUNT_KEY = "convertpro-usage-count-persist";
 const LOCALES = window.APP_LOCALES || {};
 const STRIPE_PUBLISHABLE_KEY = String(window.__STRIPE_PUBLISHABLE_KEY__ || "pk_live_51TOXLnAJnvIxlBRV5R1QGuyedrnKYSTQLyxQVyajHjaAP0w6anlKQCC7qCreF4EzgbFhFeUjBpuvF2s98UWBChPT00GE6xHEoA").trim();
 const STRIPE_CHECKOUT_URL = String(window.__STRIPE_CHECKOUT_URL__ || "").trim();
+const LOCAL_HOSTS = new Set(["", "localhost", "127.0.0.1"]);
 const SECURITY_API_BASE =
   window.__PAYMENTS_API_BASE__ ||
-  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+  (LOCAL_HOSTS.has(window.location.hostname || "")
     ? "http://localhost:8899"
     : /^https?:$/i.test(window.location.protocol)
       ? window.location.origin
