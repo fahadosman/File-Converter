@@ -611,7 +611,8 @@ async function syncPaymentFromReturn() {
     hashParams.delete("payment");
     hashParams.delete("premium");
     hashParams.delete("orderRef");
-    const cleanHash = "#/";
+    // Keep homepage URL clean (no forced "#/").
+    const cleanHash = hashParams.toString() ? `#/?${hashParams.toString()}` : "";
     const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${cleanHash}`;
     window.history.replaceState({}, "", clean);
     applyRoute();
@@ -1390,6 +1391,11 @@ clearLegacyClientStorage();
 initTheme();
 initLanguage();
 initPlan();
+// Normalize legacy hash-home URLs to clean root URL.
+if (window.location.hash === "#/") {
+  const clean = `${window.location.pathname}${window.location.search || ""}`;
+  window.history.replaceState({}, "", clean);
+}
 startUsageSession().catch((error) => {
   state.securityApiReady = false;
   // Keep UI usable if backend verification is temporarily unavailable.
