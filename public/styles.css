@@ -74,6 +74,33 @@ body {
   background: linear-gradient(120deg, rgba(124, 140, 255, 0.08), rgba(66, 215, 255, 0.05));
 }
 
+/* Reduce scroll-time paint cost on macOS devices. */
+.mac-performance .background-glow {
+  display: none;
+}
+
+.mac-performance .tool-list-panel,
+.mac-performance .card,
+.mac-performance .auth-modal__dialog {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.mac-performance .tool-btn,
+.mac-performance .card,
+.mac-performance .iap-banner,
+.mac-performance .filter-btn,
+.mac-performance .pill-filter {
+  transition: none;
+}
+
+.info-section,
+.rating-strip,
+.site-footer {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 800px;
+}
+
 .app-shell {
   max-width: min(98vw, 1800px);
   margin: 0 auto;

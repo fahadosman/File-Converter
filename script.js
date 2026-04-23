@@ -213,6 +213,7 @@ const readBuf = (f) => f.arrayBuffer();
 const IS_SAFARI =
   /^((?!chrome|android).)*safari/i.test(navigator.userAgent || "") &&
   !/crios|fxios|edgios/i.test(navigator.userAgent || "");
+const IS_MAC = /mac/i.test(navigator.platform || navigator.userAgent || "");
 let renderToolButtonsRaf = 0;
 
 function scheduleRenderToolButtons() {
@@ -341,6 +342,7 @@ function initTheme() {
   const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
   applyTheme(prefersLight ? "light" : "dark");
   if (IS_SAFARI) document.documentElement.classList.add("safari-optimized");
+  if (IS_MAC) document.documentElement.classList.add("mac-performance");
 }
 
 function playThemeToggleSound(isLightMode) {
@@ -1448,13 +1450,22 @@ initTheme();
 initLanguage();
 initPlan();
 normalizeLegacyHashRoute();
-startUsageSession().catch((error) => {
-  state.securityApiReady = false;
-  // Keep UI usable if backend verification is temporarily unavailable.
-  console.warn(error.message || "Secure usage server is offline.");
-  refreshPlan();
-});
 syncFilterButtons();
-syncPaymentFromReturn();
 window.addEventListener("popstate", applyRoute);
 applyRoute();
+
+const runNonCriticalStartup = () => {
+  startUsageSession().catch((error) => {
+    state.securityApiReady = false;
+    // Keep UI usable if backend verification is temporarily unavailable.
+    console.warn(error.message || "Secure usage server is offline.");
+    refreshPlan();
+  });
+  syncPaymentFromReturn();
+};
+
+if ("requestIdleCallback" in window) {
+  window.requestIdleCallback(runNonCriticalStartup, { timeout: 1200 });
+} else {
+  setTimeout(runNonCriticalStartup, 120);
+}
