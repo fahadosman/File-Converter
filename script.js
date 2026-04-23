@@ -209,6 +209,18 @@ const els = {
 const base = (n) => n.replace(/\.[^/.]+$/, "");
 const readText = (f) => f.text();
 const readBuf = (f) => f.arrayBuffer();
+const IS_SAFARI =
+  /^((?!chrome|android).)*safari/i.test(navigator.userAgent || "") &&
+  !/crios|fxios|edgios/i.test(navigator.userAgent || "");
+let renderToolButtonsRaf = 0;
+
+function scheduleRenderToolButtons() {
+  if (renderToolButtonsRaf) cancelAnimationFrame(renderToolButtonsRaf);
+  renderToolButtonsRaf = requestAnimationFrame(() => {
+    renderToolButtonsRaf = 0;
+    renderToolButtons();
+  });
+}
 
 function t(key, vars = {}) {
   const dict = LOCALES[state.language] || LOCALES.en || {};
@@ -263,7 +275,7 @@ function applyLanguage(language) {
   localizeTools();
   refreshPlan();
   configureUI();
-  requestAnimationFrame(() => renderToolButtons());
+  scheduleRenderToolButtons();
 }
 
 function initLanguage() {
@@ -327,6 +339,7 @@ function applyTheme(theme) {
 function initTheme() {
   const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
   applyTheme(prefersLight ? "light" : "dark");
+  if (IS_SAFARI) document.documentElement.classList.add("safari-optimized");
 }
 
 function playThemeToggleSound(isLightMode) {
@@ -1363,11 +1376,11 @@ if (els.removeFileBtn) {
 }
 els.toolSearch.addEventListener("input", (event) => {
   state.query = event.target.value || "";
-  window.requestAnimationFrame(renderToolButtons);
+  scheduleRenderToolButtons();
 });
 els.sortFilter.addEventListener("change", (event) => {
   state.sortMode = event.target.value || "az";
-  renderToolButtons();
+  scheduleRenderToolButtons();
 });
 els.topFilterButtons.forEach((button) => {
   button.addEventListener("click", () => setCategoryFilter(button.dataset.filter));

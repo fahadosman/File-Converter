@@ -287,6 +287,18 @@ body {
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
+/* Safari can struggle with layered blur + shadows in large UIs. */
+.safari-optimized .tool-list-panel,
+.safari-optimized .card,
+.safari-optimized .auth-modal__dialog {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.safari-optimized .status-meter__fill {
+  animation: none;
+}
+
 .tool-list-panel {
   padding: 24px;
 }
