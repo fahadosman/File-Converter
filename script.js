@@ -611,7 +611,8 @@ async function syncPaymentFromReturn() {
     hashParams.delete("payment");
     hashParams.delete("premium");
     hashParams.delete("orderRef");
-    const cleanHash = "#/";
+    // Keep homepage URL clean (no forced "#/").
+    const cleanHash = hashParams.toString() ? `#/?${hashParams.toString()}` : "";
     const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${cleanHash}`;
     window.history.replaceState({}, "", clean);
     applyRoute();

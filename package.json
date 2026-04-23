@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "start": "npm run stripe-server",
     "payment-server": "node payment-server.js",
     "stripe-server": "node stripe-system/backend/server.js",
     "deploy:cloudflare": "wrangler deploy"

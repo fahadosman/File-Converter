@@ -41,6 +41,12 @@ const PLAN_PRICE_MAP = {
   premium_monthly: process.env.STRIPE_PRICE_PREMIUM_MONTHLY || "",
   premium_yearly: process.env.STRIPE_PRICE_PREMIUM_YEARLY || "",
 };
+const STRIPE_PRODUCT_ID = process.env.STRIPE_PRODUCT_ID || "";
+const PLAN_INTERVAL_MAP = {
+  premium_monthly: "month",
+  premium_yearly: "year",
+};
+const resolvedPriceCache = new Map();
 
 function nowIso() {
   return new Date().toISOString();
@@ -90,6 +96,29 @@ function isValidEmail(email) {
 
 function sanitizeText(input) {
   return String(input || "").replace(/[<>]/g, "").slice(0, 5000);
+}
+
+async function resolvePlanPriceId(planCode) {
+  const directPriceId = PLAN_PRICE_MAP[planCode];
+  if (directPriceId) return directPriceId;
+
+  if (!STRIPE_PRODUCT_ID) return "";
+  const interval = PLAN_INTERVAL_MAP[planCode];
+  if (!interval) return "";
+
+  const cacheKey = `${STRIPE_PRODUCT_ID}:${interval}`;
+  if (resolvedPriceCache.has(cacheKey)) return resolvedPriceCache.get(cacheKey);
+
+  const prices = await stripe.prices.list({
+    product: STRIPE_PRODUCT_ID,
+    active: true,
+    type: "recurring",
+    limit: 100,
+  });
+  const match = prices.data.find((price) => price.recurring?.interval === interval);
+  const priceId = match?.id || "";
+  if (priceId) resolvedPriceCache.set(cacheKey, priceId);
+  return priceId;
 }
 
 function putAuditLog(userId, action, details) {
@@ -263,7 +292,7 @@ app.post("/api/subscriptions/create", paymentLimiter, async (req, res) => {
     const userId = getUserIdFromAuth(req);
     const user = getOrCreateUser(userId);
     const planCode = String(req.body?.planCode || "");
-    const priceId = PLAN_PRICE_MAP[planCode];
+    const priceId = await resolvePlanPriceId(planCode);
     if (!priceId) return res.status(400).json({ error: "Invalid plan." });
 
     const customerId = await createOrGetCustomer(user);
