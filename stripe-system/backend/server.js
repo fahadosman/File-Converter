@@ -13,6 +13,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", { apiVersion: "20
 
 const PORT = Number(process.env.STRIPE_SERVER_PORT || 8899);
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:3000";
+const FRONTEND_RETURN_URL = process.env.FRONTEND_RETURN_URL || FRONTEND_ORIGIN;
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
 
 /**
@@ -211,6 +212,38 @@ app.get("/api/me/subscription", (req, res) => {
   getOrCreateUser(userId);
   const subscription = getSubscription(userId);
   res.json({ activePlan: subscription });
+});
+
+app.get("/api/stripe/checkout-link", paymentLimiter, async (req, res) => {
+  try {
+    const userId = getUserIdFromAuth(req);
+    const user = getOrCreateUser(userId);
+    const planCode = String(req.query?.planCode || "premium_monthly");
+    const priceId = await resolvePlanPriceId(planCode);
+    if (!priceId) return res.status(400).json({ error: "No active Stripe price found for selected plan." });
+
+    const customerId = await createOrGetCustomer(user);
+    const successBase = String(FRONTEND_RETURN_URL || FRONTEND_ORIGIN || "").replace(/\/$/, "");
+    const cancelBase = String(FRONTEND_ORIGIN || successBase).replace(/\/$/, "");
+
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: "subscription",
+        customer: customerId,
+        line_items: [{ price: priceId, quantity: 1 }],
+        allow_promotion_codes: true,
+        success_url: `${successBase}/?session_id={CHECKOUT_SESSION_ID}&payment=success&premium=1`,
+        cancel_url: `${cancelBase}/?payment=cancelled`,
+        metadata: { userId, planCode, productId: STRIPE_PRODUCT_ID || "" },
+      },
+      { idempotencyKey: req.headers["idempotency-key"] || randomId("checkout_link") }
+    );
+
+    if (!session.url) return res.status(500).json({ error: "Unable to create Stripe checkout link." });
+    return res.json({ url: session.url, planCode, productId: STRIPE_PRODUCT_ID || null });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to generate Stripe checkout link." });
+  }
 });
 
 app.post("/api/payments/setup-intent", paymentLimiter, async (req, res) => {

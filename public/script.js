@@ -591,19 +591,40 @@ function clearPendingDownload(message = t("download.waiting")) {
   els.downloadInfo.textContent = message;
 }
 
-function startStripeCheckout() {
+async function startStripeCheckout() {
   try {
-    if (!STRIPE_CHECKOUT_URL) {
+    const checkoutPlanCode = "premium_monthly";
+    let checkoutUrl = STRIPE_CHECKOUT_URL;
+
+    // Preferred flow: ask backend to generate a live Checkout Session URL
+    // using STRIPE_PRODUCT_ID + active recurring prices.
+    if (!checkoutUrl && SECURITY_API_BASE) {
+      const response = await fetch(
+        `${SECURITY_API_BASE}/api/stripe/checkout-link?planCode=${encodeURIComponent(checkoutPlanCode)}`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "x-user-id": "demo_user",
+          },
+        }
+      );
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || "Unable to generate Stripe checkout URL.");
+      checkoutUrl = String(payload.url || "").trim();
+    }
+
+    if (!checkoutUrl) {
       throw new Error("Stripe live checkout URL is missing. Set window.__STRIPE_CHECKOUT_URL__ to your live payment link.");
     }
-    if (/\/test_/i.test(STRIPE_CHECKOUT_URL)) {
+    if (/\/test_/i.test(checkoutUrl)) {
       throw new Error("Sandbox Stripe checkout link detected. Please use a live buy.stripe.com URL.");
     }
     if (!/^pk_live_/i.test(STRIPE_PUBLISHABLE_KEY)) {
       throw new Error("Stripe live publishable key is not configured.");
     }
     setStatus(t("status.paymentInit"), "busy");
-    window.location.href = STRIPE_CHECKOUT_URL;
+    window.location.href = checkoutUrl;
   } catch (error) {
     setStatus(error.message || t("error.paymentInitFailed"), "error");
   }
