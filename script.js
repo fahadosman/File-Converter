@@ -1249,6 +1249,7 @@ function renderToolButtons() {
       state.activeTool = tool;
       configureUI();
       navigateToTool(tool.id);
+      applyRoute();
       setStatus("Ready.");
     });
     fragment.appendChild(b);
@@ -1381,6 +1382,7 @@ els.relatedToolButtons.forEach((button) => {
     state.activeTool = nextTool;
     configureUI();
     navigateToTool(nextTool.id);
+    applyRoute();
     setStatus(t("status.openingTool", { name: nextTool.name }));
   });
 });
