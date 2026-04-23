@@ -1361,7 +1361,9 @@ els.relatedToolButtons.forEach((button) => {
 });
 if (els.backToTools) {
   els.backToTools.addEventListener("click", () => {
-    location.hash = "#/";
+    // Keep canonical homepage URL without hash.
+    window.history.replaceState({}, "", `${window.location.pathname}${window.location.search || ""}`);
+    applyRoute();
   });
 }
 els.downloadBtn.addEventListener("click", () => {
