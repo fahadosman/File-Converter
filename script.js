@@ -124,6 +124,7 @@ const state = {
   toastTimer: null,
   securityApiReady: Boolean(SECURITY_API_BASE),
   convertedFileSignature: null,
+  lastToolListRenderKey: "",
 };
 
 const TOOL_ICONS = {
@@ -1242,6 +1243,16 @@ function applyRoute() {
 
 function renderToolButtons() {
   const visibleTools = getVisibleTools();
+  const renderKey = [
+    state.activeCategory,
+    state.sortMode,
+    state.query,
+    state.activeTool?.id || "",
+    visibleTools.map((tool) => tool.id).join(","),
+  ].join("|");
+  if (renderKey === state.lastToolListRenderKey && els.toolList.childElementCount) return;
+  state.lastToolListRenderKey = renderKey;
+
   els.toolList.innerHTML = "";
   const fragment = document.createDocumentFragment();
   visibleTools.forEach((tool) => {
@@ -1257,18 +1268,24 @@ function renderToolButtons() {
     const desc = document.createElement("p");
     desc.className = "tool-desc";
     desc.textContent = tool.description || "";
+    b.dataset.toolId = tool.id;
     b.append(icon, name, desc);
-    b.addEventListener("click", () => {
-      state.activeTool = tool;
-      configureUI();
-      navigateToTool(tool.id);
-      applyRoute();
-      setStatus("Ready.");
-    });
     fragment.appendChild(b);
   });
   els.toolList.appendChild(fragment);
 }
+if (els.toolList) {
+  els.toolList.addEventListener("click", (event) => {
+    const button = event.target.closest(".tool-btn");
+    if (!button) return;
+    const toolId = button.dataset.toolId;
+    if (!toolId) return;
+    navigateToTool(toolId);
+    applyRoute();
+    setStatus("Ready.");
+  });
+}
+
 
 function configureUI() {
   const activeTool = state.activeTool;
@@ -1392,8 +1409,6 @@ els.relatedToolButtons.forEach((button) => {
   button.addEventListener("click", () => {
     const nextTool = tools.find((tool) => tool.id === button.dataset.toolId);
     if (!nextTool) return;
-    state.activeTool = nextTool;
-    configureUI();
     navigateToTool(nextTool.id);
     applyRoute();
     setStatus(t("status.openingTool", { name: nextTool.name }));
