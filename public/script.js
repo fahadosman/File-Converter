@@ -2,7 +2,8 @@
 const PREMIUM_OVERRIDE_KEY = "convertpro-premium-override";
 const USAGE_COUNT_KEY = "convertpro-usage-count-persist";
 const LOCALES = window.APP_LOCALES || {};
-const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_dRmaEW2JvbXe7970Tl2kw01";
+const STRIPE_PUBLISHABLE_KEY = "pk_live_51TOXLnAJnvIxlBRV5R1QGuyedrnKYSTQLyxQVyajHjaAP0w6anlKQCC7qCreF4EzgbFhFeUjBpuvF2s98UWBChPT00GE6xHEoA";
+const STRIPE_CHECKOUT_URL = String(window.__STRIPE_CHECKOUT_URL__ || "").trim();
 const SECURITY_API_BASE =
   window.__PAYMENTS_API_BASE__ ||
   (/^https?:$/i.test(window.location.protocol) ? window.location.origin : "");
@@ -592,6 +593,15 @@ function clearPendingDownload(message = t("download.waiting")) {
 
 function startStripeCheckout() {
   try {
+    if (!STRIPE_CHECKOUT_URL) {
+      throw new Error("Stripe live checkout URL is missing. Set window.__STRIPE_CHECKOUT_URL__ to your live payment link.");
+    }
+    if (/\/test_/i.test(STRIPE_CHECKOUT_URL)) {
+      throw new Error("Sandbox Stripe checkout link detected. Please use a live buy.stripe.com URL.");
+    }
+    if (!/^pk_live_/i.test(STRIPE_PUBLISHABLE_KEY)) {
+      throw new Error("Stripe live publishable key is not configured.");
+    }
     setStatus(t("status.paymentInit"), "busy");
     window.location.href = STRIPE_CHECKOUT_URL;
   } catch (error) {
