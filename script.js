@@ -1183,7 +1183,7 @@ function showToolView() {
 }
 
 function getToolFromHash() {
-  const m = (location.hash || "").match(/#\/tool\/([^/?#]+)/);
+  const m = (location.hash || "").match(/\/tool\/([^/?#]+)/);
   if (!m) return null;
   const id = decodeURIComponent(m[1]);
   return tools.find((t) => t.id === id) || null;
@@ -1223,7 +1223,7 @@ function renderToolButtons() {
     b.addEventListener("click", () => {
       state.activeTool = tool;
       configureUI();
-      location.hash = `#/tool/${encodeURIComponent(tool.id)}`;
+      location.hash = `/tool/${encodeURIComponent(tool.id)}`;
       setStatus("Ready.");
     });
     fragment.appendChild(b);
@@ -1355,7 +1355,7 @@ els.relatedToolButtons.forEach((button) => {
     if (!nextTool) return;
     state.activeTool = nextTool;
     configureUI();
-    location.hash = `#/tool/${encodeURIComponent(nextTool.id)}`;
+    location.hash = `/tool/${encodeURIComponent(nextTool.id)}`;
     setStatus(t("status.openingTool", { name: nextTool.name }));
   });
 });
