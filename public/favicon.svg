@@ -1,13 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="PDF Converter logo">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#7c8cff" />
-      <stop offset="100%" stop-color="#42d7ff" />
+    <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#de1f2d" />
+      <stop offset="100%" stop-color="#ff5d5d" />
+    </linearGradient>
+    <linearGradient id="pageGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff" />
+      <stop offset="100%" stop-color="#ffeaea" />
     </linearGradient>
   </defs>
-  <rect x="6" y="6" width="52" height="52" rx="14" fill="url(#g)" />
-  <path d="M20 20h17l7 7v17H20z" fill="#ffffff" opacity="0.98" />
-  <path d="M37 20v7h7" fill="#dbe8ff" />
-  <rect x="25" y="34" width="14" height="2.8" rx="1.4" fill="#7c8cff" />
-  <rect x="25" y="40" width="10" height="2.8" rx="1.4" fill="#42d7ff" />
+  <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#brandGrad)" />
+  <path d="M18 14h20l10 10v20a4 4 0 0 1-4 4H18a4 4 0 0 1-4-4V18a4 4 0 0 1 4-4Z" fill="url(#pageGrad)" />
+  <path d="M34 14v10h10" fill="none" stroke="#de1f2d" stroke-width="3" stroke-linecap="round" />
+  <path d="M22 34h20" fill="none" stroke="#de1f2d" stroke-width="3" stroke-linecap="round" />
+  <path d="M22 40h20" fill="none" stroke="#de1f2d" stroke-width="3" stroke-linecap="round" />
+  <path d="M22 46h14" fill="none" stroke="#de1f2d" stroke-width="3" stroke-linecap="round" />
+  <circle cx="30" cy="19" r="3" fill="#de1f2d" />
 </svg>

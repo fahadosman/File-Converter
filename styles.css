@@ -60,6 +60,11 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
 body {
   margin: 0;
   font-family: "Inter", sans-serif;
@@ -67,7 +72,7 @@ body {
     radial-gradient(circle at 82% 8%, var(--hero-grad-2) 0%, transparent 38%), var(--bg);
   color: var(--text);
   min-height: 100vh;
-  transition: background 0.25s ease, color 0.25s ease;
+  transition: background 0.3s ease, color 0.3s ease;
   line-height: 1.5;
 }
 
@@ -460,27 +465,39 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
-  height: 150px;
-  min-height: 150px;
+  height: 170px;
+  min-height: 170px;
   min-width: 150px;
   border: 1px solid var(--panel-border);
   border-radius: 15px;
-  padding: 10px 8px;
+  padding: 14px 10px;
   background: var(--soft-bg);
   color: var(--text);
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease, transform 0.18s ease, box-shadow 0.2s ease;
   font-weight: 600;
-  font-size: 12px;
-  line-height: 1.3;
+  font-size: 0.95rem;
+  line-height: 1.35;
   text-align: center;
 }
 
+.tool-btn,
+.feature-card,
+.card,
+.faq-item,
+.iap-banner,
+.site-footer {
+  content-visibility: auto;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
 .tool-icon {
-  font-size: 1.5rem;
-  width: 32px;
+  font-size: 1.8rem;
+  width: 40px;
   text-align: center;
   flex-shrink: 0;
 }
@@ -495,10 +512,10 @@ body {
 }
 
 .tool-desc {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--muted);
-  line-height: 1.3;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -889,10 +906,10 @@ button {
 
 .iap-banner {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(180px, 0.9fr);
-  gap: 20px;
+  grid-template-columns: minmax(0, 1.3fr) minmax(220px, 0.7fr);
+  gap: 24px;
   align-items: center;
-  padding: 22px 24px;
+  padding: 24px 26px;
   border-radius: 22px;
   border: 1px solid var(--panel-border);
   background: var(--iap-bg);
@@ -1376,8 +1393,8 @@ button {
   margin: 0 auto;
   padding: 20px 22px 24px;
   display: grid;
-  grid-template-columns: repeat(4, minmax(160px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 20px;
 }
 
 .footer-grid--clean {
@@ -1504,6 +1521,26 @@ button {
 
   .iap-banner__visual {
     min-height: 100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tool-grid {
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+  }
+
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+  }
+
+  .iap-banner {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .iap-banner__visual {
+    justify-self: center;
+    max-width: 260px;
   }
 }
 
