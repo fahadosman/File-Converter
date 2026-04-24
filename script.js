@@ -1,17 +1,4 @@
-﻿const FREE_LIMIT = 5;
-const PREMIUM_OVERRIDE_KEY = "convertpro-premium-override";
-const USAGE_COUNT_KEY = "convertpro-usage-count-persist";
-const LOCALES = window.APP_LOCALES || {};
-const STRIPE_PUBLISHABLE_KEY = String(window.__STRIPE_PUBLISHABLE_KEY__ || "pk_live_51TOXLnAJnvIxlBRV5R1QGuyedrnKYSTQLyxQVyajHjaAP0w6anlKQCC7qCreF4EzgbFhFeUjBpuvF2s98UWBChPT00GE6xHEoA").trim();
-const STRIPE_CHECKOUT_URL = String(window.__STRIPE_CHECKOUT_URL__ || "").trim();
-const LOCAL_HOSTS = new Set(["", "localhost", "127.0.0.1"]);
-const SECURITY_API_BASE =
-  window.__PAYMENTS_API_BASE__ ||
-  (LOCAL_HOSTS.has(window.location.hostname || "")
-    ? "http://localhost:8899"
-    : /^https?:$/i.test(window.location.protocol)
-      ? window.location.origin
-      : "");
+﻿const LOCALES = window.APP_LOCALES || {};
 
 const LIBS = {
   pdfjs: {
@@ -120,15 +107,12 @@ const state = {
   deviceId: "",
   theme: "dark",
   language: "en",
-  isPremium: false,
-  usageCount: 0,
   isBusy: false,
   query: "",
   activeCategory: "all",
   sortMode: "az",
   pendingDownload: null,
   toastTimer: null,
-  securityApiReady: Boolean(SECURITY_API_BASE),
   convertedFileSignature: null,
   lastToolListRenderKey: "",
 };
@@ -195,11 +179,7 @@ const els = {
   resetBtn: document.getElementById("resetBtn"),
   status: document.getElementById("status"),
   themeBulb: document.getElementById("themeBulb"),
-  brandCrown: document.getElementById("brandCrown"),
   brandTitle: document.getElementById("brandTitle"),
-  planStatus: document.getElementById("planStatus"),
-  upgradeBtn: document.getElementById("upgradeBtn"),
-  iapBanner: document.querySelector(".iap-banner"),
   downloadBtn: document.getElementById("downloadBtn"),
   downloadInfo: document.getElementById("downloadInfo"),
   topFilterButtons: Array.from(document.querySelectorAll(".filter-btn")),
@@ -208,9 +188,6 @@ const els = {
   languageSelect: document.getElementById("languageSelect"),
   statusMeterFill: document.getElementById("statusMeterFill"),
   toast: document.getElementById("toast"),
-  premiumLimitDialog: document.getElementById("premiumLimitDialog"),
-  premiumDialogCloseBtn: document.getElementById("premiumDialogCloseBtn"),
-  premiumDialogUpgradeBtn: document.getElementById("premiumDialogUpgradeBtn"),
 };
 
 const base = (n) => n.replace(/\.[^/.]+$/, "");
@@ -282,7 +259,6 @@ function applyLanguage(language) {
   if (els.languageSelect) els.languageSelect.value = state.language;
   applyStaticTranslations();
   localizeTools();
-  refreshPlan();
   configureUI();
   scheduleRenderToolButtons();
 }
@@ -395,66 +371,6 @@ function toggleThemeWithSound() {
   playThemeToggleSound(nextTheme === "light");
 }
 
-function refreshPlan() {
-  const crown = '<span class="iap-cta__icon" aria-hidden="true">👑</span> ';
-  if (els.brandTitle) {
-    els.brandTitle.textContent = "File Converters";
-  }
-  if (els.brandCrown) els.brandCrown.classList.toggle("hidden", !state.isPremium);
-  if (state.isPremium) {
-    els.planStatus.textContent = t("plan.active");
-    els.upgradeBtn.innerHTML = `${crown}${t("plan.enabled")}`;
-    els.upgradeBtn.disabled = true;
-    if (els.iapBanner) els.iapBanner.classList.add("hidden");
-    return;
-  }
-  els.planStatus.textContent = t("plan.free", { used: state.usageCount, limit: FREE_LIMIT });
-  els.upgradeBtn.innerHTML = `${crown}${t("plan.getPremium")} - $2`;
-  els.upgradeBtn.disabled = false;
-  if (els.iapBanner) els.iapBanner.classList.remove("hidden");
-}
-
-function persistPlanState() {
-  localStorage.setItem(USAGE_COUNT_KEY, String(Math.max(0, Number(state.usageCount || 0))));
-  if (state.isPremium) localStorage.setItem(PREMIUM_OVERRIDE_KEY, "1");
-}
-
-function syncUsageCount(nextCount, options = {}) {
-  const numeric = Math.max(0, Number(nextCount || 0));
-  if (options.maxWithCurrent) {
-    state.usageCount = Math.max(Number(state.usageCount || 0), numeric);
-  } else {
-    state.usageCount = numeric;
-  }
-  persistPlanState();
-}
-
-function initPlan() {
-  state.deviceId = "";
-  state.isPremium = localStorage.getItem(PREMIUM_OVERRIDE_KEY) === "1";
-  state.usageCount = Math.max(0, Number(localStorage.getItem(USAGE_COUNT_KEY) || 0));
-  persistPlanState();
-  refreshPlan();
-}
-
-function upgrade() {
-  startStripeCheckout();
-}
-
-function openPremiumLimitDialog() {
-  showToolView();
-  setStatus(t("error.freeLimit"), "error");
-  if (!els.premiumLimitDialog) return;
-  els.premiumLimitDialog.classList.remove("hidden");
-  els.premiumLimitDialog.removeAttribute("hidden");
-}
-
-function closePremiumLimitDialog() {
-  if (!els.premiumLimitDialog) return;
-  els.premiumLimitDialog.classList.add("hidden");
-  els.premiumLimitDialog.setAttribute("hidden", "");
-}
-
 function buildFileSignature(file, toolId) {
   if (!file) return "";
   return [toolId, file.name || "", file.size || 0, file.lastModified || 0].join("|");
@@ -482,95 +398,6 @@ function updateFileSelectionUI(files) {
   els.convertBtn.disabled = state.isBusy || signature === state.convertedFileSignature;
 }
 
-function canUse() {
-  return state.isPremium || state.usageCount < FREE_LIMIT;
-}
-
-function addUsageFallback() {
-  if (state.isPremium) return;
-  syncUsageCount(state.usageCount + 1);
-  refreshPlan();
-}
-
-async function startUsageSession() {
-  if (!SECURITY_API_BASE) throw new Error("Secure usage server URL is not configured.");
-  const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/start`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({}),
-  });
-  if (!response.ok) throw new Error("Usage security service unavailable.");
-  const payload = await response.json();
-  state.securityApiReady = true;
-  syncUsageCount(payload.usageCount, { maxWithCurrent: true });
-  const backendPremium = Boolean(payload.isPremium);
-  state.isPremium = state.isPremium || backendPremium;
-  persistPlanState();
-  refreshPlan();
-}
-
-async function assertSessionCanUse() {
-  if (!state.securityApiReady) {
-    if (!canUse()) {
-      const error = new Error(t("error.freeLimit"));
-      error.code = "FREE_LIMIT_REACHED";
-      throw error;
-    }
-    return;
-  }
-  const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/status`, {
-    credentials: "include",
-  });
-  if (!response.ok) throw new Error("Unable to verify usage security.");
-  const payload = await response.json();
-  syncUsageCount(payload.usageCount, { maxWithCurrent: true });
-  const backendPremium = Boolean(payload.isPremium);
-  state.isPremium = state.isPremium || backendPremium;
-  persistPlanState();
-  refreshPlan();
-  if (state.usageCount >= FREE_LIMIT) {
-    const error = new Error(t("error.freeLimit"));
-    error.code = "FREE_LIMIT_REACHED";
-    throw error;
-  }
-}
-
-async function secureConsumeUsage() {
-  if (!state.securityApiReady) {
-    addUsageFallback();
-    return;
-  }
-  const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/consume`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({}),
-  });
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const backendSaysLimit =
-      response.status === 403 ||
-      Number(payload.usageCount || 0) >= FREE_LIMIT ||
-      String(payload.error || "").toLowerCase().includes("limit");
-    if (backendSaysLimit) {
-      syncUsageCount(payload.usageCount || FREE_LIMIT, { maxWithCurrent: true });
-      state.isPremium = Boolean(payload.isPremium);
-      persistPlanState();
-      refreshPlan();
-      const error = new Error(t("error.freeLimit"));
-      error.code = "FREE_LIMIT_REACHED";
-      throw error;
-    }
-    throw new Error(payload.error || "Usage security check failed.");
-  }
-  syncUsageCount(payload.usageCount || state.usageCount, { maxWithCurrent: true });
-  const backendPremium = Boolean(payload.isPremium);
-  state.isPremium = state.isPremium || backendPremium;
-  persistPlanState();
-  refreshPlan();
-}
-
 function dl(blob, name) {
   state.pendingDownload = { blob, name };
   els.downloadBtn.disabled = false;
@@ -594,105 +421,6 @@ function clearPendingDownload(message = t("download.waiting")) {
   state.pendingDownload = null;
   els.downloadBtn.disabled = true;
   els.downloadInfo.textContent = message;
-}
-
-async function startStripeCheckout() {
-  try {
-    const checkoutPlanCode = "premium_monthly";
-    let checkoutUrl = STRIPE_CHECKOUT_URL;
-
-    // Preferred flow: ask backend to generate a live Checkout Session URL
-    // using STRIPE_PRODUCT_ID + active recurring prices.
-    if (!checkoutUrl && SECURITY_API_BASE) {
-      const response = await fetch(
-        `${SECURITY_API_BASE}/api/stripe/checkout-link?planCode=${encodeURIComponent(checkoutPlanCode)}`,
-        {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "x-user-id": "demo_user",
-          },
-        }
-      );
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(payload.details || payload.error || "Unable to generate Stripe checkout URL.");
-      }
-      checkoutUrl = String(payload.url || "").trim();
-    }
-
-    if (!checkoutUrl) {
-      throw new Error("Stripe live checkout URL is missing. Set window.__STRIPE_CHECKOUT_URL__ to your live payment link.");
-    }
-    if (/\/test_/i.test(checkoutUrl)) {
-      throw new Error("Sandbox Stripe checkout link detected. Please use a live buy.stripe.com URL.");
-    }
-    if (!/^pk_live_/i.test(STRIPE_PUBLISHABLE_KEY)) {
-      throw new Error("Stripe live publishable key is not configured.");
-    }
-    setStatus(t("status.paymentInit"), "busy");
-    window.location.href = checkoutUrl;
-  } catch (error) {
-    setStatus(error.message || t("error.paymentInitFailed"), "error");
-  }
-}
-
-async function syncPaymentFromReturn() {
-  try {
-    const params = new URLSearchParams(window.location.search);
-    const hash = window.location.hash || "";
-    const hashQuery = hash.includes("?") ? hash.split("?")[1] : "";
-    const hashParams = new URLSearchParams(hashQuery);
-
-    // Stripe success URLs usually include session_id; keep payment=success fallback.
-    const sessionId = params.get("session_id") || hashParams.get("session_id");
-    const paymentState = params.get("payment") || hashParams.get("payment");
-    const premiumState = params.get("premium") || hashParams.get("premium");
-    const orderRef = params.get("orderRef") || hashParams.get("orderRef");
-    const backendConfirmed = paymentState === "success" && Boolean(orderRef);
-    if (backendConfirmed) {
-      const activateResponse = await fetch(`${SECURITY_API_BASE}/api/payments/session/activate`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderRef }),
-      });
-      const activatePayload = await activateResponse.json().catch(() => ({}));
-      if (!activateResponse.ok) throw new Error(activatePayload.error || t("error.paymentVerifyFailed"));
-      state.isPremium = Boolean(activatePayload.isPremium);
-      persistPlanState();
-      closePremiumLimitDialog();
-      refreshPlan();
-      setStatus(t("status.premiumActivated"));
-      showToastWithType(t("status.premiumActivated"), "success");
-    }
-    const paidFallback =
-      paymentState === "success" || premiumState === "1" || Boolean(sessionId);
-    if (!state.isPremium && paidFallback) {
-      state.isPremium = true;
-      persistPlanState();
-      closePremiumLimitDialog();
-      refreshPlan();
-      setStatus(t("status.premiumActivated"));
-      showToastWithType(t("status.premiumActivated"), "success");
-    }
-
-    params.delete("session_id");
-    params.delete("payment");
-    params.delete("premium");
-    params.delete("orderRef");
-    hashParams.delete("session_id");
-    hashParams.delete("payment");
-    hashParams.delete("premium");
-    hashParams.delete("orderRef");
-    // Keep homepage URL clean (no forced "#/").
-    const cleanHash = hashParams.toString() ? `#/?${hashParams.toString()}` : "";
-    const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${cleanHash}`;
-    window.history.replaceState({}, "", clean);
-    applyRoute();
-  } catch (error) {
-    setStatus(error.message || t("error.paymentVerifyFailed"), "error");
-  }
 }
 
 function clearLegacyClientStorage() {
@@ -1372,12 +1100,6 @@ function setCategoryFilter(category) {
 async function runConversion() {
   try {
     if (state.isBusy) return;
-    if (!canUse()) {
-      openPremiumLimitDialog();
-      return;
-    }
-    await assertSessionCanUse();
-    await secureConsumeUsage();
     const files = Array.from(els.fileInput.files || []);
     if (!state.activeTool.htmlMode && files.length === 0) throw new Error(t("error.selectInput"));
     if (!state.activeTool.htmlMode) {
@@ -1404,9 +1126,6 @@ async function runConversion() {
       els.downloadInfo.textContent = t("download.browserDirect");
     }
   } catch (err) {
-    if (err?.code === "FREE_LIMIT_REACHED" || (err.message || "").includes(t("error.freeLimit"))) {
-      openPremiumLimitDialog();
-    }
     setStatus(err.message || "Conversion failed.", "error");
   } finally {
     setBusy(false);
@@ -1426,14 +1145,6 @@ els.convertBtn.addEventListener("click", runConversion);
 els.resetBtn.addEventListener("click", resetForm);
 if (els.themeBulb) {
   els.themeBulb.addEventListener("click", toggleThemeWithSound);
-}
-els.upgradeBtn.addEventListener("click", upgrade);
-if (els.premiumDialogUpgradeBtn) els.premiumDialogUpgradeBtn.addEventListener("click", upgrade);
-if (els.premiumDialogCloseBtn) els.premiumDialogCloseBtn.addEventListener("click", closePremiumLimitDialog);
-if (els.premiumLimitDialog) {
-  els.premiumLimitDialog.addEventListener("click", (event) => {
-    if (event.target?.dataset?.premiumClose === "true") closePremiumLimitDialog();
-  });
 }
 if (els.replaceFileBtn) {
   els.replaceFileBtn.addEventListener("click", () => {
@@ -1507,24 +1218,7 @@ clearLegacyClientStorage();
 initTheme();
 initScrollPerformanceMode();
 initLanguage();
-initPlan();
 normalizeLegacyHashRoute();
 syncFilterButtons();
 window.addEventListener("popstate", applyRoute);
 applyRoute();
-
-const runNonCriticalStartup = () => {
-  startUsageSession().catch((error) => {
-    state.securityApiReady = false;
-    // Keep UI usable if backend verification is temporarily unavailable.
-    console.warn(error.message || "Secure usage server is offline.");
-    refreshPlan();
-  });
-  syncPaymentFromReturn();
-};
-
-if ("requestIdleCallback" in window) {
-  window.requestIdleCallback(runNonCriticalStartup, { timeout: 1200 });
-} else {
-  setTimeout(runNonCriticalStartup, 120);
-}

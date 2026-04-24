@@ -65,18 +65,7 @@
     });
   }
 
-  function wirePremiumShortcut() {
-    const premiumButton = document.getElementById("glassPremiumBtn");
-    const existingUpgradeButton = document.getElementById("upgradeBtn");
-    if (!premiumButton || !existingUpgradeButton) return;
-
-    premiumButton.addEventListener("click", () => {
-      existingUpgradeButton.click();
-    });
-  }
-
   initGlassNavbar();
   initGlassModal();
   initButtonRipple();
-  wirePremiumShortcut();
 })();
