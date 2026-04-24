@@ -1,6 +1,7 @@
 ﻿const FREE_LIMIT = 5;
 const PREMIUM_OVERRIDE_KEY = "convertpro-premium-override";
 const USAGE_COUNT_KEY = "convertpro-usage-count-persist";
+const THEME_KEY = "convertpro-theme";
 const LOCALES = window.APP_LOCALES || {};
 
 const LIBS = {
@@ -328,6 +329,11 @@ function setBusy(busy) {
 function applyTheme(theme) {
   state.theme = theme;
   document.documentElement.setAttribute("data-theme", theme);
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+  } catch (error) {
+    // localStorage may be unavailable in some browsers.
+  }
   if (els.themeBulb) {
     const readable = theme === "light" ? "Light" : "Dark";
     els.themeBulb.setAttribute("title", `Theme: ${readable}`);
@@ -336,8 +342,15 @@ function applyTheme(theme) {
 }
 
 function initTheme() {
+  let savedTheme = null;
+  try {
+    savedTheme = localStorage.getItem(THEME_KEY);
+  } catch (error) {
+    savedTheme = null;
+  }
   const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
-  applyTheme(prefersLight ? "light" : "dark");
+  const theme = savedTheme === "light" || savedTheme === "dark" ? savedTheme : prefersLight ? "light" : "dark";
+  applyTheme(theme);
   if (IS_SAFARI) document.documentElement.classList.add("safari-optimized");
   if (IS_MAC) document.documentElement.classList.add("mac-performance");
   if (IS_APPLE_DEVICE) document.documentElement.classList.add("apple-performance");

@@ -16,11 +16,17 @@
       var ua = navigator.userAgent || "";
       var platform = navigator.platform || "";
       var isApple = /mac|iphone|ipad|ipod/i.test(platform + " " + ua);
+      var savedTheme = null;
+      try {
+        savedTheme = localStorage.getItem("convertpro-theme");
+      } catch (e) {
+        savedTheme = null;
+      }
       var prefersLight =
         window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
-      document.documentElement.setAttribute("data-theme", prefersLight ? "light" : "dark");
+      var theme = savedTheme === "light" || savedTheme === "dark" ? savedTheme : (prefersLight ? "light" : "dark");
+      document.documentElement.setAttribute("data-theme", theme);
       if (isApple) {
-        // Set performance mode before CSS/JS rendering work begins.
         document.documentElement.classList.add("apple-performance", "mac-performance");
       }
       if (!window.__PAYMENTS_API_BASE__ &&
@@ -314,22 +320,6 @@
   </footer>
 
   <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
-  <div id="liquidGlassModal" class="glass-modal" aria-hidden="true">
-    <div class="glass-modal__backdrop" data-glass-close-modal></div>
-    <section class="glass-modal__panel" role="dialog" aria-modal="true" aria-labelledby="liquidGlassTitle">
-      <header class="glass-modal__head">
-        <h3 id="liquidGlassTitle">Liquid Glass UI</h3>
-        <button class="glass-btn glass-btn--icon" type="button" data-glass-close-modal aria-label="Close modal">×</button>
-      </header>
-      <p>
-        This modal demonstrates reusable glassmorphism surfaces, smooth transitions, and dark-mode-safe contrast.
-      </p>
-      <div class="liquid-actions">
-        <button class="glass-btn glass-btn--primary" type="button">Continue</button>
-        <button class="glass-btn" type="button" data-glass-close-modal>Cancel</button>
-      </div>
-    </section>
-  </div>
   <div id="premiumLimitDialog" class="auth-modal hidden" hidden>
     <div class="auth-modal__backdrop" data-premium-close="true"></div>
     <div class="auth-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="premiumLimitTitle">
