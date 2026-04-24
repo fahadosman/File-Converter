@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Files Converter</title>
+  <title>File Converters</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -240,6 +240,37 @@
       margin-bottom: 0;
     }
 
+    /* Updated header navigation styles */
+    .topbar-nav {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-left: 2rem;
+    }
+
+    .topbar-nav a {
+      color: var(--text-primary, #1f2937);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+      white-space: nowrap;
+    }
+
+    [data-theme="dark"] .topbar-nav a {
+      color: #e2e8f0;
+    }
+
+    .topbar-nav a:hover {
+      color: var(--accent, #2c7da0);
+    }
+
+    @media (max-width: 900px) {
+      .topbar-nav {
+        display: none;
+      }
+    }
+
     @media (max-width: 780px) {
       .split-row-cards, .related-rating-row {
         grid-template-columns: 1fr;
@@ -275,6 +306,15 @@
         </span>
         <span id="brandTitle">File Converters</span>
       </div>
+      <!-- Added navigation links: Home, Features, Tools, FAQ, About us, Contact us -->
+      <nav class="topbar-nav">
+        <a href="/index.html">Home</a>
+        <a href="/features.html">Features</a>
+        <a href="/help.html">Tools</a>
+        <a href="/faq.html">FAQ</a>
+        <a href="/about.html">About us</a>
+        <a href="/contact.html">Contact us</a>
+      </nav>
       <div class="topbar-controls">
         <select id="languageSelect" class="language-select" aria-label="Select language">
           <option value="en">English</option>
