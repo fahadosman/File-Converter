@@ -29,7 +29,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.min.css" />
   <script>
     (function () {
       var html = document.documentElement;
@@ -38,7 +38,7 @@
 
       var glassCss = document.createElement("link");
       glassCss.rel = "stylesheet";
-      glassCss.href = "liquid-glass.css";
+      glassCss.href = "liquid-glass.min.css";
       document.head.appendChild(glassCss);
     })();
   </script>
@@ -371,23 +371,23 @@
     </div>
   </div>
 
-  <script src="locales.js"></script>
+  <script src="locales.min.js"></script>
   <script>
     (function () {
       var isApple = document.documentElement.classList.contains("apple-performance");
       if (isApple) return;
 
       var s1 = document.createElement("script");
-      s1.src = "liquid-glass-components.js";
+      s1.src = "liquid-glass-components.min.js";
       s1.defer = true;
       document.body.appendChild(s1);
 
       var s2 = document.createElement("script");
-      s2.src = "liquid-glass.js";
+      s2.src = "liquid-glass.min.js";
       s2.defer = true;
       document.body.appendChild(s2);
     })();
   </script>
-  <script src="script.js"></script>
+  <script src="script.min.js"></script>
 </body>
 </html>
