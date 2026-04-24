@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us - Files Converter</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="info-page">
+  <main class="app-shell">
+    <header class="topbar">
+      <a href="/index.html" class="brand brand-link">
+        <span class="brand-logo-wrap">
+          <img class="brand-logo" src="favicon.svg" alt="Files Converter logo" />
+        </span>
+        <span>Files Converter</span>
+      </a>
+    </header>
+
+    <section class="info-section card" style="padding:24px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
+        <div>
+          <h1 style="margin-top:0;">Contact</h1>
+          <p style="color:var(--muted);">
+            Contact us to report an issue, ask a question, or learn more about Files Converter.
+          </p>
+        </div>
+
+        <form class="card" style="padding:18px;" onsubmit="event.preventDefault(); alert('Thanks! Your message has been recorded.');">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <label>
+              <span style="display:block;margin-bottom:6px;">Your name*</span>
+              <input type="text" required placeholder="Your name" class="tool-search" style="max-width:100%;" />
+            </label>
+            <label>
+              <span style="display:block;margin-bottom:6px;">Your email*</span>
+              <input type="email" required placeholder="Your email" class="tool-search" style="max-width:100%;" />
+            </label>
+          </div>
+
+          <label style="display:block;margin-top:10px;">
+            <span style="display:block;margin-bottom:6px;">Subject*</span>
+            <select required class="sort-filter" style="width:100%;max-width:100%;">
+              <option value="">Choose a subject...</option>
+              <option>Billing and subscription</option>
+              <option>Technical issue</option>
+              <option>Feature request</option>
+              <option>Partnership inquiry</option>
+              <option>General question</option>
+            </select>
+          </label>
+
+          <label style="display:block;margin-top:10px;">
+            <span style="display:block;margin-bottom:6px;">Message*</span>
+            <textarea required placeholder="Write a message" rows="6" class="tool-search" style="max-width:100%;resize:vertical;"></textarea>
+          </label>
+
+          <label style="display:flex;gap:8px;align-items:flex-start;margin-top:10px;color:var(--muted);font-size:0.9rem;">
+            <input type="checkbox" required style="margin-top:3px;" />
+            <span>
+                   I accept <a href="/terms.html">Terms &amp; Conditions</a> and <a href="/privacy.html">Legal &amp; Privacy</a>.
+            </span>
+          </label>
+
+          <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+            <button type="submit" class="primary-btn">Send message</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-grid footer-grid--clean">
+      <section class="footer-col footer-col--brand">
+        <h4>Files Converter</h4>
+        <p class="footer-tagline">
+          Fast, secure, and simple document tools built to save your time.
+        </p>
+      </section>
+      <section class="footer-col">
+        <h4 data-i18n="footer.product.title">Product</h4>
+        <a href="/index.html" data-i18n="footer.product.home">Home</a>
+        <a href="/features.html" data-i18n="footer.product.features">Features</a>
+        <a href="/help.html" data-i18n="footer.product.tools">Tools</a>
+        <a href="/faq.html" data-i18n="footer.product.faq">FAQ</a>
+      </section>
+      <section class="footer-col">
+        <h4 data-i18n="footer.legal.title">Legal</h4>
+        <a href="/security.html" data-i18n="footer.legal.security">Security</a>
+        <a href="/privacy.html" data-i18n="footer.legal.privacy">Privacy policy</a>
+        <a href="/terms.html" data-i18n="footer.legal.terms">Terms &amp; conditions</a>
+      </section>
+      <section class="footer-col">
+        <h4 data-i18n="footer.company.title">Company</h4>
+        <a href="/about.html" data-i18n="footer.company.about">About us</a>
+        <a href="/contact.html" data-i18n="footer.company.contact">Contact us</a>
+      </section>
+    </div>
+    <div class="footer-copyline" data-i18n="footer.copyline">Copyright ©2026 fahad usman All Rights Reserved.</div>
+  </footer>
+</body>
+</html>

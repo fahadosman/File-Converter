@@ -1,0 +1,26 @@
+{
+  "name": "convertpro-studio-payments",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "npm run stripe-server",
+    "payment-server": "node payment-server.js",
+    "stripe-server": "node stripe-system/backend/server.js",
+    "deploy:cloudflare": "wrangler deploy"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.1",
+    "helmet": "^8.0.0",
+    "stripe": "^17.5.0"
+  },
+  "devDependencies": {
+    "clean-css-cli": "^5.6.3",
+    "html-minifier-terser": "^7.2.0",
+    "terser": "^5.46.1",
+    "wrangler": "^4.13.2"
+  }
+}
