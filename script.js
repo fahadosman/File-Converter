@@ -2,16 +2,6 @@
 const PREMIUM_OVERRIDE_KEY = "convertpro-premium-override";
 const USAGE_COUNT_KEY = "convertpro-usage-count-persist";
 const LOCALES = window.APP_LOCALES || {};
-const STRIPE_PUBLISHABLE_KEY = String(window.__STRIPE_PUBLISHABLE_KEY__ || "pk_live_51TOXLnAJnvIxlBRV5R1QGuyedrnKYSTQLyxQVyajHjaAP0w6anlKQCC7qCreF4EzgbFhFeUjBpuvF2s98UWBChPT00GE6xHEoA").trim();
-const STRIPE_CHECKOUT_URL = String(window.__STRIPE_CHECKOUT_URL__ || "").trim();
-const LOCAL_HOSTS = new Set(["", "localhost", "127.0.0.1"]);
-const SECURITY_API_BASE =
-  window.__PAYMENTS_API_BASE__ ||
-  (LOCAL_HOSTS.has(window.location.hostname || "")
-    ? "http://localhost:8899"
-    : /^https?:$/i.test(window.location.protocol)
-      ? window.location.origin
-      : "");
 
 const LIBS = {
   pdfjs: {
@@ -438,7 +428,7 @@ function initPlan() {
 }
 
 function upgrade() {
-  startStripeCheckout();
+  showToastWithType("Premium upgrade coming soon!", "success");
 }
 
 function openPremiumLimitDialog() {
@@ -596,46 +586,7 @@ function clearPendingDownload(message = t("download.waiting")) {
   els.downloadInfo.textContent = message;
 }
 
-async function startStripeCheckout() {
-  try {
-    const checkoutPlanCode = "premium_monthly";
-    let checkoutUrl = STRIPE_CHECKOUT_URL;
 
-    // Preferred flow: ask backend to generate a live Checkout Session URL
-    // using STRIPE_PRODUCT_ID + active recurring prices.
-    if (!checkoutUrl && SECURITY_API_BASE) {
-      const response = await fetch(
-        `${SECURITY_API_BASE}/api/stripe/checkout-link?planCode=${encodeURIComponent(checkoutPlanCode)}`,
-        {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "x-user-id": "demo_user",
-          },
-        }
-      );
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(payload.details || payload.error || "Unable to generate Stripe checkout URL.");
-      }
-      checkoutUrl = String(payload.url || "").trim();
-    }
-
-    if (!checkoutUrl) {
-      throw new Error("Stripe live checkout URL is missing. Set window.__STRIPE_CHECKOUT_URL__ to your live payment link.");
-    }
-    if (/\/test_/i.test(checkoutUrl)) {
-      throw new Error("Sandbox Stripe checkout link detected. Please use a live buy.stripe.com URL.");
-    }
-    if (!/^pk_live_/i.test(STRIPE_PUBLISHABLE_KEY)) {
-      throw new Error("Stripe live publishable key is not configured.");
-    }
-    setStatus(t("status.paymentInit"), "busy");
-    window.location.href = checkoutUrl;
-  } catch (error) {
-    setStatus(error.message || t("error.paymentInitFailed"), "error");
-  }
-}
 
 async function syncPaymentFromReturn() {
   try {
@@ -1376,8 +1327,7 @@ async function runConversion() {
       openPremiumLimitDialog();
       return;
     }
-    await assertSessionCanUse();
-    await secureConsumeUsage();
+    addUsageFallback();
     const files = Array.from(els.fileInput.files || []);
     if (!state.activeTool.htmlMode && files.length === 0) throw new Error(t("error.selectInput"));
     if (!state.activeTool.htmlMode) {
@@ -1514,13 +1464,8 @@ window.addEventListener("popstate", applyRoute);
 applyRoute();
 
 const runNonCriticalStartup = () => {
-  startUsageSession().catch((error) => {
-    state.securityApiReady = false;
-    // Keep UI usable if backend verification is temporarily unavailable.
-    console.warn(error.message || "Secure usage server is offline.");
-    refreshPlan();
-  });
-  syncPaymentFromReturn();
+  // Removed payment and usage session code
+  refreshPlan();
 };
 
 if ("requestIdleCallback" in window) {

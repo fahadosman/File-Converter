@@ -1374,6 +1374,7 @@ button {
   color: var(--muted);
   margin-bottom: 5px;
   font-size: 0.88rem;
+  transition: color 0.2s ease;
 }
 
 .footer-col a:hover {
