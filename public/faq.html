@@ -37,6 +37,104 @@
     })();
   </script>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Card-based FAQ grid — 5 cards per row, simple card design */
+    .faq-card-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .faq-card {
+      background: var(--card-surface);
+      backdrop-filter: blur(4px);
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      border: 1px solid var(--border-light, rgba(0,0,0,0.05));
+      box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .faq-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+    }
+
+    [data-theme="dark"] .faq-card {
+      background: rgba(20, 20, 30, 0.7);
+      border-color: rgba(255,255,255,0.08);
+      backdrop-filter: blur(6px);
+    }
+
+    .faq-card-question {
+      font-weight: 700;
+      font-size: 1rem;
+      line-height: 1.4;
+      color: var(--text-primary, #1f2937);
+      margin: 0 0 1rem 0;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--accent, #2c7da0);
+    }
+
+    [data-theme="dark"] .faq-card-question {
+      color: #f1f5f9;
+      border-bottom-color: #3b82f6;
+    }
+
+    .faq-card-answer {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin: 0;
+      color: var(--muted, #4b5563);
+      flex-grow: 1;
+    }
+
+    [data-theme="dark"] .faq-card-answer {
+      color: #cbd5e1;
+    }
+
+    .faq-card-answer strong {
+      font-weight: 600;
+      color: var(--accent, #2c7da0);
+    }
+
+    [data-theme="dark"] .faq-card-answer strong {
+      color: #3b82f6;
+    }
+
+    /* Responsive: 5 cards row, but adapt for tablets / mobile */
+    @media (max-width: 1200px) {
+      .faq-card-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.2rem;
+      }
+    }
+    @media (max-width: 900px) {
+      .faq-card-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 650px) {
+      .faq-card-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 480px) {
+      .faq-card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .info-section.card {
+      background: transparent;
+      box-shadow: none;
+      padding: 24px 24px 40px !important;
+    }
+  </style>
 </head>
 <body class="info-page">
   <div class="background-glow" aria-hidden="true"></div>
@@ -73,94 +171,110 @@
         We thought they could be useful for you too.
       </p>
 
-      <details class="faq-item" open>
-        <summary>Do you keep a copy of my processed files?</summary>
-        <p>
-          Absolutely not. Your files are only yours. While your files are in our servers, they are strictly secured and no one can access them.
-          We just keep them for a maximum of 2 hours so you can download them. Right after, they are completely removed forever from our servers.
-          You can also delete the document by yourself at the end of each conversion. We will not check, copy or analyze your files in any way.
-        </p>
-      </details>
+      <!-- FAQ CARDS GRID: 5 simple cards per row, showing Q&A directly without dropdowns -->
+      <div class="faq-card-grid">
+        
+        <!-- Card 1: Do you keep a copy of my processed files? -->
+        <div class="faq-card">
+          <div class="faq-card-question">Do you keep a copy of my processed files?</div>
+          <p class="faq-card-answer">
+            Absolutely not. Your files are only yours. While your files are in our servers, they are strictly secured and no one can access them.
+            We just keep them for a maximum of 2 hours so you can download them. Right after, they are completely removed forever from our servers.
+            You can also delete the document by yourself at the end of each conversion. We will not check, copy or analyze your files in any way.
+          </p>
+        </div>
 
-      <details class="faq-item">
-        <summary>Are company files safe with your service?</summary>
-        <p>
-          Yes. All uploads use HTTPS/SSL and include end-to-end encryption for further privacy. These additional steps increase security and
-          satisfy most corporate data privacy policies. Put simply, your data is processed as safely as possible. We comply with GDPR.
-        </p>
-      </details>
+        <!-- Card 2: Are company files safe with your service? -->
+        <div class="faq-card">
+          <div class="faq-card-question">Are company files safe with your service?</div>
+          <p class="faq-card-answer">
+            Yes. All uploads use HTTPS/SSL and include end-to-end encryption for further privacy. These additional steps increase security and
+            satisfy most corporate data privacy policies. Put simply, your data is processed as safely as possible. We comply with GDPR.
+          </p>
+        </div>
 
-      <details class="faq-item">
-        <summary>What are your system requirements?</summary>
-        <p>
-          We have very basic system requirements. To run our tools smoothly, we recommend Chrome, Firefox, Explorer +10, and Safari.
-          If you experience issues within the download screen, we recommend using Incognito mode.
-        </p>
-      </details>
+        <!-- Card 3: What are your system requirements? -->
+        <div class="faq-card">
+          <div class="faq-card-question">What are your system requirements?</div>
+          <p class="faq-card-answer">
+            We have very basic system requirements. To run our tools smoothly, we recommend Chrome, Firefox, Explorer +10, and Safari.
+            If you experience issues within the download screen, we recommend using Incognito mode.
+          </p>
+        </div>
 
-      <details class="faq-item">
-        <summary>Why did I not receive the confirmation of my email address?</summary>
-        <p>
-          The confirmation email is usually delivered immediately. Sometimes it may take longer.
-          If after 30 minutes nothing appears in your inbox, check your Spam/Trash folder or contact support.
-        </p>
-      </details>
+        <!-- Card 4: Why did I not receive the confirmation of my email address? -->
+        <div class="faq-card">
+          <div class="faq-card-question">Why did I not receive the confirmation?</div>
+          <p class="faq-card-answer">
+            The confirmation email is usually delivered immediately. Sometimes it may take longer.
+            If after 30 minutes nothing appears in your inbox, check your Spam/Trash folder or contact support.
+          </p>
+        </div>
 
-      <details class="faq-item">
-        <summary>How can I upload my files?</summary>
-        <p>
-          The easiest way is to drag and drop your files straight to our canvas. You can also click on
-          <strong>Select files</strong> or import from cloud storage systems such as Google Drive or Dropbox.
-        </p>
-      </details>
+        <!-- Card 5: How can I upload my files? -->
+        <div class="faq-card">
+          <div class="faq-card-question">How can I upload my files?</div>
+          <p class="faq-card-answer">
+            The easiest way is to drag and drop your files straight to our canvas. You can also click on
+            <strong>Select files</strong> or import from cloud storage systems such as Google Drive or Dropbox.
+          </p>
+        </div>
 
-      <details class="faq-item">
-        <summary>Can I convert my scanned PDFs to an editable document?</summary>
-        <p>
-          Yes. To convert a scanned PDF into editable formats, OCR (Optical Character Recognition) is required.
-          Our scanned PDF to Office conversion flow supports this use case.
-        </p>
-      </details>
+        <!-- Card 6: Can I convert my scanned PDFs to an editable document? -->
+        <div class="faq-card">
+          <div class="faq-card-question">Can I convert scanned PDFs to editable doc?</div>
+          <p class="faq-card-answer">
+            Yes. To convert a scanned PDF into editable formats, OCR (Optical Character Recognition) is required.
+            Our scanned PDF to Office conversion flow supports this use case.
+          </p>
+        </div>
 
-      <details class="faq-item">
-        <summary>Why does my conversion take so long?</summary>
-        <p>
-          Processing speed depends on multiple factors, including your internet connection, selected file size,
-          and current server load.
-        </p>
-      </details>
+        <!-- Card 7: Why does my conversion take so long? -->
+        <div class="faq-card">
+          <div class="faq-card-question">Why does my conversion take so long?</div>
+          <p class="faq-card-answer">
+            Processing speed depends on multiple factors, including your internet connection, selected file size,
+            and current server load.
+          </p>
+        </div>
 
-      <details class="faq-item">
-        <summary>Can I work from the cloud?</summary>
-        <p>
-          Yes. Files do not need to be on your current device. You can import from Google Drive or Dropbox, process files,
-          and save them back to cloud storage. This is especially useful on mobile devices and tablets.
-        </p>
-      </details>
+        <!-- Card 8: Can I work from the cloud? -->
+        <div class="faq-card">
+          <div class="faq-card-question">Can I work from the cloud?</div>
+          <p class="faq-card-answer">
+            Yes. Files do not need to be on your current device. You can import from Google Drive or Dropbox, process files,
+            and save them back to cloud storage. This is especially useful on mobile devices and tablets.
+          </p>
+        </div>
 
-      <details class="faq-item">
-        <summary>What is the maximum file size I can upload?</summary>
-        <p>
-          The allowed size may vary by tool and plan. If a file exceeds the current limit, the interface will show a clear message
-          before conversion starts.
-        </p>
-      </details>
+        <!-- Card 9: What is the maximum file size I can upload? -->
+        <div class="faq-card">
+          <div class="faq-card-question">What is the maximum file size?</div>
+          <p class="faq-card-answer">
+            The allowed size may vary by tool and plan. If a file exceeds the current limit, the interface will show a clear message
+            before conversion starts.
+          </p>
+        </div>
 
-      <details class="faq-item">
-        <summary>What should I do if a conversion fails?</summary>
-        <p>
-          Try again once, confirm the file format is supported, and check that the file is not password-protected or corrupted.
-          If the issue continues, contact support with the tool name and file type so we can investigate quickly.
-        </p>
-      </details>
+        <!-- Card 10: What should I do if a conversion fails? -->
+        <div class="faq-card">
+          <div class="faq-card-question">What if a conversion fails?</div>
+          <p class="faq-card-answer">
+            Try again once, confirm the file format is supported, and check that the file is not password-protected or corrupted.
+            If the issue continues, contact support with the tool name and file type so we can investigate quickly.
+          </p>
+        </div>
 
-      <details class="faq-item">
-        <summary>Can I use this service on mobile devices?</summary>
-        <p>
-          Yes. The service is designed to work on modern mobile browsers as well as desktop browsers.
-          For large files, a stable Wi-Fi connection is recommended for best performance.
-        </p>
-      </details>
+        <!-- Card 11: Can I use this service on mobile devices? -->
+        <div class="faq-card">
+          <div class="faq-card-question">Can I use this on mobile devices?</div>
+          <p class="faq-card-answer">
+            Yes. The service is designed to work on modern mobile browsers as well as desktop browsers.
+            For large files, a stable Wi-Fi connection is recommended for best performance.
+          </p>
+        </div>
+
+      </div>
     </section>
   </main>
 
