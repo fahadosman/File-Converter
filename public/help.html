@@ -38,6 +38,11 @@
   </script>
   <link rel="stylesheet" href="styles.css" />
   <style>
+    /* Hide the navigation links (Home, Features, Tools, FAQ) in header */
+    .topbar-nav {
+      display: none !important;
+    }
+
     /* Card grid styling — 5 cards per row, each card contains a tool/dropdown-style section */
     .guide-card-grid {
       display: grid;
@@ -186,6 +191,14 @@
     .intro-text {
       margin-bottom: 0.2rem;
     }
+
+    /* topbar spacing adjustment */
+    .topbar {
+      justify-content: space-between;
+    }
+    .topbar-controls {
+      margin-left: auto;
+    }
   </style>
 </head>
 <body class="info-page">
@@ -198,12 +211,7 @@
         </span>
         <span>Files Converter</span>
       </a>
-      <nav class="topbar-nav">
-        <a href="/index.html">Home</a>
-        <a href="/features.html">Features</a>
-        <a href="/help.html">Tools</a>
-        <a href="/faq.html">FAQ</a>
-      </nav>
+      <!-- Navigation links (Home, Features, Tools, FAQ) removed as requested -->
       <div class="topbar-controls">
         <button id="themeBulb" class="theme-toggle" type="button" aria-label="Switch to light mode" title="Theme: Dark">
           <span class="theme-toggle__track">
@@ -290,7 +298,6 @@
         <div class="guide-card"><details><summary>PDF to Word</summary><p>Transform PDFs into editable DOCX files and download instantly or save directly to cloud drives.</p></details></div>
         <div class="guide-card"><details><summary>PDF to PowerPoint</summary><p>Convert PDF pages to editable PPTX slides, typically one PDF page per slide.</p></details></div>
         <div class="guide-card"><details><summary>PDF to Excel</summary><p>Convert tables and structured data from PDF files into editable XLSX spreadsheets.</p></details></div>
-        <!-- additional card to keep symmetry? we have only 4 items in this group, but 5th card would break? grid handles automatically, but we add one extra tip card to fill row nicely? not needed, but we keep consistency with original content; but original has "PDF Security" later. Actually original has 4 items in Convert from PDF. So last row will have 4 cards in desktop (looks fine). We preserve exact structure. -->
       </div>
 
       <!-- ==================== PDF SECURITY AND SIGNATURE ==================== -->
@@ -300,7 +307,6 @@
         <div class="guide-card"><details><summary>Protect PDF</summary><p>Add a user-defined password to encrypt and secure your PDF document.</p></details></div>
         <div class="guide-card"><details><summary>PDF to PDF/A</summary><p>Convert PDFs to PDF/A format for long-term archiving and compliance workflows.</p></details></div>
         <div class="guide-card"><details><summary>Sign PDF</summary><p>Add your own signature by drawing, uploading, or typing; include date/initial fields. You can also create signature requests and collect e-signatures with an auditable trail.</p></details></div>
-        <!-- 4 items, but grid will show them in one row of 4 cards, leaving one gap on large screens? Actually 5-col grid with 4 items shows 4 cards and empty space. That's fine. To keep consistency we don't add filler. -->
       </div>
 
       <!-- ==================== TECHNICAL CONCEPTS ==================== -->
@@ -313,7 +319,6 @@
         <div class="guide-card"><details><summary>Working from the cloud</summary><p>Files Converter supports direct cloud import/export so files do not need to be stored locally first. This is especially useful on mobile and tablet devices.</p></details></div>
         <div class="guide-card"><details><summary>Selecting multiple files</summary><p>Use Ctrl-click for non-consecutive selections, Shift-click for ranges, or simply drag and drop into the canvas.</p></details></div>
         <div class="guide-card"><details><summary>Minimum requirements &amp; troubleshooting</summary><p>Recommended browsers: Chrome, Firefox, Explorer 10+, Safari with JS enabled. If issues persist, contact support and attach a sample file (non-confidential) to speed diagnosis.</p></details></div>
-        <!-- 7 items: row1 = 5 cards, row2 = 2 cards (centered with responsive grid) — works perfectly -->
       </div>
 
       <!-- optional extra note: the design preserves all original guide items and each card contains separate dropdown -->
