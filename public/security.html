@@ -38,6 +38,11 @@
   </script>
   <link rel="stylesheet" href="styles.css" />
   <style>
+    /* Header navigation removal - hide Home, Features, Tools, FAQ links */
+    .topbar-nav {
+      display: none !important;
+    }
+
     /* Card grid styling — 5 cards per row with dropdown (details/summary) pattern */
     .security-card-grid {
       display: grid;
@@ -174,7 +179,7 @@
       margin-bottom: 1rem;
     }
 
-    /* feature-grid overrides for consistency, but we convert everything to cards grid */
+    /* legacy grid fallback */
     .legacy-feature-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -202,11 +207,19 @@
       }
     }
 
-    /* preserve spacing for sections that mix cards + direct faq-items */
+    /* preserve spacing */
     .faq-item {
       background: transparent;
       border: none;
       margin-bottom: 1rem;
+    }
+
+    /* topbar spacing adjustment */
+    .topbar {
+      justify-content: space-between;
+    }
+    .topbar-controls {
+      margin-left: auto;
     }
   </style>
 </head>
@@ -220,12 +233,7 @@
         </span>
         <span>Files Converter</span>
       </a>
-      <nav class="topbar-nav">
-        <a href="/index.html">Home</a>
-        <a href="/features.html">Features</a>
-        <a href="/help.html">Tools</a>
-        <a href="/faq.html">FAQ</a>
-      </nav>
+      <!-- Navigation links (Home, Features, Tools, FAQ) removed as requested -->
       <div class="topbar-controls">
         <button id="themeBulb" class="theme-toggle" type="button" aria-label="Switch to light mode" title="Theme: Dark">
           <span class="theme-toggle__track">
