@@ -38,6 +38,11 @@
   </script>
   <link rel="stylesheet" href="styles.css" />
   <style>
+    /* Hide navigation links (Home, Features, Tools, FAQ) in header */
+    .topbar-nav {
+      display: none !important;
+    }
+
     /* Card-based FAQ grid — 5 cards per row, simple card design */
     .faq-card-grid {
       display: grid;
@@ -138,6 +143,14 @@
     .section-intro-text {
       margin-bottom: 0.5rem;
     }
+
+    /* topbar spacing adjustment */
+    .topbar {
+      justify-content: space-between;
+    }
+    .topbar-controls {
+      margin-left: auto;
+    }
   </style>
 </head>
 <body class="info-page">
@@ -150,12 +163,7 @@
         </span>
         <span>Files Converter</span>
       </a>
-      <nav class="topbar-nav">
-        <a href="/index.html">Home</a>
-        <a href="/features.html">Features</a>
-        <a href="/help.html">Tools</a>
-        <a href="/faq.html">FAQ</a>
-      </nav>
+      <!-- Navigation links (Home, Features, Tools, FAQ) removed as requested -->
       <div class="topbar-controls">
         <button id="themeBulb" class="theme-toggle" type="button" aria-label="Switch to light mode" title="Theme: Dark">
           <span class="theme-toggle__track">
