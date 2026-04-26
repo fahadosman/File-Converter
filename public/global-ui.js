@@ -58,6 +58,8 @@
   }
 
   function ensureHeader() {
+    var currentPath = window.location.pathname || "/";
+    var isHome = currentPath === "/" || currentPath === "/index.html";
     var header = document.querySelector(".topbar");
     if (!header) {
       var existingHeader = document.querySelector("header");
@@ -68,7 +70,7 @@
       wrapper.className = "topbar global-topbar glass-navbar";
       wrapper.innerHTML =
         '<a href="/index.html" class="brand brand-link"><span class="brand-logo-wrap"><img class="brand-logo" src="/favicon.svg" alt="File Converters logo" /></span><span>File Converters</span></a>' +
-        '<nav class="topbar-nav">' + buildNav(window.location.pathname || "/") + "</nav>" +
+        '<nav class="topbar-nav">' + buildNav(currentPath) + "</nav>" +
         '<button type="button" class="nav-toggle" aria-expanded="false">Menu</button>' +
         '<div class="topbar-controls"><button id="themeBulb" class="theme-toggle" type="button" aria-label="Switch to light mode" title="Theme: Dark"><span class="theme-toggle__track"><span class="theme-toggle__sun" aria-hidden="true">☀</span><span class="theme-toggle__knob" aria-hidden="true"><span class="theme-toggle__moon">☾</span></span></span></button></div>';
       if (existingHeader) {
@@ -92,9 +94,18 @@
       if (controls) header.insertBefore(nav, controls);
       else header.appendChild(nav);
     }
-    nav.innerHTML = buildNav(window.location.pathname || "/");
+    nav.innerHTML = buildNav(currentPath);
 
     var controls = header.querySelector(".topbar-controls");
+    if (controls && !isHome) {
+      controls.remove();
+    } else if (isHome && !controls) {
+      controls = document.createElement("div");
+      controls.className = "topbar-controls";
+      controls.innerHTML = '<button id="themeBulb" class="theme-toggle" type="button" aria-label="Switch to light mode" title="Theme: Dark"><span class="theme-toggle__track"><span class="theme-toggle__sun" aria-hidden="true">☀</span><span class="theme-toggle__knob" aria-hidden="true"><span class="theme-toggle__moon">☾</span></span></span></button>';
+      header.appendChild(controls);
+    }
+
     if (controls && !header.querySelector(".nav-toggle")) {
       var btn = document.createElement("button");
       btn.type = "button";

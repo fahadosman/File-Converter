@@ -1280,8 +1280,24 @@ function showToolView() {
 function getToolFromPath() {
   const m = (window.location.pathname || "").match(/^\/tool\/([^/?#]+)\/?$/);
   if (!m) return null;
-  const id = decodeURIComponent(m[1]);
+  const rawId = decodeURIComponent(m[1]);
+  const aliases = {
+    "compress-pdf": "compress-pdf",
+    "pdf-compress": "compress-pdf",
+    "pdf-to-powerpoint": "pdf-to-ppt",
+    "powerpoint-to-pdf": "ppt-to-pdf",
+  };
+  const id = aliases[rawId] || rawId;
   return tools.find((t) => t.id === id) || null;
+}
+
+function staticToolSlug(toolId) {
+  const map = {
+    "compress-pdf": "pdf-compress",
+    "pdf-to-ppt": "pdf-to-powerpoint",
+    "ppt-to-pdf": "powerpoint-to-pdf",
+  };
+  return map[toolId] || toolId;
 }
 
 function navigateToTool(toolId, options = {}) {
@@ -1312,10 +1328,7 @@ function normalizeLegacyHashRoute() {
 function applyRoute() {
   const fromPath = getToolFromPath();
   if (fromPath) {
-    state.activeTool = fromPath;
-    configureUI();
-    showToolView();
-    setStatus(t("status.ready"));
+    window.location.replace(`/tools/${staticToolSlug(fromPath.id)}.html`);
     return;
   }
   showHomeView();
