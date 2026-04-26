@@ -1527,7 +1527,8 @@ button {
 
 @media (max-width: 768px) {
   .tool-grid {
-    grid-template-columns: repeat(3, minmax(150px, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
 
   .footer-grid {
@@ -1537,17 +1538,28 @@ button {
   .iap-banner {
     grid-template-columns: 1fr;
     text-align: center;
+    padding: 18px;
+    gap: 14px;
   }
 
   .iap-banner__visual {
     justify-self: center;
     max-width: 260px;
   }
+
+  .iap-cta {
+    width: 100%;
+    max-width: 320px;
+  }
 }
 
 @media (max-width: 640px) {
   .app-shell {
-    padding: 16px;
+    padding:
+      max(14px, env(safe-area-inset-top))
+      max(14px, env(safe-area-inset-right))
+      max(16px, env(safe-area-inset-bottom))
+      max(14px, env(safe-area-inset-left));
   }
 
   .brand {
@@ -1620,8 +1632,11 @@ button {
 
   .tool-btn {
     height: auto;
-    min-height: 130px;
+    min-height: 124px;
     min-width: 0;
+    padding: 12px 8px;
+    border-radius: 14px;
+    font-size: 0.9rem;
   }
 
   .feature-grid,
@@ -1641,6 +1656,28 @@ button {
     height: auto;
     min-height: 250px;
     border-radius: 18px;
+  }
+
+  .iap-banner {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .iap-banner__text h3 {
+    font-size: 1.12rem;
+    line-height: 1.25;
+  }
+
+  .iap-banner__list li {
+    font-size: 0.88rem;
+    line-height: 1.35;
+    margin-bottom: 6px;
+    text-align: left;
+  }
+
+  .iap-banner__visual {
+    max-width: 220px;
+    min-height: 88px;
   }
 
   .footer-grid {
@@ -1672,7 +1709,41 @@ button {
     font-size: 0.95rem;
   }
 
+  .tool-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tool-btn {
+    min-height: 110px;
+  }
+
+  .iap-banner {
+    text-align: left;
+  }
+
+  .iap-banner__visual {
+    display: none;
+  }
+
+  .iap-cta {
+    width: 100%;
+    max-width: 100%;
+    padding: 11px 14px;
+  }
+
   .footer-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 360px) {
+  .tool-list-panel,
+  .card {
+    padding: 14px;
+  }
+
+  .tool-btn {
+    min-height: 102px;
+    font-size: 0.86rem;
   }
 }

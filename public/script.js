@@ -73,19 +73,19 @@ const tools = [
   { id: "svg-to-raster", name: "SVG to PNG/JPG", accept: ".svg", description: "SVG to raster", deps: [] },
   { id: "tiff-to-raster", name: "TIFF to JPG/PNG", accept: ".tif,.tiff", description: "TIFF to raster", deps: ["utif"] },
   { id: "gif-to-mp4", name: "GIF to MP4", accept: ".gif", description: "WebM fallback", deps: [] },
-  { id: "pdf-to-text", name: "PDF to Text", accept: ".pdf", description: "Extract text from PDF", deps: [] },
-  { id: "pdf-to-html", name: "PDF to HTML", accept: ".pdf", description: "Convert PDF to HTML", deps: [] },
-  { id: "word-to-html", name: "Word to HTML", accept: ".doc,.docx", description: "Convert Word to HTML", deps: [] },
-  { id: "word-to-txt", name: "Word to TXT", accept: ".doc,.docx", description: "Convert Word to plain text", deps: [] },
-  { id: "excel-to-csv", name: "Excel to CSV", accept: ".xls,.xlsx", description: "Convert Excel to CSV", deps: [] },
-  { id: "excel-to-json", name: "Excel to JSON", accept: ".xls,.xlsx", description: "Convert Excel to JSON", deps: [] },
+  { id: "pdf-to-text", name: "PDF to Text", accept: ".pdf", description: "Extract text from PDF", deps: ["pdfjs"] },
+  { id: "pdf-to-html", name: "PDF to HTML", accept: ".pdf", description: "Convert PDF to HTML", deps: ["pdfjs"] },
+  { id: "word-to-html", name: "Word to HTML", accept: ".docx", description: "Convert Word to HTML", deps: ["mammoth"] },
+  { id: "word-to-txt", name: "Word to TXT", accept: ".docx", description: "Convert Word to plain text", deps: ["mammoth"] },
+  { id: "excel-to-csv", name: "Excel to CSV", accept: ".xls,.xlsx", description: "Convert Excel to CSV", deps: ["xlsx"] },
+  { id: "excel-to-json", name: "Excel to JSON", accept: ".xls,.xlsx", description: "Convert Excel to JSON", deps: ["xlsx"] },
   { id: "powerpoint-to-video", name: "PowerPoint to Video", accept: ".ppt,.pptx", description: "Convert slides to video", deps: [] },
-  { id: "txt-to-pdf", name: "TXT to PDF", accept: ".txt", description: "Convert text files to PDF", deps: [] },
-  { id: "rtf-to-pdf", name: "RTF to PDF", accept: ".rtf", description: "Convert RTF to PDF", deps: [] },
+  { id: "txt-to-pdf", name: "TXT to PDF", accept: ".txt", description: "Convert text files to PDF", deps: ["jspdf"] },
+  { id: "rtf-to-pdf", name: "RTF to PDF", accept: ".rtf", description: "Convert RTF to PDF", deps: ["jspdf"] },
   { id: "webp-to-jpg", name: "WEBP to JPG", accept: ".webp", description: "Convert WEBP to JPG", deps: [] },
   { id: "webp-to-png", name: "WEBP to PNG", accept: ".webp", description: "Convert WEBP to PNG", deps: [] },
   { id: "bmp-to-jpg", name: "BMP to JPG", accept: ".bmp", description: "Convert BMP to JPG", deps: [] },
-  { id: "tiff-to-jpg", name: "TIFF to JPG", accept: ".tif,.tiff", description: "Convert TIFF to JPG", deps: [] },
+  { id: "tiff-to-jpg", name: "TIFF to JPG", accept: ".tif,.tiff", description: "Convert TIFF to JPG", deps: ["utif"] },
   { id: "svg-to-png", name: "SVG to PNG", accept: ".svg", description: "Convert SVG to PNG", deps: [] },
   { id: "svg-to-jpg", name: "SVG to JPG", accept: ".svg", description: "Convert SVG to JPG", deps: [] },
   { id: "raw-to-jpg", name: "RAW to JPG", accept: ".raw,.cr2,.nef,.arw", description: "Convert RAW to JPG", deps: [] },
@@ -123,7 +123,7 @@ const tools = [
   { id: "xml-to-json", name: "XML to JSON", accept: ".xml", description: "Convert XML to JSON", deps: [] },
   { id: "csv-to-json", name: "CSV to JSON", accept: ".csv", description: "Convert CSV to JSON", deps: [] },
   { id: "json-to-csv", name: "JSON to CSV", accept: ".json", description: "Convert JSON to CSV", deps: [] },
-  { id: "csv-to-excel", name: "CSV to Excel", accept: ".csv", description: "Convert CSV to Excel", deps: [] },
+  { id: "csv-to-excel", name: "CSV to Excel", accept: ".csv", description: "Convert CSV to Excel", deps: ["xlsx"] },
   { id: "sql-to-csv", name: "SQL to CSV", accept: ".sql", description: "Convert SQL to CSV", deps: [] },
   { id: "html-to-word", name: "HTML to Word", accept: ".html,.htm", description: "Convert HTML to Word", deps: [] },
   { id: "dwg-to-dxf", name: "DWG to DXF", accept: ".dwg", description: "Convert DWG to DXF", deps: [] },
@@ -134,10 +134,10 @@ const tools = [
   { id: "step-to-stl", name: "STEP to STL", accept: ".step,.stp", description: "Convert STEP to STL", deps: [] },
   { id: "video-to-audio", name: "Video to Audio", accept: ".mp4,.mov,.avi,.mkv", description: "Extract audio from video", deps: [] },
   { id: "audio-to-video", name: "Audio to Video", accept: ".mp3,.wav,.aac,.ogg", description: "Create video from audio", deps: [] },
-  { id: "image-to-pdf", name: "Image to PDF", accept: "image/*", description: "Convert images to PDF", deps: [] },
-  { id: "pdf-to-image", name: "PDF to Image", accept: ".pdf", description: "Convert PDF pages to images", deps: [] },
-  { id: "document-to-image", name: "Document to Image", accept: ".pdf,.doc,.docx,.txt", description: "Convert documents to images", deps: [] },
-  { id: "image-to-text-ocr", name: "Image to Text (OCR)", accept: "image/*", description: "Extract text from image", deps: [] },
+  { id: "image-to-pdf", name: "Image to PDF", accept: "image/*", multiple: true, description: "Convert images to PDF", deps: ["jspdf"] },
+  { id: "pdf-to-image", name: "PDF to Image", accept: ".pdf", description: "Convert PDF pages to images", deps: ["pdfjs", "jszip"] },
+  { id: "document-to-image", name: "Document to Image", accept: ".pdf,.txt", description: "Convert documents to images", deps: ["pdfjs", "jszip"] },
+  { id: "image-to-text-ocr", name: "Image to Text (OCR)", accept: "image/*", description: "Extract text from image", deps: ["tesseract"] },
   { id: "speech-to-text", name: "Speech to Text", accept: ".mp3,.wav,.m4a,.ogg", description: "Convert speech audio to text", deps: [] },
   { id: "text-to-speech", name: "Text to Speech", htmlMode: true, description: "Convert text into speech audio", deps: [] },
 ];
@@ -1093,6 +1093,273 @@ async function runTool(tool, files) {
   }
 
   if (!file) throw new Error(t("error.selectInput"));
+
+  const csvRows = (raw) =>
+    String(raw || "")
+      .split(/\r?\n/)
+      .filter((line) => line.trim().length > 0)
+      .map((line) => line.split(",").map((cell) => cell.trim()));
+
+  if (tool.id === "pdf-to-text") {
+    const pages = await pdfPages(await readBuf(file));
+    dl(new Blob([pages.join("\n\n")], { type: "text/plain;charset=utf-8" }), `${base(file.name)}.txt`);
+    return;
+  }
+
+  if (tool.id === "pdf-to-html") {
+    const pages = await pdfPages(await readBuf(file));
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${base(file.name)}</title></head><body>${pages
+      .map((p, i) => `<h2>Page ${i + 1}</h2><p>${p.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</p>`)
+      .join("")}</body></html>`;
+    dl(new Blob([html], { type: "text/html;charset=utf-8" }), `${base(file.name)}.html`);
+    return;
+  }
+
+  if (tool.id === "word-to-html") {
+    const out = await window.mammoth.convertToHtml({ arrayBuffer: await readBuf(file) });
+    dl(new Blob([out.value], { type: "text/html;charset=utf-8" }), `${base(file.name)}.html`);
+    return;
+  }
+
+  if (tool.id === "word-to-txt") {
+    const out = await window.mammoth.extractRawText({ arrayBuffer: await readBuf(file) });
+    dl(new Blob([out.value], { type: "text/plain;charset=utf-8" }), `${base(file.name)}.txt`);
+    return;
+  }
+
+  if (tool.id === "excel-to-csv") {
+    const wb = window.XLSX.read(await readBuf(file), { type: "array" });
+    const first = wb.SheetNames[0];
+    const csv = window.XLSX.utils.sheet_to_csv(wb.Sheets[first]);
+    dl(new Blob([csv], { type: "text/csv;charset=utf-8" }), `${base(file.name)}.csv`);
+    return;
+  }
+
+  if (tool.id === "excel-to-json") {
+    const wb = window.XLSX.read(await readBuf(file), { type: "array" });
+    const first = wb.SheetNames[0];
+    const json = window.XLSX.utils.sheet_to_json(wb.Sheets[first], { defval: "" });
+    dl(new Blob([JSON.stringify(json, null, 2)], { type: "application/json;charset=utf-8" }), `${base(file.name)}.json`);
+    return;
+  }
+
+  if (tool.id === "csv-to-excel") {
+    const rows = csvRows(await readText(file));
+    const wb = window.XLSX.utils.book_new();
+    window.XLSX.utils.book_append_sheet(wb, window.XLSX.utils.aoa_to_sheet(rows), "Sheet1");
+    const out = window.XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    dl(new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${base(file.name)}.xlsx`);
+    return;
+  }
+
+  if (tool.id === "txt-to-pdf") {
+    const pdf = new jsPDF({ unit: "pt", format: "a4" });
+    pdf.text(pdf.splitTextToSize(await readText(file), 520), 40, 50);
+    dl(pdf.output("blob"), `${base(file.name)}.pdf`);
+    return;
+  }
+
+  if (tool.id === "rtf-to-pdf") {
+    const text = (await readText(file))
+      .replace(/\\par[d]?/g, "\n")
+      .replace(/\\'[0-9a-f]{2}/gi, "")
+      .replace(/\\[a-z]+\d* ?/gi, "")
+      .replace(/[{}]/g, "")
+      .trim();
+    const pdf = new jsPDF({ unit: "pt", format: "a4" });
+    pdf.text(pdf.splitTextToSize(text || "(No text extracted)", 520), 40, 50);
+    dl(pdf.output("blob"), `${base(file.name)}.pdf`);
+    return;
+  }
+
+  if (tool.id === "webp-to-jpg") return toRaster(file, "jpg");
+  if (tool.id === "webp-to-png") return toRaster(file, "png");
+  if (tool.id === "bmp-to-jpg") return toRaster(file, "jpg");
+  if (tool.id === "svg-to-png") return toRaster(file, "png", "svg");
+  if (tool.id === "svg-to-jpg") return toRaster(file, "jpg", "svg");
+  if (tool.id === "ico-to-png") return toRaster(file, "png");
+
+  if (tool.id === "tiff-to-jpg") {
+    const buf = await readBuf(file);
+    const decoded = window.UTIF.decode(buf);
+    window.UTIF.decodeImage(buf, decoded[0]);
+    const rgba = window.UTIF.toRGBA8(decoded[0]);
+    const canvas = document.createElement("canvas");
+    canvas.width = decoded[0].width;
+    canvas.height = decoded[0].height;
+    const ctx = canvas.getContext("2d");
+    const id = ctx.createImageData(canvas.width, canvas.height);
+    id.data.set(rgba);
+    ctx.putImageData(id, 0, 0);
+    canvas.toBlob((blob) => dl(blob, `${base(file.name)}.jpg`), "image/jpeg", 0.92);
+    return;
+  }
+
+  if (tool.id === "raw-to-jpg") {
+    try {
+      await toRaster(file, "jpg");
+      return;
+    } catch (e) {
+      throw new Error("RAW conversion depends on camera-specific format support in browser.");
+    }
+  }
+
+  if (tool.id === "json-to-xml") {
+    const obj = JSON.parse(await readText(file));
+    const walk = (key, val) => {
+      if (val === null || typeof val !== "object") {
+        return `<${key}>${String(val).replace(/&/g, "&amp;").replace(/</g, "&lt;")}</${key}>`;
+      }
+      if (Array.isArray(val)) {
+        return `<${key}>${val.map((item) => walk("item", item)).join("")}</${key}>`;
+      }
+      return `<${key}>${Object.entries(val)
+        .map(([k, v]) => walk(k, v))
+        .join("")}</${key}>`;
+    };
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>${walk("root", obj)}`;
+    dl(new Blob([xml], { type: "application/xml;charset=utf-8" }), `${base(file.name)}.xml`);
+    return;
+  }
+
+  if (tool.id === "xml-to-json") {
+    const xml = await readText(file);
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xml, "application/xml");
+    const nodeToObj = (node) => {
+      const children = Array.from(node.children || []);
+      if (!children.length) return node.textContent || "";
+      const out = {};
+      children.forEach((child) => {
+        const val = nodeToObj(child);
+        if (Object.prototype.hasOwnProperty.call(out, child.nodeName)) {
+          if (!Array.isArray(out[child.nodeName])) out[child.nodeName] = [out[child.nodeName]];
+          out[child.nodeName].push(val);
+        } else {
+          out[child.nodeName] = val;
+        }
+      });
+      return out;
+    };
+    const root = doc.documentElement;
+    const json = root ? { [root.nodeName]: nodeToObj(root) } : {};
+    dl(new Blob([JSON.stringify(json, null, 2)], { type: "application/json;charset=utf-8" }), `${base(file.name)}.json`);
+    return;
+  }
+
+  if (tool.id === "csv-to-json") {
+    const rows = csvRows(await readText(file));
+    const [header = [], ...data] = rows;
+    const json = data.map((row) =>
+      header.reduce((acc, key, i) => {
+        acc[key || `col_${i + 1}`] = row[i] ?? "";
+        return acc;
+      }, {})
+    );
+    dl(new Blob([JSON.stringify(json, null, 2)], { type: "application/json;charset=utf-8" }), `${base(file.name)}.json`);
+    return;
+  }
+
+  if (tool.id === "json-to-csv") {
+    const json = JSON.parse(await readText(file));
+    const arr = Array.isArray(json) ? json : [json];
+    const headers = Array.from(new Set(arr.flatMap((x) => Object.keys(x || {}))));
+    const lines = [headers.join(",")].concat(
+      arr.map((row) =>
+        headers
+          .map((h) => {
+            const val = row?.[h] ?? "";
+            const s = String(val).replace(/"/g, '""');
+            return /[",\n]/.test(s) ? `"${s}"` : s;
+          })
+          .join(",")
+      )
+    );
+    dl(new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" }), `${base(file.name)}.csv`);
+    return;
+  }
+
+  if (tool.id === "sql-to-csv") {
+    const sql = await readText(file);
+    const tuples = [...sql.matchAll(/\(([^)]+)\)/g)].map((m) => m[1]);
+    const rows = tuples.map((t) => t.split(",").map((x) => x.trim().replace(/^'|'$/g, "")));
+    const csv = rows.map((r) => r.join(",")).join("\n");
+    dl(new Blob([csv], { type: "text/csv;charset=utf-8" }), `${base(file.name)}.csv`);
+    return;
+  }
+
+  if (tool.id === "html-to-word") {
+    const html = await readText(file);
+    dl(new Blob([html], { type: "application/msword;charset=utf-8" }), `${base(file.name)}.doc`);
+    return;
+  }
+
+  if (tool.id === "pdf-to-image") {
+    const pdf = await window.pdfjsLib.getDocument({ data: await readBuf(file) }).promise;
+    const zip = new window.JSZip();
+    for (let i = 1; i <= pdf.numPages; i += 1) {
+      const c = await pageCanvas(pdf, i, 2);
+      zip.file(`page-${i}.jpg`, c.toDataURL("image/jpeg", 0.92).split(",")[1], { base64: true });
+    }
+    dl(await zip.generateAsync({ type: "blob" }), `${base(file.name)}-images.zip`);
+    return;
+  }
+
+  if (tool.id === "image-to-pdf") {
+    if (!files.length) throw new Error(t("error.selectInput"));
+    const pdf = new jsPDF({ unit: "pt", format: "a4" });
+    for (let i = 0; i < files.length; i += 1) {
+      const u = await toDataUrl(files[i]);
+      const img = await loadImg(u);
+      if (i) pdf.addPage();
+      const pw = pdf.internal.pageSize.getWidth();
+      const ph = pdf.internal.pageSize.getHeight();
+      const s = Math.min(pw / img.width, ph / img.height);
+      const w = img.width * s;
+      const h = img.height * s;
+      pdf.addImage(u, "JPEG", (pw - w) / 2, (ph - h) / 2, w, h);
+    }
+    dl(pdf.output("blob"), `${base(files[0].name)}-images.pdf`);
+    return;
+  }
+
+  if (tool.id === "document-to-image") {
+    if (/\.pdf$/i.test(file.name)) {
+      const pdf = await window.pdfjsLib.getDocument({ data: await readBuf(file) }).promise;
+      const zip = new window.JSZip();
+      for (let i = 1; i <= pdf.numPages; i += 1) {
+        const c = await pageCanvas(pdf, i, 2);
+        zip.file(`page-${i}.jpg`, c.toDataURL("image/jpeg", 0.92).split(",")[1], { base64: true });
+      }
+      dl(await zip.generateAsync({ type: "blob" }), `${base(file.name)}-images.zip`);
+      return;
+    }
+    const text = await readText(file);
+    const canvas = document.createElement("canvas");
+    canvas.width = 1400;
+    canvas.height = 1800;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#111111";
+    ctx.font = "24px Arial";
+    const lines = text.slice(0, 6000).match(/.{1,90}(\s|$)/g) || [text.slice(0, 500)];
+    lines.slice(0, 55).forEach((line, i) => ctx.fillText(line.trim(), 50, 70 + i * 30));
+    canvas.toBlob((blob) => dl(blob, `${base(file.name)}.png`), "image/png", 0.92);
+    return;
+  }
+
+  if (tool.id === "image-to-text-ocr") {
+    const src = await toDataUrl(file);
+    const img = await loadImg(src);
+    const c = document.createElement("canvas");
+    c.width = img.width;
+    c.height = img.height;
+    c.getContext("2d").drawImage(img, 0, 0);
+    const { data } = await window.Tesseract.recognize(c, "eng");
+    dl(new Blob([data.text || ""], { type: "text/plain;charset=utf-8" }), `${base(file.name)}.txt`);
+    return;
+  }
 
   if (tool.id === "pdf-to-word") {
     const pages = await pdfPages(await readBuf(file));
