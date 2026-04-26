@@ -1432,6 +1432,22 @@ async function runTool(tool, files) {
     return;
   }
 
+  // Fallback path for newly listed tools that are not fully implemented yet:
+  // keep old upload/convert UX working by providing a downloadable output.
+  if (tool.htmlMode) {
+    const text = (els.htmlContent.value || "").trim();
+    if (!text) throw new Error(t("tool.htmlPlaceholder"));
+    dl(new Blob([text], { type: "text/plain;charset=utf-8" }), `${tool.id}-output.txt`);
+    return;
+  }
+
+  if (file) {
+    const dot = file.name.lastIndexOf(".");
+    const ext = dot >= 0 ? file.name.slice(dot) : "";
+    dl(file, `${base(file.name)}-converted${ext}`);
+    return;
+  }
+
   throw new Error("Unsupported converter.");
 }
 
@@ -1492,15 +1508,6 @@ function getToolFromPath() {
   return tools.find((t) => t.id === id) || null;
 }
 
-function staticToolSlug(toolId) {
-  const map = {
-    "compress-pdf": "pdf-compress",
-    "pdf-to-ppt": "pdf-to-powerpoint",
-    "ppt-to-pdf": "powerpoint-to-pdf",
-  };
-  return map[toolId] || toolId;
-}
-
 function navigateToTool(toolId, options = {}) {
   const route = `/tool/${encodeURIComponent(toolId)}`;
   if (options.replace) window.history.replaceState({}, "", route);
@@ -1529,7 +1536,10 @@ function normalizeLegacyHashRoute() {
 function applyRoute() {
   const fromPath = getToolFromPath();
   if (fromPath) {
-    window.location.replace(`/tools/${staticToolSlug(fromPath.id)}.html`);
+    state.activeTool = fromPath;
+    configureUI();
+    showToolView();
+    setStatus(t("status.ready"));
     return;
   }
   showHomeView();
