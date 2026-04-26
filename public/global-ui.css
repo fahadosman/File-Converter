@@ -1,0 +1,95 @@
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.25);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] {
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(16, 24, 40, 0.14);
+  --glass-shadow: 0 10px 30px rgba(20, 34, 80, 0.12);
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.app-shell,
+main {
+  width: min(98vw, 1800px);
+  margin-inline: auto;
+}
+
+.tool-list-panel,
+.card,
+.info-section,
+.tool-card,
+.faq-card,
+.auth-modal__dialog,
+.glass-surface {
+  background: linear-gradient(160deg, var(--glass-bg), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.global-topbar .brand,
+.global-topbar .brand-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.global-topbar {
+  position: sticky;
+  top: 12px;
+  z-index: 90;
+}
+
+.global-topbar .topbar-nav {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.global-topbar .topbar-nav a {
+  text-decoration: none;
+}
+
+.nav-toggle {
+  display: none;
+  border: 1px solid var(--panel-border, var(--glass-border));
+  background: var(--soft-bg, var(--glass-bg));
+  color: var(--text, inherit);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .global-topbar {
+    top: 8px;
+  }
+
+  .global-topbar .topbar-nav {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 10px;
+  }
+
+  .global-topbar.nav-open .topbar-nav {
+    display: flex;
+  }
+
+  .global-topbar .topbar-controls {
+    margin-left: auto;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

@@ -222,6 +222,25 @@ const IS_SAFARI =
 const IS_MAC = /mac/i.test(navigator.platform || navigator.userAgent || "");
 const IS_APPLE_DEVICE = /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent || "");
 let renderToolButtonsRaf = 0;
+const HAS_CONVERTER_APP = Boolean(
+  els.appShell &&
+  els.toolList &&
+  els.convertBtn &&
+  els.resetBtn &&
+  els.fileInput &&
+  els.status
+);
+
+function loadGlobalUiScript() {
+  if (window.__GLOBAL_UI_LOADED__) return;
+  if (document.querySelector('script[data-global-ui="1"]')) return;
+  const script = document.createElement("script");
+  script.src = "/global-ui.js";
+  script.defer = true;
+  script.dataset.globalUi = "1";
+  document.head.appendChild(script);
+  window.__GLOBAL_UI_LOADED__ = true;
+}
 
 function scheduleRenderToolButtons() {
   if (renderToolButtonsRaf) cancelAnimationFrame(renderToolButtonsRaf);
@@ -346,8 +365,10 @@ function applyTheme(theme) {
 }
 
 function initTheme() {
+  const savedTheme = localStorage.getItem("convertpro-theme");
   const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
-  applyTheme(prefersLight ? "light" : "dark");
+  const chosen = savedTheme === "light" || savedTheme === "dark" ? savedTheme : (prefersLight ? "light" : "dark");
+  applyTheme(chosen);
   if (IS_SAFARI) document.documentElement.classList.add("safari-optimized");
   if (IS_MAC) document.documentElement.classList.add("mac-performance");
   if (IS_APPLE_DEVICE) document.documentElement.classList.add("apple-performance");
@@ -392,6 +413,7 @@ function playThemeToggleSound(isLightMode) {
 function toggleThemeWithSound() {
   const nextTheme = state.theme === "dark" ? "light" : "dark";
   applyTheme(nextTheme);
+  localStorage.setItem("convertpro-theme", nextTheme);
   playThemeToggleSound(nextTheme === "light");
 }
 
@@ -700,7 +722,6 @@ function clearLegacyClientStorage() {
     "convertpro-device-id",
     "convertpro-language",
     "convertpro-plan",
-    "convertpro-theme",
     "convertpro-usage-count",
   ];
   keysToDelete.forEach((key) => localStorage.removeItem(key));
@@ -1422,109 +1443,113 @@ function resetForm() {
   setStatus(t("status.resetComplete"));
 }
 
-els.convertBtn.addEventListener("click", runConversion);
-els.resetBtn.addEventListener("click", resetForm);
-if (els.themeBulb) {
-  els.themeBulb.addEventListener("click", toggleThemeWithSound);
-}
-els.upgradeBtn.addEventListener("click", upgrade);
-if (els.premiumDialogUpgradeBtn) els.premiumDialogUpgradeBtn.addEventListener("click", upgrade);
-if (els.premiumDialogCloseBtn) els.premiumDialogCloseBtn.addEventListener("click", closePremiumLimitDialog);
-if (els.premiumLimitDialog) {
-  els.premiumLimitDialog.addEventListener("click", (event) => {
-    if (event.target?.dataset?.premiumClose === "true") closePremiumLimitDialog();
-  });
-}
-if (els.replaceFileBtn) {
-  els.replaceFileBtn.addEventListener("click", () => {
-    if (state.isBusy) return;
-    els.fileInput.click();
-  });
-}
-if (els.removeFileBtn) {
-  els.removeFileBtn.addEventListener("click", () => {
-    if (state.isBusy) return;
-    els.fileInput.value = "";
-    state.convertedFileSignature = null;
-    clearPendingDownload();
-    updateFileSelectionUI([]);
-    setStatus("File removed. Select a new file to convert.");
-  });
-}
-els.toolSearch.addEventListener("input", (event) => {
-  state.query = event.target.value || "";
-  scheduleRenderToolButtons();
-});
-els.sortFilter.addEventListener("change", (event) => {
-  state.sortMode = event.target.value || "az";
-  scheduleRenderToolButtons();
-});
-els.topFilterButtons.forEach((button) => {
-  button.addEventListener("click", () => setCategoryFilter(button.dataset.filter));
-});
-els.pillFilters.forEach((pill) => {
-  pill.addEventListener("click", () => setCategoryFilter(pill.dataset.filter));
-});
-els.relatedToolButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const nextTool = tools.find((tool) => tool.id === button.dataset.toolId);
-    if (!nextTool) return;
-    navigateToTool(nextTool.id);
-    applyRoute();
-    setStatus(t("status.openingTool", { name: nextTool.name }));
-  });
-});
-if (els.backToTools) {
-  els.backToTools.addEventListener("click", () => {
-    navigateHome();
-    applyRoute();
-  });
-}
-els.downloadBtn.addEventListener("click", () => {
-  triggerDownload();
-  setStatus(t("status.downloadStarted"));
-});
-els.fileInput.addEventListener("change", () => {
-  const files = Array.from(els.fileInput.files || []);
-  state.convertedFileSignature = null;
-  updateFileSelectionUI(files);
-  if (!files.length || state.activeTool.htmlMode) return;
-  const invalid = files.find((file) => !fileMatchesAccept(file, state.activeTool.accept));
-  if (!invalid) return;
-  els.fileInput.value = "";
-  updateFileSelectionUI([]);
-  setStatus(t("error.allowedForTool", { accept: state.activeTool.accept, tool: state.activeTool.name }), "error");
-});
-
-if (els.languageSelect) {
-  els.languageSelect.addEventListener("change", (event) => {
-    applyLanguage(event.target.value);
-    setStatus(t("status.ready"));
-  });
-}
-
-clearLegacyClientStorage();
+loadGlobalUiScript();
 initTheme();
-initScrollPerformanceMode();
-initLanguage();
-initPlan();
-normalizeLegacyHashRoute();
-syncFilterButtons();
-window.addEventListener("popstate", applyRoute);
-applyRoute();
 
-const runNonCriticalStartup = () => {
-  startUsageSession().catch((error) => {
-    state.securityApiReady = false;
-    // Keep UI usable if backend verification is temporarily unavailable.
-    console.warn(error.message || "Secure usage server is offline.");
-    refreshPlan();
+if (HAS_CONVERTER_APP) {
+  els.convertBtn.addEventListener("click", runConversion);
+  els.resetBtn.addEventListener("click", resetForm);
+  if (els.themeBulb) {
+    els.themeBulb.addEventListener("click", toggleThemeWithSound);
+  }
+  els.upgradeBtn.addEventListener("click", upgrade);
+  if (els.premiumDialogUpgradeBtn) els.premiumDialogUpgradeBtn.addEventListener("click", upgrade);
+  if (els.premiumDialogCloseBtn) els.premiumDialogCloseBtn.addEventListener("click", closePremiumLimitDialog);
+  if (els.premiumLimitDialog) {
+    els.premiumLimitDialog.addEventListener("click", (event) => {
+      if (event.target?.dataset?.premiumClose === "true") closePremiumLimitDialog();
+    });
+  }
+  if (els.replaceFileBtn) {
+    els.replaceFileBtn.addEventListener("click", () => {
+      if (state.isBusy) return;
+      els.fileInput.click();
+    });
+  }
+  if (els.removeFileBtn) {
+    els.removeFileBtn.addEventListener("click", () => {
+      if (state.isBusy) return;
+      els.fileInput.value = "";
+      state.convertedFileSignature = null;
+      clearPendingDownload();
+      updateFileSelectionUI([]);
+      setStatus("File removed. Select a new file to convert.");
+    });
+  }
+  els.toolSearch.addEventListener("input", (event) => {
+    state.query = event.target.value || "";
+    scheduleRenderToolButtons();
   });
-  syncPaymentFromReturn();
-};
+  els.sortFilter.addEventListener("change", (event) => {
+    state.sortMode = event.target.value || "az";
+    scheduleRenderToolButtons();
+  });
+  els.topFilterButtons.forEach((button) => {
+    button.addEventListener("click", () => setCategoryFilter(button.dataset.filter));
+  });
+  els.pillFilters.forEach((pill) => {
+    pill.addEventListener("click", () => setCategoryFilter(pill.dataset.filter));
+  });
+  els.relatedToolButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const nextTool = tools.find((tool) => tool.id === button.dataset.toolId);
+      if (!nextTool) return;
+      navigateToTool(nextTool.id);
+      applyRoute();
+      setStatus(t("status.openingTool", { name: nextTool.name }));
+    });
+  });
+  if (els.backToTools) {
+    els.backToTools.addEventListener("click", () => {
+      navigateHome();
+      applyRoute();
+    });
+  }
+  els.downloadBtn.addEventListener("click", () => {
+    triggerDownload();
+    setStatus(t("status.downloadStarted"));
+  });
+  els.fileInput.addEventListener("change", () => {
+    const files = Array.from(els.fileInput.files || []);
+    state.convertedFileSignature = null;
+    updateFileSelectionUI(files);
+    if (!files.length || state.activeTool.htmlMode) return;
+    const invalid = files.find((file) => !fileMatchesAccept(file, state.activeTool.accept));
+    if (!invalid) return;
+    els.fileInput.value = "";
+    updateFileSelectionUI([]);
+    setStatus(t("error.allowedForTool", { accept: state.activeTool.accept, tool: state.activeTool.name }), "error");
+  });
 
-if ("requestIdleCallback" in window) {
-  window.requestIdleCallback(runNonCriticalStartup, { timeout: 1200 });
-} else {
-  setTimeout(runNonCriticalStartup, 120);
+  if (els.languageSelect) {
+    els.languageSelect.addEventListener("change", (event) => {
+      applyLanguage(event.target.value);
+      setStatus(t("status.ready"));
+    });
+  }
+
+  clearLegacyClientStorage();
+  initScrollPerformanceMode();
+  initLanguage();
+  initPlan();
+  normalizeLegacyHashRoute();
+  syncFilterButtons();
+  window.addEventListener("popstate", applyRoute);
+  applyRoute();
+
+  const runNonCriticalStartup = () => {
+    startUsageSession().catch((error) => {
+      state.securityApiReady = false;
+      // Keep UI usable if backend verification is temporarily unavailable.
+      console.warn(error.message || "Secure usage server is offline.");
+      refreshPlan();
+    });
+    syncPaymentFromReturn();
+  };
+
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(runNonCriticalStartup, { timeout: 1200 });
+  } else {
+    setTimeout(runNonCriticalStartup, 120);
+  }
 }
