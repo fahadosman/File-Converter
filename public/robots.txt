@@ -9,6 +9,7 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /tool/
 
 # Block AI training bots
 User-agent: GPTBot
