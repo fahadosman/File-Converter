@@ -2,8 +2,7 @@
 const PREMIUM_OVERRIDE_KEY = "convertpro-premium-override";
 const USAGE_COUNT_KEY = "convertpro-usage-count-persist";
 const LOCALES = window.APP_LOCALES || {};
-const STRIPE_PUBLISHABLE_KEY = String(window.__STRIPE_PUBLISHABLE_KEY__ || "pk_live_51TOXLnAJnvIxlBRV5R1QGuyedrnKYSTQLyxQVyajHjaAP0w6anlKQCC7qCreF4EzgbFhFeUjBpuvF2s98UWBChPT00GE6xHEoA").trim();
-const STRIPE_CHECKOUT_URL = String(window.__STRIPE_CHECKOUT_URL__ || "").trim();
+const PADDLE_PRICE_ID = "pri_01kpzq1hxhq4vxpjzsa0yn6vdj";
 const LOCAL_HOSTS = new Set(["", "localhost", "127.0.0.1"]);
 const SECURITY_API_BASE =
   window.__PAYMENTS_API_BASE__ ||
@@ -663,7 +662,7 @@ function initPlan() {
 }
 
 function upgrade() {
-  startStripeCheckout();
+  startPaddleCheckout();
 }
 
 function openPremiumLimitDialog() {
@@ -821,42 +820,24 @@ function clearPendingDownload(message = t("download.waiting")) {
   els.downloadInfo.textContent = message;
 }
 
-async function startStripeCheckout() {
+function startPaddleCheckout() {
   try {
-    const checkoutPlanCode = "premium_monthly";
-    let checkoutUrl = STRIPE_CHECKOUT_URL;
-
-    // Preferred flow: ask backend to generate a live Checkout Session URL
-    // using STRIPE_PRODUCT_ID + active recurring prices.
-    if (!checkoutUrl && SECURITY_API_BASE) {
-      const response = await fetch(
-        `${SECURITY_API_BASE}/api/stripe/checkout-link?planCode=${encodeURIComponent(checkoutPlanCode)}`,
-        {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "x-user-id": "demo_user",
-          },
-        }
-      );
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(payload.details || payload.error || "Unable to generate Stripe checkout URL.");
-      }
-      checkoutUrl = String(payload.url || "").trim();
-    }
-
-    if (!checkoutUrl) {
-      throw new Error("Stripe live checkout URL is missing. Set window.__STRIPE_CHECKOUT_URL__ to your live payment link.");
-    }
-    if (/\/test_/i.test(checkoutUrl)) {
-      throw new Error("Sandbox Stripe checkout link detected. Please use a live buy.stripe.com URL.");
-    }
-    if (!/^pk_live_/i.test(STRIPE_PUBLISHABLE_KEY)) {
-      throw new Error("Stripe live publishable key is not configured.");
-    }
+    if (!window.Paddle) throw new Error("Payment system is loading. Please try again in a moment.");
     setStatus(t("status.paymentInit"), "busy");
-    window.location.href = checkoutUrl;
+    window.Paddle.Checkout.open({
+      items: [{ priceId: PADDLE_PRICE_ID, quantity: 1 }],
+      successCallback: function () {
+        state.isPremium = true;
+        persistPlanState();
+        closePremiumLimitDialog();
+        refreshPlan();
+        setStatus(t("status.premiumActivated"));
+        showToastWithType(t("status.premiumActivated"), "success");
+      },
+      closeCallback: function () {
+        setStatus(t("status.ready"));
+      },
+    });
   } catch (error) {
     setStatus(error.message || t("error.paymentInitFailed"), "error");
   }
@@ -869,30 +850,11 @@ async function syncPaymentFromReturn() {
     const hashQuery = hash.includes("?") ? hash.split("?")[1] : "";
     const hashParams = new URLSearchParams(hashQuery);
 
-    // Stripe success URLs usually include session_id; keep payment=success fallback.
-    const sessionId = params.get("session_id") || hashParams.get("session_id");
     const paymentState = params.get("payment") || hashParams.get("payment");
     const premiumState = params.get("premium") || hashParams.get("premium");
-    const orderRef = params.get("orderRef") || hashParams.get("orderRef");
-    const backendConfirmed = paymentState === "success" && Boolean(orderRef);
-    if (backendConfirmed) {
-      const activateResponse = await fetch(`${SECURITY_API_BASE}/api/payments/session/activate`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderRef }),
-      });
-      const activatePayload = await activateResponse.json().catch(() => ({}));
-      if (!activateResponse.ok) throw new Error(activatePayload.error || t("error.paymentVerifyFailed"));
-      state.isPremium = Boolean(activatePayload.isPremium);
-      persistPlanState();
-      closePremiumLimitDialog();
-      refreshPlan();
-      setStatus(t("status.premiumActivated"));
-      showToastWithType(t("status.premiumActivated"), "success");
-    }
+    const checkoutId = params.get("checkout_id") || hashParams.get("checkout_id");
     const paidFallback =
-      paymentState === "success" || premiumState === "1" || Boolean(sessionId);
+      paymentState === "success" || premiumState === "1" || Boolean(checkoutId);
     if (!state.isPremium && paidFallback) {
       state.isPremium = true;
       persistPlanState();
@@ -902,15 +864,12 @@ async function syncPaymentFromReturn() {
       showToastWithType(t("status.premiumActivated"), "success");
     }
 
-    params.delete("session_id");
+    params.delete("checkout_id");
     params.delete("payment");
     params.delete("premium");
-    params.delete("orderRef");
-    hashParams.delete("session_id");
+    hashParams.delete("checkout_id");
     hashParams.delete("payment");
     hashParams.delete("premium");
-    hashParams.delete("orderRef");
-    // Keep homepage URL clean (no forced "#/").
     const cleanHash = hashParams.toString() ? `#/?${hashParams.toString()}` : "";
     const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${cleanHash}`;
     window.history.replaceState({}, "", clean);
