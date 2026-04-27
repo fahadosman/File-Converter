@@ -1,0 +1,8 @@
+# Security Policy for Files Converter
+# https://securitytxt.org/
+
+Contact: https://fileconverter.pages.dev/contact.html
+Preferred-Languages: en
+Canonical: https://fileconverter.pages.dev/.well-known/security.txt
+Policy: https://fileconverter.pages.dev/security.html
+Expires: 2027-04-27T00:00:00.000Z

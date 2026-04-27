@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>File Converters</title>
+  <title>File Converters - Free Online File Conversion Tools</title>
+  <meta name="description" content="Convert PDF, Word, Excel, images, audio, video and more — free, fast, and secure. 100+ converters all in your browser." />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -616,6 +617,15 @@
     </div>
   </div>
 
+  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+  <script>
+    (function() {
+      var token = window.__PADDLE_TOKEN__ || "";
+      if (window.Paddle && token) {
+        Paddle.Initialize({ token: token });
+      }
+    })();
+  </script>
   <script src="locales.js"></script>
   <script>
     (function () {
