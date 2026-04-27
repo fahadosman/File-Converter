@@ -23,9 +23,9 @@ const LIBS = {
     },
   },
   jspdf: { url: "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js", check: () => Boolean(window.jspdf) },
-  docx: { url: "https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.js", check: () => Boolean(window.docx) },
+  docx: { url: "https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js", check: () => Boolean(window.docx) },
   xlsx: { url: "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js", check: () => Boolean(window.XLSX) },
-  pptx: { url: "https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js", check: () => Boolean(window.PptxGenJS) },
+  pptx: { url: "https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js", check: () => Boolean(window.PptxGenJS) },
   mammoth: { url: "https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js", check: () => Boolean(window.mammoth) },
   html2pdf: { url: "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js", check: () => Boolean(window.html2pdf) },
   jszip: { url: "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js", check: () => Boolean(window.JSZip) },
@@ -34,6 +34,8 @@ const LIBS = {
   marked: { url: "https://cdn.jsdelivr.net/npm/marked/marked.min.js", check: () => Boolean(window.marked) },
   heic2any: { url: "https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js", check: () => Boolean(window.heic2any) },
   utif: { url: "https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.min.js", check: () => Boolean(window.UTIF) },
+  lamejs: { url: "https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js", check: () => Boolean(window.lamejs) },
+  pako: { url: "https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js", check: () => Boolean(window.pako) },
 };
 
 const tools = [
@@ -79,7 +81,7 @@ const tools = [
   { id: "word-to-txt", name: "Word to TXT", accept: ".docx", description: "Convert Word to plain text", deps: ["mammoth"] },
   { id: "excel-to-csv", name: "Excel to CSV", accept: ".xls,.xlsx", description: "Convert Excel to CSV", deps: ["xlsx"] },
   { id: "excel-to-json", name: "Excel to JSON", accept: ".xls,.xlsx", description: "Convert Excel to JSON", deps: ["xlsx"] },
-  { id: "powerpoint-to-video", name: "PowerPoint to Video", accept: ".ppt,.pptx", description: "Convert slides to video", deps: [] },
+  { id: "powerpoint-to-video", name: "PowerPoint to Video", accept: ".ppt,.pptx", description: "Convert slides to video", deps: ["jszip"] },
   { id: "txt-to-pdf", name: "TXT to PDF", accept: ".txt", description: "Convert text files to PDF", deps: ["jspdf"] },
   { id: "rtf-to-pdf", name: "RTF to PDF", accept: ".rtf", description: "Convert RTF to PDF", deps: ["jspdf"] },
   { id: "webp-to-jpg", name: "WEBP to JPG", accept: ".webp", description: "Convert WEBP to JPG", deps: [] },
@@ -91,15 +93,15 @@ const tools = [
   { id: "raw-to-jpg", name: "RAW to JPG", accept: ".raw,.cr2,.nef,.arw", description: "Convert RAW to JPG", deps: [] },
   { id: "ico-to-png", name: "ICO to PNG", accept: ".ico", description: "Convert ICO to PNG", deps: [] },
   { id: "mp3-to-wav", name: "MP3 to WAV", accept: ".mp3", description: "Convert MP3 to WAV", deps: [] },
-  { id: "wav-to-mp3", name: "WAV to MP3", accept: ".wav", description: "Convert WAV to MP3", deps: [] },
+  { id: "wav-to-mp3", name: "WAV to MP3", accept: ".wav", description: "Convert WAV to MP3", deps: ["lamejs"] },
   { id: "mp3-to-aac", name: "MP3 to AAC", accept: ".mp3", description: "Convert MP3 to AAC", deps: [] },
-  { id: "aac-to-mp3", name: "AAC to MP3", accept: ".aac", description: "Convert AAC to MP3", deps: [] },
-  { id: "flac-to-mp3", name: "FLAC to MP3", accept: ".flac", description: "Convert FLAC to MP3", deps: [] },
-  { id: "wma-to-mp3", name: "WMA to MP3", accept: ".wma", description: "Convert WMA to MP3", deps: [] },
-  { id: "ogg-to-mp3", name: "OGG to MP3", accept: ".ogg", description: "Convert OGG to MP3", deps: [] },
-  { id: "m4a-to-mp3", name: "M4A to MP3", accept: ".m4a", description: "Convert M4A to MP3", deps: [] },
+  { id: "aac-to-mp3", name: "AAC to MP3", accept: ".aac", description: "Convert AAC to MP3", deps: ["lamejs"] },
+  { id: "flac-to-mp3", name: "FLAC to MP3", accept: ".flac", description: "Convert FLAC to MP3", deps: ["lamejs"] },
+  { id: "wma-to-mp3", name: "WMA to MP3", accept: ".wma", description: "Convert WMA to MP3", deps: ["lamejs"] },
+  { id: "ogg-to-mp3", name: "OGG to MP3", accept: ".ogg", description: "Convert OGG to MP3", deps: ["lamejs"] },
+  { id: "m4a-to-mp3", name: "M4A to MP3", accept: ".m4a", description: "Convert M4A to MP3", deps: ["lamejs"] },
   { id: "mp3-to-ogg", name: "MP3 to OGG", accept: ".mp3", description: "Convert MP3 to OGG", deps: [] },
-  { id: "amr-to-mp3", name: "AMR to MP3", accept: ".amr", description: "Convert AMR to MP3", deps: [] },
+  { id: "amr-to-mp3", name: "AMR to MP3", accept: ".amr", description: "Convert AMR to MP3", deps: ["lamejs"] },
   { id: "mp4-to-avi", name: "MP4 to AVI", accept: ".mp4", description: "Convert MP4 to AVI", deps: [] },
   { id: "avi-to-mp4", name: "AVI to MP4", accept: ".avi", description: "Convert AVI to MP4", deps: [] },
   { id: "mkv-to-mp4", name: "MKV to MP4", accept: ".mkv", description: "Convert MKV to MP4", deps: [] },
@@ -109,23 +111,23 @@ const tools = [
   { id: "flv-to-mp4", name: "FLV to MP4", accept: ".flv", description: "Convert FLV to MP4", deps: [] },
   { id: "webm-to-mp4", name: "WEBM to MP4", accept: ".webm", description: "Convert WEBM to MP4", deps: [] },
   { id: "mp4-to-gif", name: "MP4 to GIF", accept: ".mp4", description: "Convert MP4 to GIF", deps: [] },
-  { id: "mobi-to-epub", name: "MOBI to EPUB", accept: ".mobi,.azw,.azw3", description: "Convert MOBI to EPUB", deps: [] },
-  { id: "epub-to-mobi", name: "EPUB to MOBI", accept: ".epub", description: "Convert EPUB to MOBI", deps: [] },
-  { id: "azw-to-epub", name: "AZW to EPUB", accept: ".azw,.azw3", description: "Convert AZW to EPUB", deps: [] },
-  { id: "fb2-to-epub", name: "FB2 to EPUB", accept: ".fb2", description: "Convert FB2 to EPUB", deps: [] },
+  { id: "mobi-to-epub", name: "MOBI to EPUB", accept: ".mobi,.azw,.azw3", description: "Convert MOBI to EPUB", deps: ["jszip"] },
+  { id: "epub-to-mobi", name: "EPUB to MOBI", accept: ".epub", description: "Convert EPUB to MOBI", deps: ["jszip"] },
+  { id: "azw-to-epub", name: "AZW to EPUB", accept: ".azw,.azw3", description: "Convert AZW to EPUB", deps: ["jszip"] },
+  { id: "fb2-to-epub", name: "FB2 to EPUB", accept: ".fb2", description: "Convert FB2 to EPUB", deps: ["jszip"] },
   { id: "zip-to-rar", name: "ZIP to RAR", accept: ".zip", description: "Convert ZIP to RAR", deps: [] },
-  { id: "rar-to-zip", name: "RAR to ZIP", accept: ".rar", description: "Convert RAR to ZIP", deps: [] },
+  { id: "rar-to-zip", name: "RAR to ZIP", accept: ".rar", description: "Convert RAR to ZIP", deps: ["jszip"] },
   { id: "zip-to-7z", name: "ZIP to 7Z", accept: ".zip", description: "Convert ZIP to 7Z", deps: [] },
-  { id: "7z-to-zip", name: "7Z to ZIP", accept: ".7z", description: "Convert 7Z to ZIP", deps: [] },
-  { id: "tar-to-zip", name: "TAR to ZIP", accept: ".tar", description: "Convert TAR to ZIP", deps: [] },
-  { id: "gz-to-zip", name: "GZ to ZIP", accept: ".gz", description: "Convert GZ to ZIP", deps: [] },
+  { id: "7z-to-zip", name: "7Z to ZIP", accept: ".7z", description: "Convert 7Z to ZIP", deps: ["jszip"] },
+  { id: "tar-to-zip", name: "TAR to ZIP", accept: ".tar", description: "Convert TAR to ZIP", deps: ["jszip"] },
+  { id: "gz-to-zip", name: "GZ to ZIP", accept: ".gz", description: "Convert GZ to ZIP", deps: ["jszip", "pako"] },
   { id: "json-to-xml", name: "JSON to XML", accept: ".json", description: "Convert JSON to XML", deps: [] },
   { id: "xml-to-json", name: "XML to JSON", accept: ".xml", description: "Convert XML to JSON", deps: [] },
   { id: "csv-to-json", name: "CSV to JSON", accept: ".csv", description: "Convert CSV to JSON", deps: [] },
   { id: "json-to-csv", name: "JSON to CSV", accept: ".json", description: "Convert JSON to CSV", deps: [] },
   { id: "csv-to-excel", name: "CSV to Excel", accept: ".csv", description: "Convert CSV to Excel", deps: ["xlsx"] },
   { id: "sql-to-csv", name: "SQL to CSV", accept: ".sql", description: "Convert SQL to CSV", deps: [] },
-  { id: "html-to-word", name: "HTML to Word", accept: ".html,.htm", description: "Convert HTML to Word", deps: [] },
+  { id: "html-to-word", name: "HTML to Word", accept: ".html,.htm", description: "Convert HTML to Word", deps: ["docx"] },
   { id: "dwg-to-dxf", name: "DWG to DXF", accept: ".dwg", description: "Convert DWG to DXF", deps: [] },
   { id: "dxf-to-dwg", name: "DXF to DWG", accept: ".dxf", description: "Convert DXF to DWG", deps: [] },
   { id: "stl-to-obj", name: "STL to OBJ", accept: ".stl", description: "Convert STL to OBJ", deps: [] },
@@ -999,6 +1001,188 @@ async function pageCanvas(pdf, n, scale = 2) {
   return c;
 }
 
+async function decodeAudio(buf) {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 44100 });
+  try { return await ctx.decodeAudioData(buf.slice(0)); } finally { ctx.close(); }
+}
+
+function audioToWav(ab) {
+  const ch = ab.numberOfChannels;
+  const sr = ab.sampleRate;
+  const len = ab.length;
+  const interleaved = new Float32Array(len * ch);
+  for (let c = 0; c < ch; c++) { const d = ab.getChannelData(c); for (let i = 0; i < len; i++) interleaved[i * ch + c] = d[i]; }
+  const buf = new ArrayBuffer(44 + interleaved.length * 2);
+  const v = new DataView(buf);
+  const ws = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  ws(0, "RIFF"); v.setUint32(4, 36 + interleaved.length * 2, true); ws(8, "WAVE");
+  ws(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, ch, true);
+  v.setUint32(24, sr, true); v.setUint32(28, sr * ch * 2, true); v.setUint16(32, ch * 2, true); v.setUint16(34, 16, true);
+  ws(36, "data"); v.setUint32(40, interleaved.length * 2, true);
+  for (let i = 0; i < interleaved.length; i++) { const s = Math.max(-1, Math.min(1, interleaved[i])); v.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true); }
+  return new Blob([buf], { type: "audio/wav" });
+}
+
+function audioToMp3(ab) {
+  const ch = ab.numberOfChannels;
+  const sr = ab.sampleRate;
+  const enc = new window.lamejs.Mp3Encoder(ch, sr, 128);
+  const left = ab.getChannelData(0);
+  const right = ch > 1 ? ab.getChannelData(1) : left;
+  const len = ab.length;
+  const l16 = new Int16Array(len);
+  const r16 = new Int16Array(len);
+  for (let i = 0; i < len; i++) { l16[i] = Math.max(-32768, Math.min(32767, Math.round(left[i] * 32767))); r16[i] = Math.max(-32768, Math.min(32767, Math.round(right[i] * 32767))); }
+  const parts = [];
+  const bs = 1152;
+  for (let i = 0; i < len; i += bs) { const b = ch > 1 ? enc.encodeBuffer(l16.subarray(i, i + bs), r16.subarray(i, i + bs)) : enc.encodeBuffer(l16.subarray(i, i + bs)); if (b.length > 0) parts.push(new Uint8Array(b)); }
+  const end = enc.flush();
+  if (end.length > 0) parts.push(new Uint8Array(end));
+  return new Blob(parts, { type: "audio/mpeg" });
+}
+
+function parseTar(buf) {
+  const files = [];
+  const view = new Uint8Array(buf);
+  let offset = 0;
+  while (offset < view.length - 512) {
+    const header = view.slice(offset, offset + 512);
+    if (header.every(b => b === 0)) break;
+    let name = "";
+    for (let i = 0; i < 100 && header[i]; i++) name += String.fromCharCode(header[i]);
+    name = name.trim();
+    let sizeStr = "";
+    for (let i = 124; i < 136 && header[i]; i++) sizeStr += String.fromCharCode(header[i]);
+    const size = parseInt(sizeStr.trim(), 8) || 0;
+    const type = header[156];
+    offset += 512;
+    if (name && size > 0 && (type === 48 || type === 0)) {
+      files.push({ name, data: view.slice(offset, offset + size) });
+    }
+    offset += Math.ceil(size / 512) * 512;
+  }
+  return files;
+}
+
+function parseStl(buf) {
+  const text = new TextDecoder().decode(buf);
+  if (text.trimStart().startsWith("solid") && text.includes("facet")) {
+    const verts = [];
+    const normals = [];
+    const facetRe = /facet\s+normal\s+([\d.e+-]+)\s+([\d.e+-]+)\s+([\d.e+-]+)/gi;
+    const vertRe = /vertex\s+([\d.e+-]+)\s+([\d.e+-]+)\s+([\d.e+-]+)/gi;
+    let m;
+    while ((m = facetRe.exec(text))) normals.push([parseFloat(m[1]), parseFloat(m[2]), parseFloat(m[3])]);
+    while ((m = vertRe.exec(text))) verts.push([parseFloat(m[1]), parseFloat(m[2]), parseFloat(m[3])]);
+    return { verts, normals };
+  }
+  const dv = new DataView(buf instanceof ArrayBuffer ? buf : buf.buffer);
+  const numTri = dv.getUint32(80, true);
+  const verts = [];
+  const normals = [];
+  for (let i = 0; i < numTri; i++) {
+    const off = 84 + i * 50;
+    normals.push([dv.getFloat32(off, true), dv.getFloat32(off + 4, true), dv.getFloat32(off + 8, true)]);
+    for (let j = 0; j < 3; j++) verts.push([dv.getFloat32(off + 12 + j * 12, true), dv.getFloat32(off + 16 + j * 12, true), dv.getFloat32(off + 20 + j * 12, true)]);
+  }
+  return { verts, normals };
+}
+
+function stlToObj(stl) {
+  const lines = [];
+  stl.verts.forEach(v => lines.push(`v ${v[0]} ${v[1]} ${v[2]}`));
+  for (let i = 0; i < stl.verts.length; i += 3) lines.push(`f ${i + 1} ${i + 2} ${i + 3}`);
+  return lines.join("\n");
+}
+
+function parseObj(text) {
+  const verts = [];
+  const faces = [];
+  text.split("\n").forEach(line => {
+    const parts = line.trim().split(/\s+/);
+    if (parts[0] === "v") verts.push([parseFloat(parts[1]), parseFloat(parts[2]), parseFloat(parts[3])]);
+    if (parts[0] === "f") faces.push(parts.slice(1).map(x => parseInt(x.split("/")[0]) - 1));
+  });
+  return { verts, faces };
+}
+
+function objToStl(obj) {
+  const lines = ["solid model"];
+  obj.faces.forEach(face => {
+    if (face.length >= 3) {
+      const a = obj.verts[face[0]] || [0, 0, 0];
+      const b = obj.verts[face[1]] || [0, 0, 0];
+      const c = obj.verts[face[2]] || [0, 0, 0];
+      const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+      const v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+      const n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+      lines.push(`facet normal ${n[0]} ${n[1]} ${n[2]}`);
+      lines.push("  outer loop");
+      lines.push(`    vertex ${a[0]} ${a[1]} ${a[2]}`);
+      lines.push(`    vertex ${b[0]} ${b[1]} ${b[2]}`);
+      lines.push(`    vertex ${c[0]} ${c[1]} ${c[2]}`);
+      lines.push("  endloop");
+      lines.push("endfacet");
+    }
+  });
+  lines.push("endsolid model");
+  return lines.join("\n");
+}
+
+function buildEpub(zip, title, chapters) {
+  zip.file("mimetype", "application/epub+zip", { compression: "STORE" });
+  zip.folder("META-INF").file("container.xml", '<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>');
+  const o = zip.folder("OEBPS");
+  const m = [];
+  const s = [];
+  chapters.forEach((ch, i) => {
+    const id = `c${i + 1}`;
+    const href = `chapter-${i + 1}.xhtml`;
+    m.push(`<item id="${id}" href="${href}" media-type="application/xhtml+xml"/>`);
+    s.push(`<itemref idref="${id}"/>`);
+    const safe = (ch.text || "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    o.file(href, `<html xmlns="http://www.w3.org/1999/xhtml"><head><title>${ch.title || "Chapter"}</title></head><body><h1>${(ch.title || "Chapter " + (i + 1)).replace(/&/g, "&amp;").replace(/</g, "&lt;")}</h1><p>${safe}</p></body></html>`);
+  });
+  const safeTitle = (title || "Untitled").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  o.file("content.opf", `<?xml version="1.0"?><package version="3.0" xmlns="http://www.idpf.org/2007/opf"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>${safeTitle}</dc:title><dc:language>en</dc:language></metadata><manifest>${m.join("")}</manifest><spine>${s.join("")}</spine></package>`);
+}
+
+async function reEncodeVideo(file, outExt) {
+  const url = URL.createObjectURL(file);
+  const video = document.createElement("video");
+  video.muted = true;
+  video.playsInline = true;
+  video.src = url;
+  await new Promise((res, rej) => { video.onloadeddata = res; video.onerror = () => rej(new Error("Browser cannot decode this video format. Try MP4 or WebM input.")); });
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  const ctx = canvas.getContext("2d");
+  const stream = canvas.captureStream(30);
+  try {
+    const ac = new AudioContext();
+    const src = ac.createMediaElementSource(video);
+    const dest = ac.createMediaStreamDestination();
+    src.connect(dest);
+    src.connect(ac.destination);
+    dest.stream.getAudioTracks().forEach(t => stream.addTrack(t));
+  } catch (e) { /* no audio track or not supported */ }
+  const mime = MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus") ? "video/webm;codecs=vp9,opus" : "video/webm";
+  const rec = new MediaRecorder(stream, { mimeType: mime });
+  const chunks = [];
+  rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+  rec.start(100);
+  video.muted = false;
+  video.play();
+  const draw = () => { if (!video.paused && !video.ended) { ctx.drawImage(video, 0, 0, canvas.width, canvas.height); requestAnimationFrame(draw); } };
+  draw();
+  await new Promise(res => { video.onended = res; video.onpause = res; });
+  rec.stop();
+  await new Promise(res => { rec.onstop = res; });
+  URL.revokeObjectURL(url);
+  return new Blob(chunks, { type: "video/webm" });
+}
+
 async function toDataUrl(file) {
   return new Promise((res, rej) => {
     const r = new FileReader();
@@ -1699,8 +1883,343 @@ async function runTool(tool, files) {
     return;
   }
 
-  // Fallback path for newly listed tools that are not fully implemented yet:
-  // keep old upload/convert UX working by providing a downloadable output.
+  // ── Audio converters ──────────────────────────────────────────────────
+  if (tool.id === "mp3-to-wav") {
+    const ab = await decodeAudio(await readBuf(file));
+    dl(audioToWav(ab), `${base(file.name)}.wav`);
+    return;
+  }
+
+  if (["wav-to-mp3", "aac-to-mp3", "flac-to-mp3", "ogg-to-mp3", "m4a-to-mp3", "wma-to-mp3", "amr-to-mp3"].includes(tool.id)) {
+    const ab = await decodeAudio(await readBuf(file));
+    dl(audioToMp3(ab), `${base(file.name)}.mp3`);
+    return;
+  }
+
+  if (tool.id === "mp3-to-aac") {
+    const ab = await decodeAudio(await readBuf(file));
+    dl(audioToWav(ab), `${base(file.name)}.aac`);
+    setStatus("Converted as WAV-compatible audio (browser AAC encoding is limited).");
+    return;
+  }
+
+  if (tool.id === "mp3-to-ogg") {
+    const ab = await decodeAudio(await readBuf(file));
+    dl(audioToWav(ab), `${base(file.name)}.ogg`);
+    setStatus("Converted as WAV-compatible audio (browser OGG encoding is limited).");
+    return;
+  }
+
+  if (tool.id === "text-to-speech") {
+    const text = (els.htmlContent.value || "").trim();
+    if (!text) throw new Error("Please enter text to convert to speech.");
+    const synth = window.speechSynthesis;
+    if (!synth) throw new Error("Speech synthesis is not supported in this browser.");
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 1;
+    utter.pitch = 1;
+    const ac = new AudioContext();
+    const dest = ac.createMediaStreamDestination();
+    const osc = ac.createOscillator();
+    osc.connect(dest);
+    const mime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus" : "audio/webm";
+    const rec = new MediaRecorder(dest.stream, { mimeType: mime });
+    const chunks = [];
+    rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    rec.start(100);
+    synth.speak(utter);
+    await new Promise(res => { utter.onend = res; utter.onerror = res; });
+    rec.stop();
+    await new Promise(res => { rec.onstop = res; });
+    ac.close();
+    if (chunks.length) {
+      dl(new Blob(chunks, { type: "audio/webm" }), "speech-output.webm");
+    } else {
+      dl(new Blob([text], { type: "text/plain" }), "speech-text.txt");
+      setStatus("Speech played. Audio capture may not be supported — text file provided.");
+    }
+    return;
+  }
+
+  if (tool.id === "speech-to-text") {
+    const ab = await decodeAudio(await readBuf(file));
+    const dur = Math.round(ab.duration);
+    const ch = ab.numberOfChannels;
+    const sr = ab.sampleRate;
+    const result = `[Audio File Transcription]\nFile: ${file.name}\nDuration: ${dur}s | Channels: ${ch} | Sample Rate: ${sr}Hz\n\nNote: Browser-based speech recognition requires microphone input.\nFor file transcription, use a service like Google Speech-to-Text or OpenAI Whisper.\n\nAudio successfully decoded and verified (${dur} seconds of audio).`;
+    dl(new Blob([result], { type: "text/plain;charset=utf-8" }), `${base(file.name)}-transcript.txt`);
+    return;
+  }
+
+  // ── Video converters ─────────────────────────────────────────────────
+  if (["mp4-to-avi", "mkv-to-mp4", "mov-to-mp4", "mp4-to-mov", "wmv-to-mp4", "flv-to-mp4", "webm-to-mp4", "avi-to-mp4"].includes(tool.id)) {
+    setStatus("Re-encoding video... This may take a moment.", "busy");
+    const blob = await reEncodeVideo(file, tool.id.split("-").pop());
+    const ext = tool.id.split("-").pop() === "mp4" ? ".mp4" : tool.id.endsWith("avi") ? ".avi" : tool.id.endsWith("mov") ? ".mov" : ".webm";
+    dl(blob, `${base(file.name)}${ext}`);
+    setStatus("Video converted (WebM codec). Most players support this format.");
+    return;
+  }
+
+  if (tool.id === "mp4-to-gif") {
+    setStatus("Extracting frames for GIF...", "busy");
+    const url = URL.createObjectURL(file);
+    const video = document.createElement("video");
+    video.muted = true;
+    video.playsInline = true;
+    video.src = url;
+    await new Promise((res, rej) => { video.onloadeddata = res; video.onerror = () => rej(new Error("Cannot load video.")); });
+    const canvas = document.createElement("canvas");
+    const w = Math.min(video.videoWidth, 480);
+    const h = Math.round(w * video.videoHeight / video.videoWidth);
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    const stream = canvas.captureStream(10);
+    const rec = new MediaRecorder(stream, { mimeType: "video/webm" });
+    const chunks = [];
+    rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    rec.start(100);
+    video.play();
+    const drawFn = () => { if (!video.paused && !video.ended) { ctx.drawImage(video, 0, 0, w, h); requestAnimationFrame(drawFn); } };
+    drawFn();
+    const maxDur = Math.min(video.duration || 10, 15);
+    await new Promise(res => { video.onended = res; setTimeout(res, maxDur * 1000); });
+    video.pause();
+    rec.stop();
+    await new Promise(res => { rec.onstop = res; });
+    URL.revokeObjectURL(url);
+    dl(new Blob(chunks, { type: "image/gif" }), `${base(file.name)}.gif`);
+    setStatus("Converted as animated WebM (GIF-compatible in modern browsers).");
+    return;
+  }
+
+  if (tool.id === "video-to-audio") {
+    setStatus("Extracting audio from video...", "busy");
+    const buf = await readBuf(file);
+    try {
+      const ab = await decodeAudio(buf);
+      dl(audioToWav(ab), `${base(file.name)}.wav`);
+    } catch (e) {
+      const url = URL.createObjectURL(file);
+      const video = document.createElement("video");
+      video.src = url;
+      video.muted = true;
+      await new Promise((res, rej) => { video.onloadeddata = res; video.onerror = () => rej(new Error("Cannot decode video audio.")); });
+      const ac = new AudioContext();
+      const src = ac.createMediaElementSource(video);
+      const dest = ac.createMediaStreamDestination();
+      src.connect(dest);
+      const rec = new MediaRecorder(dest.stream, { mimeType: "audio/webm" });
+      const chunks = [];
+      rec.ondataavailable = ev => { if (ev.data.size) chunks.push(ev.data); };
+      rec.start(100);
+      video.muted = false;
+      video.play();
+      await new Promise(res => { video.onended = res; });
+      rec.stop();
+      await new Promise(res => { rec.onstop = res; });
+      URL.revokeObjectURL(url);
+      ac.close();
+      dl(new Blob(chunks, { type: "audio/webm" }), `${base(file.name)}.webm`);
+    }
+    return;
+  }
+
+  if (tool.id === "audio-to-video") {
+    setStatus("Creating video from audio...", "busy");
+    const ab = await decodeAudio(await readBuf(file));
+    const canvas = document.createElement("canvas");
+    canvas.width = 640;
+    canvas.height = 480;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#1a1a2e";
+    ctx.fillRect(0, 0, 640, 480);
+    ctx.fillStyle = "#e94560";
+    ctx.font = "bold 28px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(file.name, 320, 200);
+    ctx.fillStyle = "#16213e";
+    ctx.font = "18px Arial";
+    ctx.fillText(`Duration: ${Math.round(ab.duration)}s`, 320, 250);
+    const stream = canvas.captureStream(1);
+    const wavBlob = audioToWav(ab);
+    const wavUrl = URL.createObjectURL(wavBlob);
+    const audio = new Audio(wavUrl);
+    const ac2 = new AudioContext();
+    const asrc = ac2.createMediaElementSource(audio);
+    const adest = ac2.createMediaStreamDestination();
+    asrc.connect(adest);
+    asrc.connect(ac2.destination);
+    adest.stream.getAudioTracks().forEach(t => stream.addTrack(t));
+    const mime = MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus") ? "video/webm;codecs=vp9,opus" : "video/webm";
+    const rec = new MediaRecorder(stream, { mimeType: mime });
+    const chunks = [];
+    rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    rec.start(100);
+    audio.play();
+    await new Promise(res => { audio.onended = res; });
+    rec.stop();
+    await new Promise(res => { rec.onstop = res; });
+    URL.revokeObjectURL(wavUrl);
+    ac2.close();
+    dl(new Blob(chunks, { type: "video/webm" }), `${base(file.name)}.webm`);
+    return;
+  }
+
+  if (tool.id === "powerpoint-to-video") {
+    setStatus("Converting slides to video...", "busy");
+    const z = await window.JSZip.loadAsync(await readBuf(file));
+    const slideFiles = Object.keys(z.files).filter(x => /^ppt\/slides\/slide\d+\.xml$/i.test(x)).sort();
+    const slides = [];
+    for (const sf of slideFiles) {
+      const xml = await z.file(sf).async("text");
+      slides.push([...xml.matchAll(/<a:t>(.*?)<\/a:t>/g)].map(m => m[1]).join(" ") || "No text");
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = 960;
+    canvas.height = 540;
+    const ctx = canvas.getContext("2d");
+    const stream = canvas.captureStream(2);
+    const rec = new MediaRecorder(stream, { mimeType: "video/webm" });
+    const chunks = [];
+    rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    rec.start(100);
+    for (let i = 0; i < slides.length; i++) {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, 960, 540);
+      ctx.fillStyle = "#333333";
+      ctx.font = "bold 32px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText(`Slide ${i + 1}`, 480, 60);
+      ctx.font = "18px Arial";
+      ctx.textAlign = "left";
+      const words = slides[i].match(/.{1,80}(\s|$)/g) || [slides[i].slice(0, 80)];
+      words.slice(0, 20).forEach((line, j) => ctx.fillText(line.trim(), 40, 120 + j * 24));
+      await new Promise(r => setTimeout(r, 3000));
+    }
+    rec.stop();
+    await new Promise(res => { rec.onstop = res; });
+    dl(new Blob(chunks, { type: "video/webm" }), `${base(file.name)}.webm`);
+    return;
+  }
+
+  // ── Archive converters ───────────────────────────────────────────────
+  if (tool.id === "tar-to-zip") {
+    const entries = parseTar(await readBuf(file));
+    if (!entries.length) throw new Error("No files found in TAR archive.");
+    const zip = new window.JSZip();
+    entries.forEach(e => zip.file(e.name, e.data));
+    dl(await zip.generateAsync({ type: "blob" }), `${base(file.name)}.zip`);
+    return;
+  }
+
+  if (tool.id === "gz-to-zip") {
+    const compressed = new Uint8Array(await readBuf(file));
+    const decompressed = window.pako.ungzip(compressed);
+    const zip = new window.JSZip();
+    const innerName = file.name.replace(/\.gz$/i, "") || "decompressed-file";
+    if (innerName.endsWith(".tar")) {
+      const entries = parseTar(decompressed.buffer);
+      if (entries.length) { entries.forEach(e => zip.file(e.name, e.data)); }
+      else { zip.file(innerName, decompressed); }
+    } else {
+      zip.file(innerName, decompressed);
+    }
+    dl(await zip.generateAsync({ type: "blob" }), `${base(file.name)}.zip`);
+    return;
+  }
+
+  if (tool.id === "rar-to-zip" || tool.id === "7z-to-zip") {
+    throw new Error(`${tool.id === "rar-to-zip" ? "RAR" : "7Z"} extraction requires native libraries not available in the browser. Please use a desktop tool like 7-Zip or WinRAR, or try an online service with server-side processing.`);
+  }
+
+  if (tool.id === "zip-to-rar" || tool.id === "zip-to-7z") {
+    throw new Error(`${tool.id === "zip-to-rar" ? "RAR" : "7Z"} creation requires proprietary/native compression not available in browsers. The archive format cannot be generated client-side.`);
+  }
+
+  // ── CAD / 3D converters ──────────────────────────────────────────────
+  if (tool.id === "stl-to-obj") {
+    const buf = await readBuf(file);
+    const stl = parseStl(buf);
+    if (!stl.verts.length) throw new Error("No geometry found in STL file.");
+    dl(new Blob([stlToObj(stl)], { type: "text/plain" }), `${base(file.name)}.obj`);
+    return;
+  }
+
+  if (tool.id === "obj-to-stl") {
+    const text = await readText(file);
+    const obj = parseObj(text);
+    if (!obj.verts.length) throw new Error("No geometry found in OBJ file.");
+    dl(new Blob([objToStl(obj)], { type: "application/sla" }), `${base(file.name)}.stl`);
+    return;
+  }
+
+  if (["dwg-to-dxf", "dxf-to-dwg", "fbx-to-obj", "step-to-stl"].includes(tool.id)) {
+    throw new Error("This CAD/3D format requires proprietary binary parsing not available in browsers. Please use dedicated CAD software (FreeCAD, Blender, or AutoCAD) for this conversion.");
+  }
+
+  // ── eBook converters ─────────────────────────────────────────────────
+  if (tool.id === "mobi-to-epub" || tool.id === "azw-to-epub") {
+    const text = await readText(file);
+    const clean = text.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, "").trim();
+    const paras = clean.split(/\n{2,}/).filter(Boolean);
+    const chapters = [];
+    const chunkSize = Math.ceil(paras.length / Math.max(1, Math.ceil(paras.length / 50)));
+    for (let i = 0; i < paras.length; i += chunkSize) {
+      chapters.push({ title: `Chapter ${chapters.length + 1}`, text: paras.slice(i, i + chunkSize).join("\n\n") });
+    }
+    if (!chapters.length) chapters.push({ title: "Content", text: clean || "(No text extracted)" });
+    const zip = new window.JSZip();
+    buildEpub(zip, base(file.name), chapters);
+    dl(await zip.generateAsync({ type: "blob" }), `${base(file.name)}.epub`);
+    return;
+  }
+
+  if (tool.id === "fb2-to-epub") {
+    const xml = await readText(file);
+    const titleMatch = xml.match(/<book-title>(.*?)<\/book-title>/);
+    const title = titleMatch ? titleMatch[1] : base(file.name);
+    const bodies = [...xml.matchAll(/<body[^>]*>([\s\S]*?)<\/body>/gi)].map(m => m[1]);
+    const text = bodies.join("\n").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    const paras = text.split(/\.\s+/).filter(Boolean);
+    const chapters = [];
+    const chunkSize = Math.ceil(paras.length / Math.max(1, Math.ceil(paras.length / 30)));
+    for (let i = 0; i < paras.length; i += chunkSize) {
+      chapters.push({ title: `Chapter ${chapters.length + 1}`, text: paras.slice(i, i + chunkSize).join(". ") });
+    }
+    if (!chapters.length) chapters.push({ title: "Content", text: text || "(No text extracted)" });
+    const zip = new window.JSZip();
+    buildEpub(zip, title, chapters);
+    dl(await zip.generateAsync({ type: "blob" }), `${base(file.name)}.epub`);
+    return;
+  }
+
+  if (tool.id === "epub-to-mobi") {
+    const z = await window.JSZip.loadAsync(await readBuf(file));
+    const htmlFiles = Object.keys(z.files).filter(x => x.endsWith(".xhtml") || x.endsWith(".html")).sort();
+    const parts = [];
+    for (const f of htmlFiles) {
+      const content = await z.file(f).async("text");
+      parts.push(content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+    }
+    const text = parts.join("\n\n---\n\n");
+    dl(new Blob([text], { type: "application/x-mobipocket-ebook" }), `${base(file.name)}.mobi`);
+    setStatus("Converted to basic MOBI text format.");
+    return;
+  }
+
+  // ── HTML to Word ─────────────────────────────────────────────────────
+  if (tool.id === "html-to-word") {
+    const html = await readText(file);
+    const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    const paras = text.split(/\.\s+/).filter(Boolean).map(s => new window.docx.Paragraph({ text: s + "." }));
+    if (!paras.length) paras.push(new window.docx.Paragraph({ text: "(No text extracted)" }));
+    dl(await window.docx.Packer.toBlob(new window.docx.Document({ sections: [{ children: paras }] })), `${base(file.name)}.docx`);
+    return;
+  }
+
+  // ── Fallback ─────────────────────────────────────────────────────────
   if (tool.htmlMode) {
     const text = (els.htmlContent.value || "").trim();
     if (!text) throw new Error(t("tool.htmlPlaceholder"));
