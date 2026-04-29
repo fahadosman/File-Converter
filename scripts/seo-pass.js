@@ -66,7 +66,7 @@ for (const file of files) {
     ['property="og:title"', `  <meta property="og:title" content="${escapeAttr(title)}" />`],
     ['property="og:description"', `  <meta property="og:description" content="${escapeAttr(desc)}" />`],
     ['property="og:url"', `  <meta property="og:url" content="${url}" />`],
-    ['property="og:image"', `  <meta property="og:image" content="${base}/favicon.svg" />`],
+    ['property="og:image"', `  <meta property="og:image" content="${base}/favicon.png" />`],
     ['name="twitter:card"', '  <meta name="twitter:card" content="summary_large_image" />'],
     ['name="twitter:title"', `  <meta name="twitter:title" content="${escapeAttr(title)}" />`],
     ['name="twitter:description"', `  <meta name="twitter:description" content="${escapeAttr(desc)}" />`],
