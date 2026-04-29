@@ -19,42 +19,40 @@ Then visit:
 
 `http://localhost:8000`
 
-## EasyPaisa IAP Integration
+## Paddle Integration (Production)
 
-The Premium button is wired to a backend payment server (`payment-server.js`) that:
+Premium checkout is now server-verified through the Cloudflare Worker (`worker.js`):
 
-- Creates EasyPaisa checkout payloads
-- Redirects to EasyPaisa hosted checkout
-- Receives callback/postback
-- Verifies payment status in-app and unlocks Premium
+- `POST /api/payments/paddle/checkout` creates a Paddle transaction and returns checkout URL.
+- `POST /api/payments/paddle/verify` verifies the returned `transaction_id` with Paddle API.
+- Frontend upgrades to Premium only after server verification succeeds.
 
 ### Setup
 
-1. Install backend dependencies:
+1. Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Copy `.env.example` to `.env` and set:
-   - `EASYPAISA_STORE_ID`
-   - `EASYPAISA_HASH_KEY`
-   - `EASYPAISA_ACCOUNT_NUMBER` (set to your EasyPaisa number, e.g. `03105842702`)
-   - `EASYPAISA_ACCOUNT_FIELD` (`mobileNum` by default; switch only if your merchant setup expects another field)
-   - `APP_BASE_URL` (public HTTPS URL of payment-server in live)
-   - `EASYPAISA_SANDBOX` (`true` for staging)
+2. Configure Worker secrets and vars:
+   - Copy `.dev.vars.example` to `.dev.vars` for local development values.
+   - `PADDLE_API_KEY` (secret: set with `wrangler secret put PADDLE_API_KEY`)
+   - `PADDLE_PRICE_ID` (if different from default in frontend)
+   - `APP_BASE_URL` (your deployed HTTPS app URL)
+   - `PADDLE_ENV` (`live` or `sandbox`, default is `live`)
 
-3. Start payment server:
+3. Run locally with Worker + assets:
 
 ```bash
-npm run payment-server
+npx wrangler dev
 ```
 
-4. Start static frontend (e.g. `serve -l 5173`) and open:
+4. Deploy:
 
-`http://localhost:5173`
-
-The frontend calls `http://localhost:8787/api/payments/easypaisa/*` for payment creation and verification.
+```bash
+npm run deploy:cloudflare
+```
 
 ## Project Structure
 

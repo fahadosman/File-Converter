@@ -9,7 +9,6 @@ Allow: /
 
 User-agent: *
 Allow: /
-Disallow: /tool/
 
 # Block AI training bots
 User-agent: GPTBot
@@ -55,4 +54,4 @@ User-agent: Applebot-Extended
 Disallow: /
 
 # Sitemap
-Sitemap: https://fileconverter.pages.dev/sitemap.xml
+Sitemap: https://filesconverter.org/sitemap.xml

@@ -266,7 +266,21 @@ const state = {
   securityApiReady: Boolean(SECURITY_API_BASE),
   convertedFileSignature: null,
   lastToolListRenderKey: "",
+  lastFailedAction: null,
+  conversionCache: new Map(),
 };
+
+function logClientEvent(event, details = {}) {
+  try {
+    const payload = {
+      event,
+      details,
+      path: location.pathname,
+      ts: new Date().toISOString(),
+    };
+    console.info("[client-event]", payload);
+  } catch (_) {}
+}
 
 const TOOL_ICONS = {
   "merge-pdf": "🧷",
@@ -409,6 +423,7 @@ const els = {
   relatedToolButtons: Array.from(document.querySelectorAll(".related-tool")),
   languageSelect: document.getElementById("languageSelect"),
   statusMeterFill: document.getElementById("statusMeterFill"),
+  retryBtn: document.getElementById("retryBtn"),
   toast: document.getElementById("toast"),
   premiumLimitDialog: document.getElementById("premiumLimitDialog"),
   premiumDialogCloseBtn: document.getElementById("premiumDialogCloseBtn"),
@@ -527,6 +542,11 @@ function setStatus(message, type = "ok") {
         : "linear-gradient(90deg, var(--accent), var(--accent-2))";
   }
   if (type === "error") showToast(message);
+  if (els.retryBtn) {
+    const showRetry = type === "error" && typeof state.lastFailedAction === "function";
+    els.retryBtn.classList.toggle("hidden", !showRetry);
+    els.retryBtn.disabled = state.isBusy;
+  }
 }
 
 function showToast(message) {
@@ -821,26 +841,22 @@ function clearPendingDownload(message = t("download.waiting")) {
 }
 
 function startPaddleCheckout() {
-  try {
-    if (!window.Paddle) throw new Error("Payment system is loading. Please try again in a moment.");
-    setStatus(t("status.paymentInit"), "busy");
-    window.Paddle.Checkout.open({
-      items: [{ priceId: PADDLE_PRICE_ID, quantity: 1 }],
-      successCallback: function () {
-        state.isPremium = true;
-        persistPlanState();
-        closePremiumLimitDialog();
-        refreshPlan();
-        setStatus(t("status.premiumActivated"));
-        showToastWithType(t("status.premiumActivated"), "success");
-      },
-      closeCallback: function () {
-        setStatus(t("status.ready"));
-      },
+  setStatus(t("status.paymentInit"), "busy");
+  fetch(`${SECURITY_API_BASE}/api/payments/paddle/checkout`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ priceId: PADDLE_PRICE_ID }),
+  })
+    .then(async (response) => {
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || t("error.paymentInitFailed"));
+      if (!payload.url) throw new Error("Unable to start checkout. Missing checkout URL.");
+      window.location.assign(payload.url);
+    })
+    .catch((error) => {
+      setStatus(error.message || t("error.paymentInitFailed"), "error");
     });
-  } catch (error) {
-    setStatus(error.message || t("error.paymentInitFailed"), "error");
-  }
 }
 
 async function syncPaymentFromReturn() {
@@ -850,26 +866,28 @@ async function syncPaymentFromReturn() {
     const hashQuery = hash.includes("?") ? hash.split("?")[1] : "";
     const hashParams = new URLSearchParams(hashQuery);
 
-    const paymentState = params.get("payment") || hashParams.get("payment");
-    const premiumState = params.get("premium") || hashParams.get("premium");
-    const checkoutId = params.get("checkout_id") || hashParams.get("checkout_id");
-    const paidFallback =
-      paymentState === "success" || premiumState === "1" || Boolean(checkoutId);
-    if (!state.isPremium && paidFallback) {
-      state.isPremium = true;
-      persistPlanState();
-      closePremiumLimitDialog();
-      refreshPlan();
-      setStatus(t("status.premiumActivated"));
-      showToastWithType(t("status.premiumActivated"), "success");
+    const transactionId = params.get("transaction_id") || hashParams.get("transaction_id");
+    if (!state.isPremium && transactionId) {
+      const verifyResponse = await fetch(`${SECURITY_API_BASE}/api/payments/paddle/verify`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ transactionId }),
+      });
+      const verifyPayload = await verifyResponse.json().catch(() => ({}));
+      if (!verifyResponse.ok) throw new Error(verifyPayload.error || t("error.paymentVerifyFailed"));
+      if (verifyPayload.isPremium) {
+        state.isPremium = true;
+        persistPlanState();
+        closePremiumLimitDialog();
+        refreshPlan();
+        setStatus(t("status.premiumActivated"));
+        showToastWithType(t("status.premiumActivated"), "success");
+      }
     }
 
-    params.delete("checkout_id");
-    params.delete("payment");
-    params.delete("premium");
-    hashParams.delete("checkout_id");
-    hashParams.delete("payment");
-    hashParams.delete("premium");
+    params.delete("transaction_id");
+    hashParams.delete("transaction_id");
     const cleanHash = hashParams.toString() ? `#/?${hashParams.toString()}` : "";
     const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${cleanHash}`;
     window.history.replaceState({}, "", clean);
@@ -2370,21 +2388,35 @@ async function runConversion() {
     await secureConsumeUsage();
     const files = Array.from(els.fileInput.files || []);
     if (!state.activeTool.htmlMode && files.length === 0) throw new Error(t("error.selectInput"));
+    let inputSignature = "";
     if (!state.activeTool.htmlMode) {
       const invalid = files.find((file) => !fileMatchesAccept(file, state.activeTool.accept));
       if (invalid) throw new Error(t("error.invalidType", { name: invalid.name, accept: state.activeTool.accept }));
-      const signature = buildFileSignature(files[0], state.activeTool.id);
-      if (signature && signature === state.convertedFileSignature) {
+      inputSignature = buildFileSignature(files[0], state.activeTool.id);
+      if (inputSignature && inputSignature === state.convertedFileSignature) {
         throw new Error("This selected file is already converted. Please choose or reselect another file.");
+      }
+      if (inputSignature && state.conversionCache.has(inputSignature)) {
+        const cached = state.conversionCache.get(inputSignature);
+        dl(cached.blob, cached.name);
+        setStatus("Loaded cached conversion result.");
+        return;
       }
     }
 
     setBusy(true);
+    state.lastFailedAction = null;
     setStatus(t("status.loadingRuntime"), "busy");
     await ensureDeps(state.activeTool);
 
     setStatus(t("status.converting"), "busy");
     await runTool(state.activeTool, files);
+    if (inputSignature && state.pendingDownload?.blob && state.pendingDownload?.name) {
+      state.conversionCache.set(inputSignature, {
+        blob: state.pendingDownload.blob,
+        name: state.pendingDownload.name,
+      });
+    }
     if (!state.activeTool.htmlMode && files[0]) {
       state.convertedFileSignature = buildFileSignature(files[0], state.activeTool.id);
     }
@@ -2393,11 +2425,18 @@ async function runConversion() {
       setStatus(t("status.doneCompleted"));
       els.downloadInfo.textContent = t("download.browserDirect");
     }
+    logClientEvent("conversion_success", { toolId: state.activeTool?.id });
   } catch (err) {
+    state.lastFailedAction = () => runConversion();
     if (err?.code === "FREE_LIMIT_REACHED" || (err.message || "").includes(t("error.freeLimit"))) {
       openPremiumLimitDialog();
     }
     setStatus(err.message || "Conversion failed.", "error");
+    logClientEvent("conversion_error", {
+      toolId: state.activeTool?.id,
+      message: err?.message || "unknown",
+      code: err?.code || "",
+    });
   } finally {
     setBusy(false);
   }
@@ -2478,6 +2517,12 @@ if (HAS_CONVERTER_APP) {
     triggerDownload();
     setStatus(t("status.downloadStarted"));
   });
+  if (els.retryBtn) {
+    els.retryBtn.addEventListener("click", () => {
+      if (state.isBusy || typeof state.lastFailedAction !== "function") return;
+      state.lastFailedAction();
+    });
+  }
   els.fileInput.addEventListener("change", () => {
     const files = Array.from(els.fileInput.files || []);
     state.convertedFileSignature = null;
@@ -2489,6 +2534,36 @@ if (HAS_CONVERTER_APP) {
     updateFileSelectionUI([]);
     setStatus(t("error.allowedForTool", { accept: state.activeTool.accept, tool: state.activeTool.name }), "error");
   });
+
+  if (els.fileGroup && els.fileInput) {
+    const stopDefaults = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    ["dragenter", "dragover", "dragleave", "drop"].forEach((name) => {
+      els.fileGroup.addEventListener(name, stopDefaults);
+    });
+    ["dragenter", "dragover"].forEach((name) => {
+      els.fileGroup.addEventListener(name, () => {
+        if (state.isBusy || state.activeTool.htmlMode) return;
+        els.fileGroup.classList.add("is-drag-over");
+      });
+    });
+    ["dragleave", "drop"].forEach((name) => {
+      els.fileGroup.addEventListener(name, () => {
+        els.fileGroup.classList.remove("is-drag-over");
+      });
+    });
+    els.fileGroup.addEventListener("drop", (event) => {
+      if (state.isBusy || state.activeTool.htmlMode) return;
+      const dropped = event.dataTransfer?.files;
+      if (!dropped || !dropped.length) return;
+      els.fileInput.files = dropped;
+      els.fileInput.dispatchEvent(new Event("change", { bubbles: true }));
+      setStatus("File dropped successfully. Ready to convert.");
+      logClientEvent("file_drop", { count: dropped.length });
+    });
+  }
 
   if (els.languageSelect) {
     els.languageSelect.addEventListener("change", (event) => {
@@ -2521,4 +2596,17 @@ if (HAS_CONVERTER_APP) {
   } else {
     setTimeout(runNonCriticalStartup, 120);
   }
+
+  window.addEventListener("error", (event) => {
+    logClientEvent("runtime_error", {
+      message: event?.message || "unknown error",
+      filename: event?.filename || "",
+    });
+  });
+  window.addEventListener("unhandledrejection", (event) => {
+    const reason = event?.reason;
+    logClientEvent("promise_rejection", {
+      message: reason?.message || String(reason || "unknown rejection"),
+    });
+  });
 }

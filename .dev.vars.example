@@ -1,0 +1,4 @@
+PADDLE_API_KEY=your_paddle_api_key_here
+PADDLE_PRICE_ID=pri_xxxxxxxxxxxxxxxxxxxxx
+APP_BASE_URL=http://localhost:8787
+PADDLE_ENV=sandbox

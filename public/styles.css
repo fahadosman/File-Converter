@@ -728,6 +728,13 @@ textarea:focus-visible {
   margin-bottom: 16px;
 }
 
+.field-group.is-drag-over {
+  border: 1px dashed var(--accent-2);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(66, 215, 255, 0.08);
+}
+
 label {
   display: block;
   margin-bottom: 9px;
@@ -1177,6 +1184,10 @@ button {
 
 .status.error {
   color: var(--danger);
+}
+
+.retry-btn {
+  margin-top: 10px;
 }
 
 .hidden {
