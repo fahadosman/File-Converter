@@ -1,547 +1,547 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://fileconverter.pages.dev/</loc>
+    <loc>https://filesconverter.org/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools.html</loc>
+    <loc>https://filesconverter.org/tools.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/about.html</loc>
+    <loc>https://filesconverter.org/about.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/contact.html</loc>
+    <loc>https://filesconverter.org/contact.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/features.html</loc>
+    <loc>https://filesconverter.org/features.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/faq.html</loc>
+    <loc>https://filesconverter.org/faq.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/help.html</loc>
+    <loc>https://filesconverter.org/help.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/security.html</loc>
+    <loc>https://filesconverter.org/security.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/privacy.html</loc>
+    <loc>https://filesconverter.org/privacy.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/terms.html</loc>
+    <loc>https://filesconverter.org/terms.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/blog.html</loc>
+    <loc>https://filesconverter.org/blog.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/7z-to-zip.html</loc>
+    <loc>https://filesconverter.org/tools/7z-to-zip.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/aac-to-mp3.html</loc>
+    <loc>https://filesconverter.org/tools/aac-to-mp3.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/add-page-numbers.html</loc>
+    <loc>https://filesconverter.org/tools/add-page-numbers.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/add-watermark.html</loc>
+    <loc>https://filesconverter.org/tools/add-watermark.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/amr-to-mp3.html</loc>
+    <loc>https://filesconverter.org/tools/amr-to-mp3.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/audio-to-video.html</loc>
+    <loc>https://filesconverter.org/tools/audio-to-video.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/avi-to-mp4.html</loc>
+    <loc>https://filesconverter.org/tools/avi-to-mp4.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/azw-to-epub.html</loc>
+    <loc>https://filesconverter.org/tools/azw-to-epub.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/bmp-to-jpg.html</loc>
+    <loc>https://filesconverter.org/tools/bmp-to-jpg.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/csv-to-excel.html</loc>
+    <loc>https://filesconverter.org/tools/csv-to-excel.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/csv-to-json.html</loc>
+    <loc>https://filesconverter.org/tools/csv-to-json.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/document-to-image.html</loc>
+    <loc>https://filesconverter.org/tools/document-to-image.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/docx-to-odt.html</loc>
+    <loc>https://filesconverter.org/tools/docx-to-odt.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/dwg-to-dxf.html</loc>
+    <loc>https://filesconverter.org/tools/dwg-to-dxf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/dxf-to-dwg.html</loc>
+    <loc>https://filesconverter.org/tools/dxf-to-dwg.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/edit-pdf.html</loc>
+    <loc>https://filesconverter.org/tools/edit-pdf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/epub-to-mobi.html</loc>
+    <loc>https://filesconverter.org/tools/epub-to-mobi.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/epub-to-pdf.html</loc>
+    <loc>https://filesconverter.org/tools/epub-to-pdf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/excel-to-csv.html</loc>
+    <loc>https://filesconverter.org/tools/excel-to-csv.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/excel-to-json.html</loc>
+    <loc>https://filesconverter.org/tools/excel-to-json.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/excel-to-pdf.html</loc>
+    <loc>https://filesconverter.org/tools/excel-to-pdf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/extract-pages.html</loc>
+    <loc>https://filesconverter.org/tools/extract-pages.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/fb2-to-epub.html</loc>
+    <loc>https://filesconverter.org/tools/fb2-to-epub.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/fbx-to-obj.html</loc>
+    <loc>https://filesconverter.org/tools/fbx-to-obj.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/flac-to-mp3.html</loc>
+    <loc>https://filesconverter.org/tools/flac-to-mp3.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/flv-to-mp4.html</loc>
+    <loc>https://filesconverter.org/tools/flv-to-mp4.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/gif-to-mp4.html</loc>
+    <loc>https://filesconverter.org/tools/gif-to-mp4.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/gz-to-zip.html</loc>
+    <loc>https://filesconverter.org/tools/gz-to-zip.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/heic-to-jpg.html</loc>
+    <loc>https://filesconverter.org/tools/heic-to-jpg.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/html-to-pdf.html</loc>
+    <loc>https://filesconverter.org/tools/html-to-pdf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/html-to-word.html</loc>
+    <loc>https://filesconverter.org/tools/html-to-word.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/ico-to-png.html</loc>
+    <loc>https://filesconverter.org/tools/ico-to-png.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/image-to-text-ocr.html</loc>
+    <loc>https://filesconverter.org/tools/image-to-text-ocr.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/jpg-to-pdf.html</loc>
+    <loc>https://filesconverter.org/tools/jpg-to-pdf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/jpg-to-png.html</loc>
+    <loc>https://filesconverter.org/tools/jpg-to-png.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/json-to-csv.html</loc>
+    <loc>https://filesconverter.org/tools/json-to-csv.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/json-to-xml.html</loc>
+    <loc>https://filesconverter.org/tools/json-to-xml.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/m4a-to-mp3.html</loc>
+    <loc>https://filesconverter.org/tools/m4a-to-mp3.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/merge-pdf.html</loc>
+    <loc>https://filesconverter.org/tools/merge-pdf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/mkv-to-mp4.html</loc>
+    <loc>https://filesconverter.org/tools/mkv-to-mp4.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/mobi-to-epub.html</loc>
+    <loc>https://filesconverter.org/tools/mobi-to-epub.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/mov-to-mp4.html</loc>
+    <loc>https://filesconverter.org/tools/mov-to-mp4.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/mp3-to-aac.html</loc>
+    <loc>https://filesconverter.org/tools/mp3-to-aac.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/mp3-to-ogg.html</loc>
+    <loc>https://filesconverter.org/tools/mp3-to-ogg.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/mp3-to-wav.html</loc>
+    <loc>https://filesconverter.org/tools/mp3-to-wav.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/mp4-to-avi.html</loc>
+    <loc>https://filesconverter.org/tools/mp4-to-avi.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/mp4-to-gif.html</loc>
+    <loc>https://filesconverter.org/tools/mp4-to-gif.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/mp4-to-mov.html</loc>
+    <loc>https://filesconverter.org/tools/mp4-to-mov.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/obj-to-stl.html</loc>
+    <loc>https://filesconverter.org/tools/obj-to-stl.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/odt-to-docx.html</loc>
+    <loc>https://filesconverter.org/tools/odt-to-docx.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/ogg-to-mp3.html</loc>
+    <loc>https://filesconverter.org/tools/ogg-to-mp3.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/organize-pdf.html</loc>
+    <loc>https://filesconverter.org/tools/organize-pdf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/pdf-compress.html</loc>
+    <loc>https://filesconverter.org/tools/pdf-compress.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/pdf-to-epub.html</loc>
+    <loc>https://filesconverter.org/tools/pdf-to-epub.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/pdf-to-excel.html</loc>
+    <loc>https://filesconverter.org/tools/pdf-to-excel.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/pdf-to-html.html</loc>
+    <loc>https://filesconverter.org/tools/pdf-to-html.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/pdf-to-jpg.html</loc>
+    <loc>https://filesconverter.org/tools/pdf-to-jpg.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/pdf-to-powerpoint.html</loc>
+    <loc>https://filesconverter.org/tools/pdf-to-powerpoint.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/pdf-to-text.html</loc>
+    <loc>https://filesconverter.org/tools/pdf-to-text.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/pdf-to-word.html</loc>
+    <loc>https://filesconverter.org/tools/pdf-to-word.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/png-to-jpg.html</loc>
+    <loc>https://filesconverter.org/tools/png-to-jpg.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/powerpoint-to-pdf.html</loc>
+    <loc>https://filesconverter.org/tools/powerpoint-to-pdf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/powerpoint-to-video.html</loc>
+    <loc>https://filesconverter.org/tools/powerpoint-to-video.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/rar-to-zip.html</loc>
+    <loc>https://filesconverter.org/tools/rar-to-zip.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/raw-to-jpg.html</loc>
+    <loc>https://filesconverter.org/tools/raw-to-jpg.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/remove-pages.html</loc>
+    <loc>https://filesconverter.org/tools/remove-pages.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/repair-pdf.html</loc>
+    <loc>https://filesconverter.org/tools/repair-pdf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/rtf-to-pdf.html</loc>
+    <loc>https://filesconverter.org/tools/rtf-to-pdf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/speech-to-text.html</loc>
+    <loc>https://filesconverter.org/tools/speech-to-text.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/split-pdf.html</loc>
+    <loc>https://filesconverter.org/tools/split-pdf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/sql-to-csv.html</loc>
+    <loc>https://filesconverter.org/tools/sql-to-csv.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/step-to-stl.html</loc>
+    <loc>https://filesconverter.org/tools/step-to-stl.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/stl-to-obj.html</loc>
+    <loc>https://filesconverter.org/tools/stl-to-obj.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/svg-to-jpg.html</loc>
+    <loc>https://filesconverter.org/tools/svg-to-jpg.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/svg-to-png.html</loc>
+    <loc>https://filesconverter.org/tools/svg-to-png.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/tar-to-zip.html</loc>
+    <loc>https://filesconverter.org/tools/tar-to-zip.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/text-to-speech.html</loc>
+    <loc>https://filesconverter.org/tools/text-to-speech.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/tiff-to-jpg.html</loc>
+    <loc>https://filesconverter.org/tools/tiff-to-jpg.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/txt-to-pdf.html</loc>
+    <loc>https://filesconverter.org/tools/txt-to-pdf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/video-to-audio.html</loc>
+    <loc>https://filesconverter.org/tools/video-to-audio.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/wav-to-mp3.html</loc>
+    <loc>https://filesconverter.org/tools/wav-to-mp3.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/webm-to-mp4.html</loc>
+    <loc>https://filesconverter.org/tools/webm-to-mp4.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/webp-to-jpg.html</loc>
+    <loc>https://filesconverter.org/tools/webp-to-jpg.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/webp-to-png.html</loc>
+    <loc>https://filesconverter.org/tools/webp-to-png.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/wma-to-mp3.html</loc>
+    <loc>https://filesconverter.org/tools/wma-to-mp3.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/wmv-to-mp4.html</loc>
+    <loc>https://filesconverter.org/tools/wmv-to-mp4.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/word-to-html.html</loc>
+    <loc>https://filesconverter.org/tools/word-to-html.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/word-to-pdf.html</loc>
+    <loc>https://filesconverter.org/tools/word-to-pdf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/word-to-txt.html</loc>
+    <loc>https://filesconverter.org/tools/word-to-txt.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/xml-to-json.html</loc>
+    <loc>https://filesconverter.org/tools/xml-to-json.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/zip-to-7z.html</loc>
+    <loc>https://filesconverter.org/tools/zip-to-7z.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/tools/zip-to-rar.html</loc>
+    <loc>https://filesconverter.org/tools/zip-to-rar.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/blog-compress.html</loc>
+    <loc>https://filesconverter.org/blog-compress.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/blog-jpg-to-pdf.html</loc>
+    <loc>https://filesconverter.org/blog-jpg-to-pdf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/blog-merge-pdf.html</loc>
+    <loc>https://filesconverter.org/blog-merge-pdf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/blog-pdf-to-jpg.html</loc>
+    <loc>https://filesconverter.org/blog-pdf-to-jpg.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/blog-word-to-pdf.html</loc>
+    <loc>https://filesconverter.org/blog-word-to-pdf.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://fileconverter.pages.dev/blog.html</loc>
+    <loc>https://filesconverter.org/blog.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
