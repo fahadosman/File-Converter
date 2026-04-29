@@ -1,0 +1,179 @@
+{
+  "siteName": "File Converters",
+  "baseUrl": "https://filesconverter.org",
+  "articles": [
+    {
+      "slug": "pdf-to-word-conversion-guide",
+      "title": "PDF to Word Conversion Guide: Keep Layout and Text Intact",
+      "description": "Learn practical steps to convert PDF to Word with fewer formatting issues and cleaner output for editing.",
+      "excerpt": "A practical workflow for converting PDF files to editable Word docs while preserving structure.",
+      "keywords": ["pdf to word", "convert pdf", "editable word document"],
+      "publishedAt": "2026-04-30",
+      "updatedAt": "2026-04-30",
+      "author": "File Converters Team",
+      "toolSlugs": ["pdf-to-word", "word-to-pdf"],
+      "sections": [
+        {
+          "heading": "Why PDF to Word can break formatting",
+          "paragraphs": [
+            "PDF files are designed for fixed layout, while Word files are meant for editing. During conversion, heading levels, tables, and spacing can shift if the source PDF has complex structure.",
+            "You get better results when the input PDF has selectable text, clear margins, and consistent fonts."
+          ]
+        },
+        {
+          "heading": "Best workflow before converting",
+          "bullets": [
+            "Remove locked or corrupted pages first.",
+            "Check that text is selectable (not only scanned images).",
+            "Use smaller page ranges for long documents."
+          ]
+        },
+        {
+          "heading": "After-conversion cleanup checklist",
+          "bullets": [
+            "Verify heading styles for table of contents.",
+            "Fix table column widths and merged cells.",
+            "Run spelling and paragraph spacing checks."
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "image-to-pdf-quality-checklist",
+      "title": "Image to PDF Quality Checklist for Sharp Exports",
+      "description": "Convert images to PDF without blurry pages by using the right resolution, order, and compression settings.",
+      "excerpt": "Use this checklist to avoid blurry image-to-PDF exports and oversized files.",
+      "keywords": ["image to pdf", "jpg to pdf", "pdf quality"],
+      "publishedAt": "2026-04-30",
+      "updatedAt": "2026-04-30",
+      "author": "File Converters Team",
+      "toolSlugs": ["jpg-to-pdf", "png-to-jpg", "pdf-to-jpg"],
+      "sections": [
+        {
+          "heading": "Choose the right image size",
+          "paragraphs": [
+            "For readable A4 pages, use at least 1500px on the longest edge for photos and higher for text-heavy scans.",
+            "Very high resolutions increase output size without noticeable readability gains."
+          ]
+        },
+        {
+          "heading": "Ordering and consistency",
+          "bullets": [
+            "Name files in sequence before upload.",
+            "Keep orientation consistent to reduce manual rotation.",
+            "Use similar aspect ratios for uniform pages."
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "word-to-pdf-for-resumes",
+      "title": "Word to PDF for Resumes: Export Without Layout Shifts",
+      "description": "A simple resume export workflow to keep margins, typography, and spacing consistent in PDF output.",
+      "excerpt": "Protect your resume formatting with a clean Word-to-PDF process.",
+      "keywords": ["word to pdf", "resume pdf", "document export"],
+      "publishedAt": "2026-04-30",
+      "updatedAt": "2026-04-30",
+      "author": "File Converters Team",
+      "toolSlugs": ["word-to-pdf", "pdf-to-word"],
+      "sections": [
+        {
+          "heading": "Font and margin safety",
+          "paragraphs": [
+            "Use standard fonts and set page margins before exporting. Missing fonts can reflow text and break page balance."
+          ]
+        },
+        {
+          "heading": "Final checks before download",
+          "bullets": [
+            "Confirm single-page or multi-page target.",
+            "Check hyperlinks and contact details.",
+            "Review on mobile and desktop screens."
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "compress-pdf-without-losing-readability",
+      "title": "Compress PDF Without Losing Readability",
+      "description": "Reduce PDF size while keeping text and graphics clear using practical compression targets.",
+      "excerpt": "How to compress PDFs for email and web upload while preserving readability.",
+      "keywords": ["compress pdf", "reduce pdf size", "pdf optimization"],
+      "publishedAt": "2026-04-30",
+      "updatedAt": "2026-04-30",
+      "author": "File Converters Team",
+      "toolSlugs": ["pdf-compress", "pdf-to-jpg"],
+      "sections": [
+        {
+          "heading": "Pick a target file size",
+          "paragraphs": [
+            "Set a practical size goal based on destination: email attachments, upload portals, or long-term archiving.",
+            "Too much compression can create artifacts in text and line drawings."
+          ]
+        },
+        {
+          "heading": "Compression strategy",
+          "bullets": [
+            "Start with medium compression first.",
+            "Prefer downsampling large images over aggressive text compression.",
+            "Re-check small fonts at 100% zoom."
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "batch-convert-files-faster",
+      "title": "Batch Convert Files Faster: Practical Workflow",
+      "description": "Process multiple files efficiently with naming conventions, folder prep, and quick validation checks.",
+      "excerpt": "A repeatable batch-conversion flow for document and media tools.",
+      "keywords": ["batch conversion", "file converter workflow", "productivity"],
+      "publishedAt": "2026-04-30",
+      "updatedAt": "2026-04-30",
+      "author": "File Converters Team",
+      "toolSlugs": ["merge-pdf", "split-pdf", "pdf-to-word", "word-to-pdf"],
+      "sections": [
+        {
+          "heading": "Prepare inputs before upload",
+          "bullets": [
+            "Group files by target output type.",
+            "Use simple filenames to avoid sorting mistakes.",
+            "Remove duplicates before processing."
+          ]
+        },
+        {
+          "heading": "Validate outputs quickly",
+          "paragraphs": [
+            "Open a random sample of output files and check page count, formatting, and metadata before sharing the full batch."
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "pdf-to-jpg-for-social-sharing",
+      "title": "PDF to JPG for Social Sharing and Previews",
+      "description": "Convert PDF pages into clean JPG previews for social media, messaging, and thumbnails.",
+      "excerpt": "Create clear JPG previews from PDFs with proper dimensions and compression.",
+      "keywords": ["pdf to jpg", "pdf preview images", "thumbnail export"],
+      "publishedAt": "2026-04-30",
+      "updatedAt": "2026-04-30",
+      "author": "File Converters Team",
+      "toolSlugs": ["pdf-to-jpg", "jpg-to-pdf"],
+      "sections": [
+        {
+          "heading": "Choose page ranges smartly",
+          "paragraphs": [
+            "Export only key pages for previews to keep generation time and file count low."
+          ]
+        },
+        {
+          "heading": "Output settings for web",
+          "bullets": [
+            "Use moderate JPG compression for balance.",
+            "Resize to platform-friendly dimensions.",
+            "Keep text-heavy pages at higher quality."
+          ]
+        }
+      ]
+    }
+  ]
+}

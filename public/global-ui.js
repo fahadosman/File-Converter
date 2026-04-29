@@ -123,6 +123,12 @@
   function boot() {
     ensureHeader();
     initTheme();
+    if ((window.location.pathname || "").indexOf("/tools/") === 0) {
+      var script = document.createElement("script");
+      script.src = "/articles/related-articles-widget.js";
+      script.defer = true;
+      document.body.appendChild(script);
+    }
   }
 
   if (document.readyState === "loading") {
