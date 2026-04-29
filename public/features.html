@@ -8,38 +8,17 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <script>
-    (function () {
-      var THEME_KEY = "convertpro-theme";
-      function getSavedTheme() {
-        try { return localStorage.getItem(THEME_KEY); }
-        catch (e) { return null; }
-      }
-      function applyTheme(theme) {
-        if (theme !== "light" && theme !== "dark") return;
-        document.documentElement.setAttribute("data-theme", theme);
-        var btn = document.getElementById("themeBulb");
-        if (!btn) return;
-        btn.setAttribute("title", "Theme: " + (theme === "light" ? "Light" : "Dark"));
-        btn.setAttribute("aria-label", "Switch to " + (theme === "light" ? "dark" : "light") + " mode");
-      }
-      var savedTheme = getSavedTheme();
-      var prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
-      var theme = savedTheme === "light" || savedTheme === "dark" ? savedTheme : (prefersLight ? "light" : "dark");
-      applyTheme(theme);
-    })();
-  </script>
+  <link rel="preload" href="styles.min.css" as="style" />
   <script>
     (function () {
-      var isApple = /mac|iphone|ipad|ipod/i.test(navigator.platform + " " + navigator.userAgent);
-      if (isApple) return;
-      var glassCss = document.createElement("link");
-      glassCss.rel = "stylesheet";
-      glassCss.href = "liquid-glass.css";
-      document.head.appendChild(glassCss);
+      var savedTheme = null;
+      try { savedTheme = localStorage.getItem("convertpro-theme"); } catch (e) {}
+      var prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+      var theme = savedTheme === "light" || savedTheme === "dark" ? savedTheme : (prefersLight ? "light" : "dark");
+      document.documentElement.setAttribute("data-theme", theme);
     })();
   </script>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.min.css" />
 </head>
 <body class="info-page">
   <div class="background-glow" aria-hidden="true"></div>
@@ -47,7 +26,7 @@
     <header class="topbar glass-navbar" data-glass-navbar>
       <a href="/index.html" class="brand brand-link">
         <span class="brand-logo-wrap">
-          <img class="brand-logo" src="favicon.svg" alt="Files Converter logo" />
+          <img class="brand-logo" src="favicon.svg" alt="Files Converter logo" width="40" height="40" loading="eager" decoding="async" fetchpriority="high" />
         </span>
         <span>Files Converter</span>
       </a>
@@ -81,12 +60,12 @@
       <h2>What matters to you matters to us</h2>
       <div class="feature-grid">
         <article class="feature-card">
-          <img src="file-converters-logo.png" alt="File quality optimization" loading="lazy" style="width:100%;border-radius:12px;margin-bottom:10px;" />
+          <img src="file-converters-logo.png" alt="File quality optimization" loading="lazy" decoding="async" width="640" height="360" style="width:100%;height:auto;border-radius:12px;margin-bottom:10px;" />
           <h3>The importance of your files</h3>
           <p>We optimize output size while preserving quality, so documents stay sharp and easy to share.</p>
         </article>
         <article class="feature-card">
-          <img src="theme-bulb.png" alt="Security and privacy" loading="lazy" style="width:100%;border-radius:12px;margin-bottom:10px;" />
+          <img src="theme-bulb.png" alt="Security and privacy" loading="lazy" decoding="async" width="640" height="360" style="width:100%;height:auto;border-radius:12px;margin-bottom:10px;" />
           <h3>Your security is a priority</h3>
           <p>Files Converter removes uploaded files automatically after a short retention window to reduce risk.</p>
         </article>
@@ -97,12 +76,12 @@
       <h2>Save time and effort</h2>
       <div class="feature-grid">
         <article class="feature-card">
-          <img src="favicon.svg" alt="Batch processing speed" loading="lazy" style="width:96px;height:96px;margin-bottom:10px;" />
+          <img src="favicon.svg" alt="Batch processing speed" loading="lazy" decoding="async" width="96" height="96" style="width:96px;height:96px;margin-bottom:10px;" />
           <h3>Work faster with batch actions</h3>
           <p>Process multiple files in one flow instead of repeating the same steps one by one.</p>
         </article>
         <article class="feature-card">
-          <img src="file-converters-logo.png" alt="Flexible file management" loading="lazy" style="width:100%;border-radius:12px;margin-bottom:10px;" />
+          <img src="file-converters-logo.png" alt="Flexible file management" loading="lazy" decoding="async" width="640" height="360" style="width:100%;height:auto;border-radius:12px;margin-bottom:10px;" />
           <h3>Flexible file management</h3>
           <p>Sort alphabetically, reverse order, rotate pages, add extra files, or remove files after upload.</p>
         </article>
@@ -113,17 +92,17 @@
       <h2>Freedom to choose your platform</h2>
       <div class="feature-grid">
         <article class="feature-card">
-          <img src="theme-bulb.png" alt="Cloud workflow support" loading="lazy" style="width:100%;border-radius:12px;margin-bottom:10px;" />
+          <img src="theme-bulb.png" alt="Cloud workflow support" loading="lazy" decoding="async" width="640" height="360" style="width:100%;height:auto;border-radius:12px;margin-bottom:10px;" />
           <h3>Work from the cloud</h3>
           <p>Import from Google Drive or Dropbox, process instantly, then save back without extra downloads.</p>
         </article>
         <article class="feature-card">
-          <img src="favicon.svg" alt="Mobile and desktop support" loading="lazy" style="width:96px;height:96px;margin-bottom:10px;" />
+          <img src="favicon.svg" alt="Mobile and desktop support" loading="lazy" decoding="async" width="96" height="96" style="width:96px;height:96px;margin-bottom:10px;" />
           <h3>Edit on the go</h3>
           <p>Use Files Converter from mobile browsers for quick edits and conversions while away from your desk.</p>
         </article>
         <article class="feature-card">
-          <img src="file-converters-logo.png" alt="Desktop performance workflow" loading="lazy" style="width:100%;border-radius:12px;margin-bottom:10px;" />
+          <img src="file-converters-logo.png" alt="Desktop performance workflow" loading="lazy" decoding="async" width="640" height="360" style="width:100%;height:auto;border-radius:12px;margin-bottom:10px;" />
           <h3>Desktop-ready performance</h3>
           <p>Run advanced conversion tasks with strong local performance for larger documents and higher throughput.</p>
         </article>
@@ -134,17 +113,17 @@
       <h2>Get even more with Premium</h2>
       <div class="feature-grid">
         <article class="feature-card">
-          <img src="theme-bulb.png" alt="Team features" loading="lazy" style="width:100%;border-radius:12px;margin-bottom:10px;" />
+          <img src="theme-bulb.png" alt="Team features" loading="lazy" decoding="async" width="640" height="360" style="width:100%;height:auto;border-radius:12px;margin-bottom:10px;" />
           <h3>Create and manage teams</h3>
           <p>Share repeatable defaults across your workspace, such as branded watermarks or page number styles.</p>
         </article>
         <article class="feature-card">
-          <img src="favicon.svg" alt="Power tools upgrade" loading="lazy" style="width:96px;height:96px;margin-bottom:10px;" />
+          <img src="favicon.svg" alt="Power tools upgrade" loading="lazy" decoding="async" width="96" height="96" style="width:96px;height:96px;margin-bottom:10px;" />
           <h3>Power up your tools</h3>
           <p>Increase file limits, process bigger batches, remove ads, and unlock full tool access for heavy workflows.</p>
         </article>
         <article class="feature-card">
-          <img src="file-converters-logo.png" alt="Continuous product improvements" loading="lazy" style="width:100%;border-radius:12px;margin-bottom:10px;" />
+          <img src="file-converters-logo.png" alt="Continuous product improvements" loading="lazy" decoding="async" width="640" height="360" style="width:100%;height:auto;border-radius:12px;margin-bottom:10px;" />
           <h3>Always improving</h3>
           <p>Every challenge users face helps us improve Files Converter and build better document tools.</p>
         </article>
@@ -181,30 +160,7 @@
     </div>
     <div class="footer-copyline" data-i18n="footer.copyline">Copyright ©2026 fahad usman All Rights Reserved.</div>
   </footer>
-  <script>
-    (function () {
-      var THEME_KEY = "convertpro-theme";
-      function saveTheme(theme) {
-        try { localStorage.setItem(THEME_KEY, theme); }
-        catch (e) {}
-      }
-      function applyTheme(theme) {
-        if (theme !== "light" && theme !== "dark") return;
-        document.documentElement.setAttribute("data-theme", theme);
-        var btn = document.getElementById("themeBulb");
-        if (!btn) return;
-        btn.setAttribute("title", "Theme: " + (theme === "light" ? "Light" : "Dark"));
-        btn.setAttribute("aria-label", "Switch to " + (theme === "light" ? "dark" : "light") + " mode");
-      }
-      var btn = document.getElementById("themeBulb");
-      if (!btn) return;
-      btn.addEventListener("click", function () {
-        var next = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
-        applyTheme(next);
-        saveTheme(next);
-      });
-    })();
-  </script>
+  <script defer src="page-shell.js"></script>
   <script defer src="global-ui.js"></script>
 </body>
 </html>
