@@ -657,7 +657,7 @@ function toggleThemeWithSound() {
 function refreshPlan() {
   const crown = '<span class="iap-cta__icon" aria-hidden="true">👑</span> ';
   if (els.brandTitle) {
-    els.brandTitle.textContent = "File Converters";
+    els.brandTitle.textContent = "Files Converter";
   }
   if (els.brandCrown) els.brandCrown.classList.toggle("hidden", !state.isPremium);
   if (state.isPremium) {

@@ -57,6 +57,21 @@
     }).join("");
   }
 
+  function getPreferredLanguage() {
+    try {
+      var saved = localStorage.getItem("convertpro-language");
+      if (saved === "ru" || saved === "es" || saved === "en") return saved;
+    } catch (e) {}
+    var candidates = Array.isArray(navigator.languages) && navigator.languages.length
+      ? navigator.languages
+      : [navigator.language || "en"];
+    for (var i = 0; i < candidates.length; i += 1) {
+      var base = String(candidates[i] || "").toLowerCase().split("-")[0];
+      if (base === "ru" || base === "es") return base;
+    }
+    return "en";
+  }
+
   function ensureHeader() {
     var currentPath = window.location.pathname || "/";
     var header = document.querySelector(".topbar");
@@ -68,10 +83,10 @@
       var wrapper = document.createElement("header");
       wrapper.className = "topbar global-topbar glass-navbar";
       wrapper.innerHTML =
-        '<a href="/index.html" class="brand brand-link"><span class="brand-logo-wrap"><img class="brand-logo" src="/favicon-v2.png" alt="File Converters logo" /></span><span>File Converters</span></a>' +
+        '<a href="/index.html" class="brand brand-link"><span class="brand-logo-wrap"><img class="brand-logo" src="/favicon-v2.png" alt="Files Converter logo" /></span><span>Files Converter</span></a>' +
         '<nav class="topbar-nav">' + buildNav(currentPath) + "</nav>" +
         '<button type="button" class="nav-toggle" aria-expanded="false">Menu</button>' +
-        '<div class="topbar-controls"><button id="themeBulb" class="theme-toggle" type="button" aria-label="Switch to light mode" title="Theme: Dark"><span class="theme-toggle__track"><span class="theme-toggle__sun" aria-hidden="true">☀</span><span class="theme-toggle__knob" aria-hidden="true"><span class="theme-toggle__moon">☾</span></span></span></button></div>';
+        '<div class="topbar-controls"><select id="languageSelect" class="language-select" aria-label="Select language"><option value="en">English</option><option value="ru">Russian</option><option value="es">Spanish</option></select><button id="themeBulb" class="theme-toggle" type="button" aria-label="Switch to light mode" title="Theme: Dark"><span class="theme-toggle__track"><span class="theme-toggle__sun" aria-hidden="true">☀</span><span class="theme-toggle__knob" aria-hidden="true"><span class="theme-toggle__moon">☾</span></span></span></button></div>';
       if (existingHeader) {
         existingHeader.replaceWith(wrapper);
       } else {
@@ -83,7 +98,7 @@
     header.setAttribute("data-glass-navbar", "");
 
     var brandLabel = header.querySelector(".brand span:last-child");
-    if (brandLabel) brandLabel.textContent = "File Converters";
+    if (brandLabel) brandLabel.textContent = "Files Converter";
 
     var nav = header.querySelector(".topbar-nav");
     if (!nav) {
@@ -99,9 +114,14 @@
     if (!controls) {
       controls = document.createElement("div");
       controls.className = "topbar-controls";
-      controls.innerHTML = '<button id="themeBulb" class="theme-toggle" type="button" aria-label="Switch to light mode" title="Theme: Dark"><span class="theme-toggle__track"><span class="theme-toggle__sun" aria-hidden="true">☀</span><span class="theme-toggle__knob" aria-hidden="true"><span class="theme-toggle__moon">☾</span></span></span></button>';
+      controls.innerHTML = '<select id="languageSelect" class="language-select" aria-label="Select language"><option value="en">English</option><option value="ru">Russian</option><option value="es">Spanish</option></select><button id="themeBulb" class="theme-toggle" type="button" aria-label="Switch to light mode" title="Theme: Dark"><span class="theme-toggle__track"><span class="theme-toggle__sun" aria-hidden="true">☀</span><span class="theme-toggle__knob" aria-hidden="true"><span class="theme-toggle__moon">☾</span></span></span></button>';
       header.appendChild(controls);
     }
+    if (!controls.querySelector("#languageSelect") || !controls.querySelector("#themeBulb")) {
+      controls.innerHTML = '<select id="languageSelect" class="language-select" aria-label="Select language"><option value="en">English</option><option value="ru">Russian</option><option value="es">Spanish</option></select><button id="themeBulb" class="theme-toggle" type="button" aria-label="Switch to light mode" title="Theme: Dark"><span class="theme-toggle__track"><span class="theme-toggle__sun" aria-hidden="true">☀</span><span class="theme-toggle__knob" aria-hidden="true"><span class="theme-toggle__moon">☾</span></span></span></button>';
+    }
+    var languageSelect = controls.querySelector("#languageSelect");
+    if (languageSelect) languageSelect.value = getPreferredLanguage();
 
     if (controls && !header.querySelector(".nav-toggle")) {
       var btn = document.createElement("button");
