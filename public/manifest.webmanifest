@@ -1,0 +1,11 @@
+{
+  "name": "Files Converter",
+  "short_name": "FileConvert",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "description": "Fast online file converter for documents, images, audio, and video.",
+  "icons": []
+}

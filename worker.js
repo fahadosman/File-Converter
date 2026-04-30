@@ -4,6 +4,7 @@ const PADDLE_API_BASE = {
 };
 
 const ONE_YEAR = 31536000;
+const ONE_DAY = 86400;
 const QUERY_ALLOWLIST = new Set(["page", "lang", "v"]);
 const TRACKING_QUERY_PREFIXES = ["utm_", "fbclid", "gclid", "msclkid", "ref"];
 const STATIC_EXTENSIONS = new Set([
@@ -25,6 +26,18 @@ const STATIC_EXTENSIONS = new Set([
   "xml",
   "json",
   "pdf",
+]);
+const REDIRECTS = new Map([
+  ["/tools", "/tools.html"],
+  ["/about", "/about.html"],
+  ["/contact", "/contact.html"],
+  ["/features", "/features.html"],
+  ["/faq", "/faq.html"],
+  ["/privacy", "/privacy.html"],
+  ["/terms", "/terms.html"],
+  ["/security", "/security.html"],
+  ["/help", "/help.html"],
+  ["/blog", "/blog.html"],
 ]);
 
 function json(data, status = 200) {
@@ -83,6 +96,37 @@ function withCors(response) {
   return new Response(response.body, { status: response.status, headers });
 }
 
+function generateWeakEtag(pathname, lastModified) {
+  const source = `${pathname}:${lastModified || "na"}`;
+  let hash = 5381;
+  for (let i = 0; i < source.length; i += 1) {
+    hash = (hash * 33) ^ source.charCodeAt(i);
+  }
+  return `W/"${(hash >>> 0).toString(16)}"`;
+}
+
+function withSecurityHeaders(response, requestUrl) {
+  const url = new URL(requestUrl);
+  const headers = new Headers(response.headers);
+  headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("X-Frame-Options", "SAMEORIGIN");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  headers.set("Cross-Origin-Resource-Policy", "same-origin");
+  headers.set("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+  headers.set("X-Robots-Tag", "all");
+  headers.set("Alt-Svc", 'h3=":443"; ma=86400');
+  headers.set("Content-Security-Policy", "upgrade-insecure-requests; block-all-mixed-content");
+  if (isHtmlRoute(url.pathname)) {
+    headers.set(
+      "Content-Security-Policy",
+      "default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; block-all-mixed-content"
+    );
+  }
+  return new Response(response.body, { status: response.status, headers });
+}
+
 function withCacheHeaders(response, requestUrl, cacheState) {
   const url = new URL(requestUrl);
   const pathname = url.pathname;
@@ -92,14 +136,38 @@ function withCacheHeaders(response, requestUrl, cacheState) {
   headers.set("X-Edge-Cache", cacheState);
 
   if (isStaticAsset(pathname)) {
-    headers.set("Cache-Control", `public, max-age=${ONE_YEAR}, immutable`);
+    headers.set("Cache-Control", `public, max-age=${ONE_YEAR}, s-maxage=${ONE_YEAR}, immutable, stale-if-error=${ONE_DAY}`);
   } else if (isHtmlRoute(pathname)) {
-    headers.set("Cache-Control", "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400");
+    headers.set("Cache-Control", "public, max-age=60, s-maxage=3600, stale-while-revalidate=86400, stale-if-error=86400");
   } else {
-    headers.set("Cache-Control", "public, max-age=300, s-maxage=1800, stale-while-revalidate=3600");
+    headers.set("Cache-Control", "public, max-age=300, s-maxage=1800, stale-while-revalidate=3600, stale-if-error=3600");
+  }
+  headers.set("CDN-Cache-Control", headers.get("Cache-Control") || "");
+
+  const existingEtag = headers.get("etag");
+  if (!existingEtag) {
+    headers.set("ETag", generateWeakEtag(pathname, headers.get("last-modified")));
   }
 
   return new Response(response.body, { status: response.status, headers });
+}
+
+function isLikelyMissingAsset(pathname, response) {
+  if (!isStaticAsset(pathname)) return false;
+  if (!response.ok) return false;
+  const contentType = (response.headers.get("content-type") || "").toLowerCase();
+  return contentType.includes("text/html");
+}
+
+function getCanonicalRedirect(url) {
+  if (REDIRECTS.has(url.pathname)) {
+    return REDIRECTS.get(url.pathname);
+  }
+  if (url.pathname.startsWith("/tool/")) {
+    const slug = url.pathname.replace(/^\/tool\//, "").replace(/\/index\.html$/, "").replace(/\/$/, "");
+    if (slug) return `/tools/${slug}.html`;
+  }
+  return null;
 }
 
 async function paddleRequest(path, env, init = {}) {
@@ -161,6 +229,13 @@ async function verifyCheckout(request, env) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    const start = Date.now();
+    const requestId = crypto.randomUUID();
+
+    if (url.protocol === "http:") {
+      url.protocol = "https:";
+      return Response.redirect(url.toString(), 301);
+    }
 
     if (request.method === "OPTIONS") {
       return new Response(null, {
@@ -174,6 +249,11 @@ export default {
     }
 
     try {
+      if (url.pathname === "/api/rum" && request.method === "POST") {
+        const payload = await request.json().catch(() => ({}));
+        console.log(JSON.stringify({ level: "info", type: "rum", requestId, payload }));
+        return withCors(json({ ok: true }, 202));
+      }
       if (url.pathname === "/api/payments/paddle/checkout" && request.method === "POST") {
         return withCors(await createCheckout(request, env));
       }
@@ -184,11 +264,25 @@ export default {
         return withCors(json({ ok: true, service: "fileconverter-worker", ts: new Date().toISOString() }));
       }
     } catch (error) {
+      console.error(
+        JSON.stringify({
+          level: "error",
+          type: "api_exception",
+          requestId,
+          path: url.pathname,
+          message: error.message || "Request failed.",
+        })
+      );
       return withCors(json({ error: error.message || "Request failed." }, 500));
     }
 
+    const canonicalRedirect = getCanonicalRedirect(url);
+    if (canonicalRedirect) {
+      return Response.redirect(new URL(canonicalRedirect, `${url.protocol}//${url.host}`).toString(), 301);
+    }
+
     if (request.method !== "GET" || isApiPath(url.pathname)) {
-      return env.ASSETS.fetch(request);
+      return withSecurityHeaders(await env.ASSETS.fetch(request), request.url);
     }
 
     if (url.pathname === "/sitemap.xml" || url.pathname === "/robots.txt") {
@@ -196,13 +290,16 @@ export default {
       const text = await assetResponse.text();
       const host = `${url.protocol}//${url.host}`;
       const rewritten = text.replaceAll("https://fileconverter.pages.dev", host);
-      return withCacheHeaders(
+      return withSecurityHeaders(
+        withCacheHeaders(
         new Response(rewritten, {
           status: assetResponse.status,
           headers: assetResponse.headers,
         }),
         request.url,
         "BYPASS"
+        ),
+        request.url
       );
     }
 
@@ -210,16 +307,57 @@ export default {
     const cacheKeyRequest = new Request(normalizedUrl.toString(), request);
     const cache = caches.default;
     const cached = await cache.match(cacheKeyRequest);
-    if (cached) return withCacheHeaders(cached, normalizedUrl, "HIT");
+    if (cached) return withSecurityHeaders(withCacheHeaders(cached, normalizedUrl, "HIT"), request.url);
 
     const originResponse = await env.ASSETS.fetch(cacheKeyRequest);
+    if (isLikelyMissingAsset(url.pathname, originResponse)) {
+      return withSecurityHeaders(
+        new Response("Not Found", {
+          status: 404,
+          headers: { "content-type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=60" },
+        }),
+        request.url
+      );
+    }
     const cachable = originResponse.ok && !originResponse.headers.has("set-cookie");
-    const response = withCacheHeaders(originResponse, normalizedUrl, "MISS");
+    let response = withCacheHeaders(originResponse, normalizedUrl, "MISS");
 
     if (cachable) {
       ctx.waitUntil(cache.put(cacheKeyRequest, response.clone()));
     }
 
-    return response;
+    const elapsed = Date.now() - start;
+    const headers = new Headers(response.headers);
+    headers.set("Server-Timing", `edge;dur=${elapsed}`);
+    headers.set("X-Request-Id", requestId);
+    response = new Response(response.body, { status: response.status, headers });
+
+    if (response.status >= 500) {
+      console.error(
+        JSON.stringify({
+          level: "error",
+          type: "origin_5xx",
+          requestId,
+          path: url.pathname,
+          status: response.status,
+          elapsed,
+        })
+      );
+    }
+
+    if (response.status >= 400 && response.status < 500) {
+      console.warn(
+        JSON.stringify({
+          level: "warn",
+          type: "origin_4xx",
+          requestId,
+          path: url.pathname,
+          status: response.status,
+          elapsed,
+        })
+      );
+    }
+
+    return withSecurityHeaders(response, request.url);
   },
 };

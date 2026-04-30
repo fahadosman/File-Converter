@@ -524,8 +524,23 @@ function applyLanguage(language) {
 }
 
 function initLanguage() {
-  const browserLanguage = (navigator.language || "en").toLowerCase().split("-")[0];
-  applyLanguage(LOCALES[browserLanguage] ? browserLanguage : "en");
+  const saved = localStorage.getItem("convertpro-language");
+  if (saved && LOCALES[saved]) {
+    applyLanguage(saved);
+    return;
+  }
+  const candidates = Array.isArray(navigator.languages) && navigator.languages.length
+    ? navigator.languages
+    : [navigator.language || "en"];
+  let detected = "en";
+  for (const lang of candidates) {
+    const base = String(lang || "").toLowerCase().split("-")[0];
+    if (LOCALES[base]) {
+      detected = base;
+      break;
+    }
+  }
+  applyLanguage(detected);
 }
 
 function setStatus(message, type = "ok") {
@@ -636,7 +651,7 @@ function toggleThemeWithSound() {
   const nextTheme = state.theme === "dark" ? "light" : "dark";
   applyTheme(nextTheme);
   localStorage.setItem("convertpro-theme", nextTheme);
-  playThemeToggleSound(nextTheme === "light");
+  setTimeout(() => playThemeToggleSound(nextTheme === "light"), 0);
 }
 
 function refreshPlan() {
@@ -2568,6 +2583,7 @@ if (HAS_CONVERTER_APP) {
   if (els.languageSelect) {
     els.languageSelect.addEventListener("change", (event) => {
       applyLanguage(event.target.value);
+      localStorage.setItem("convertpro-language", state.language);
       setStatus(t("status.ready"));
     });
   }

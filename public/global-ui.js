@@ -59,7 +59,6 @@
 
   function ensureHeader() {
     var currentPath = window.location.pathname || "/";
-    var isHome = currentPath === "/" || currentPath === "/index.html";
     var header = document.querySelector(".topbar");
     if (!header) {
       var existingHeader = document.querySelector("header");
@@ -97,9 +96,7 @@
     nav.innerHTML = buildNav(currentPath);
 
     var controls = header.querySelector(".topbar-controls");
-    if (controls && !isHome) {
-      controls.remove();
-    } else if (isHome && !controls) {
+    if (!controls) {
       controls = document.createElement("div");
       controls.className = "topbar-controls";
       controls.innerHTML = '<button id="themeBulb" class="theme-toggle" type="button" aria-label="Switch to light mode" title="Theme: Dark"><span class="theme-toggle__track"><span class="theme-toggle__sun" aria-hidden="true">☀</span><span class="theme-toggle__knob" aria-hidden="true"><span class="theme-toggle__moon">☾</span></span></span></button>';
@@ -120,8 +117,25 @@
     }
   }
 
+  function ensureFooter() {
+    var footer = document.querySelector(".site-footer");
+    if (footer) return;
+    footer = document.createElement("footer");
+    footer.className = "site-footer";
+    footer.innerHTML =
+      '<div class="footer-grid footer-grid--clean">' +
+      '<section class="footer-col footer-col--brand"><h4>Files Converter</h4><p class="footer-tagline">Fast, secure, and simple document tools built to save your time.</p></section>' +
+      '<section class="footer-col"><h4>Product</h4><a href="/index.html">Home</a><a href="/features.html">Features</a><a href="/tools.html">Tools</a><a href="/faq.html">FAQ</a></section>' +
+      '<section class="footer-col"><h4>Legal</h4><a href="/security.html">Security</a><a href="/privacy.html">Privacy policy</a><a href="/terms.html">Terms &amp; conditions</a></section>' +
+      '<section class="footer-col"><h4>Company</h4><a href="/about.html">About us</a><a href="/contact.html">Contact us</a></section>' +
+      "</div>" +
+      '<div class="footer-copyline">Copyright ©2026 fahad usman All Rights Reserved.</div>';
+    document.body.appendChild(footer);
+  }
+
   function boot() {
     ensureHeader();
+    ensureFooter();
     initTheme();
     if ((window.location.pathname || "").indexOf("/tools/") === 0) {
       var script = document.createElement("script");
