@@ -83,7 +83,7 @@
       var wrapper = document.createElement("header");
       wrapper.className = "topbar global-topbar glass-navbar";
       wrapper.innerHTML =
-        '<a href="/index.html" class="brand brand-link"><span class="brand-logo-wrap"><img class="brand-logo" src="/favicon-v2.png" alt="Files Converter logo" /></span><span>Files Converter</span></a>' +
+        '<a href="/index.html" class="brand brand-link"><span class="brand-logo-wrap"><img class="brand-logo" src="/logo-v2.png" alt="Files Converter logo" /></span><span>Files Converter</span></a>' +
         '<nav class="topbar-nav">' + buildNav(currentPath) + "</nav>" +
         '<button type="button" class="nav-toggle" aria-expanded="false">Menu</button>' +
         '<div class="topbar-controls"><select id="languageSelect" class="language-select" aria-label="Select language"><option value="en">English</option><option value="ru">Russian</option><option value="es">Spanish</option></select><button id="themeBulb" class="theme-toggle" type="button" aria-label="Switch to light mode" title="Theme: Dark"><span class="theme-toggle__track"><span class="theme-toggle__sun" aria-hidden="true">☀</span><span class="theme-toggle__knob" aria-hidden="true"><span class="theme-toggle__moon">☾</span></span></span></button></div>';
@@ -171,3 +171,4 @@
     boot();
   }
 })();
+

@@ -30,7 +30,7 @@ function articleHtml(article) {
   <meta property="og:title" content="${article.title}" />
   <meta property="og:description" content="${article.description}" />
   <meta property="og:url" content="${canonicalUrl}" />
-  <meta property="og:image" content="https://filesconverter.org/favicon-v2.png" />
+  <meta property="og:image" content="https://filesconverter.org/logo-v2.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${article.title}" />
   <meta name="twitter:description" content="${article.description}" />
@@ -88,3 +88,4 @@ function generate() {
 }
 
 generate();
+

@@ -1,4 +1,4 @@
-﻿const FREE_LIMIT = 5;
+const FREE_LIMIT = 5;
 const PREMIUM_OVERRIDE_KEY = "convertpro-premium-override";
 const USAGE_COUNT_KEY = "convertpro-usage-count-persist";
 const THEME_KEY = "convertpro-theme";
