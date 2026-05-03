@@ -27,6 +27,11 @@ const STATIC_EXTENSIONS = new Set([
   "json",
   "pdf",
 ]);
+/** Matches client FREE_LIMIT in public/script.js — edge usage session (cookie-backed). */
+const USAGE_FREE_LIMIT = 5;
+const USAGE_COOKIE_COUNT = "fc_usage";
+const USAGE_COOKIE_PREMIUM = "fc_pm";
+
 const REDIRECTS = new Map([
   ["/tools", "/tools.html"],
   ["/about", "/about.html"],
@@ -46,6 +51,54 @@ function json(data, status = 200) {
     status,
     headers: { "content-type": "application/json; charset=utf-8" },
   });
+}
+
+function getCookie(request, name) {
+  const raw = request.headers.get("Cookie") || "";
+  const prefix = `${name}=`;
+  const parts = raw.split(";").map((s) => s.trim());
+  for (const p of parts) {
+    if (p.startsWith(prefix)) {
+      try {
+        return decodeURIComponent(p.slice(prefix.length));
+      } catch (e) {
+        return "";
+      }
+    }
+  }
+  return "";
+}
+
+function parseUsageCount(request) {
+  const v = getCookie(request, USAGE_COOKIE_COUNT);
+  const n = parseInt(String(v || "0"), 10);
+  if (!Number.isFinite(n) || n < 0) return 0;
+  return Math.min(n, 1_000_000);
+}
+
+function usageSessionPayload(request) {
+  const isPremium = getCookie(request, USAGE_COOKIE_PREMIUM) === "1";
+  const usageCount = parseUsageCount(request);
+  return { usageCount, isPremium };
+}
+
+function handleUsageConsume(request) {
+  const isPremium = getCookie(request, USAGE_COOKIE_PREMIUM) === "1";
+  let usageCount = parseUsageCount(request);
+  if (isPremium) {
+    return withCors(json({ usageCount, isPremium: true }));
+  }
+  if (usageCount >= USAGE_FREE_LIMIT) {
+    return withCors(json({ usageCount, isPremium: false, error: "limit" }, 403));
+  }
+  usageCount += 1;
+  const body = JSON.stringify({ usageCount, isPremium: false });
+  const headers = new Headers({ "content-type": "application/json; charset=utf-8" });
+  headers.append(
+    "Set-Cookie",
+    `${USAGE_COOKIE_COUNT}=${usageCount}; Path=/; Max-Age=${ONE_YEAR}; Secure; SameSite=Lax`
+  );
+  return withCors(new Response(body, { status: 200, headers }));
 }
 
 function buildPaddleApiBase(env) {
@@ -305,11 +358,21 @@ async function verifyCheckout(request, env) {
     return json({ isPremium: false, status: "skipped_invalid_id", transactionId: null });
   }
 
-  const payload = await paddleRequest(`/transactions/${encodeURIComponent(transactionId)}`, env);
-  const data = payload && payload.data;
+  const apiPayload = await paddleRequest(`/transactions/${encodeURIComponent(transactionId)}`, env);
+  const data = apiPayload && apiPayload.data;
   const status = String((data && data.status) || "").toLowerCase();
   const isPremium = isTransactionPaid(data);
-  return json({ isPremium, status, transactionId });
+  const verifyBody = { isPremium, status, transactionId };
+  if (isPremium) {
+    const res = json(verifyBody);
+    const headers = new Headers(res.headers);
+    headers.append(
+      "Set-Cookie",
+      `${USAGE_COOKIE_PREMIUM}=1; Path=/; Max-Age=${ONE_YEAR}; Secure; SameSite=Lax`
+    );
+    return new Response(res.body, { status: res.status, headers });
+  }
+  return json(verifyBody);
 }
 
 export default {
@@ -348,6 +411,15 @@ export default {
       }
       if (url.pathname === "/api/health" && request.method === "GET") {
         return withCors(json({ ok: true, service: "fileconverter-worker", ts: new Date().toISOString() }));
+      }
+      if (url.pathname === "/api/usage/session/start" && request.method === "POST") {
+        return withCors(json(usageSessionPayload(request)));
+      }
+      if (url.pathname === "/api/usage/session/status" && request.method === "GET") {
+        return withCors(json(usageSessionPayload(request)));
+      }
+      if (url.pathname === "/api/usage/session/consume" && request.method === "POST") {
+        return handleUsageConsume(request);
       }
     } catch (error) {
       console.error(
