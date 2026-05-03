@@ -37,10 +37,12 @@
     }
 
     openerNodes.forEach((node) => {
+      if (!node || typeof node.addEventListener !== "function") return;
       node.addEventListener("click", () => openModalById(node.getAttribute("data-glass-open-modal")));
     });
 
     closers.forEach((node) => {
+      if (!node || typeof node.addEventListener !== "function") return;
       node.addEventListener("click", () => closeModal(node.closest(".glass-modal")));
     });
 
