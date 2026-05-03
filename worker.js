@@ -299,6 +299,9 @@ async function verifyCheckout(request, env) {
   const body = await request.json().catch(() => ({}));
   const transactionId = String(body.transactionId || "").trim();
   if (!transactionId) return json({ error: "transactionId is required." }, 400);
+  if (!/^txn_[0-9a-z]{8,}$/i.test(transactionId)) {
+    return json({ error: "Invalid transaction id. Expected a Paddle transaction id (txn_…)." }, 400);
+  }
 
   const payload = await paddleRequest(`/transactions/${encodeURIComponent(transactionId)}`, env);
   const data = payload && payload.data;

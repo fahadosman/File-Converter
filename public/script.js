@@ -856,6 +856,11 @@ function clearPendingDownload(message = t("download.waiting")) {
   els.downloadInfo.textContent = message;
 }
 
+/** Paddle Billing transaction ids always use the txn_ prefix (avoid bogus query params hitting the API). */
+function isPaddleTransactionId(value) {
+  return /^txn_[0-9a-z]{8,}$/i.test(String(value || "").trim());
+}
+
 function startPaddleCheckout() {
   if (!SECURITY_API_BASE) {
     setStatus(t("error.paymentInitFailed"), "error");
@@ -897,12 +902,16 @@ async function syncPaymentFromReturn() {
       hashParams.get("transaction_id") ||
       params.get("_ptxn") ||
       hashParams.get("_ptxn");
-    if (!state.isPremium && transactionId) {
+    const trimmedId = String(transactionId || "").trim();
+    if (!state.isPremium && trimmedId && !isPaddleTransactionId(trimmedId)) {
+      console.warn("[payment] Ignoring non-Paddle transaction id in URL (prevents verify errors).", trimmedId);
+    }
+    if (!state.isPremium && trimmedId && isPaddleTransactionId(trimmedId) && SECURITY_API_BASE) {
       const verifyResponse = await fetch(`${SECURITY_API_BASE}/api/payments/paddle/verify`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ transactionId }),
+        body: JSON.stringify({ transactionId: trimmedId }),
       });
       const verifyPayload = await verifyResponse.json().catch(() => ({}));
       if (!verifyResponse.ok) throw new Error(verifyPayload.error || t("error.paymentVerifyFailed"));
@@ -925,7 +934,11 @@ async function syncPaymentFromReturn() {
     window.history.replaceState({}, "", clean);
     applyRoute();
   } catch (error) {
-    setStatus(error.message || t("error.paymentVerifyFailed"), "error");
+    const raw = String(error.message || "");
+    if (/URL called is invalid/i.test(raw)) {
+      console.warn("[payment] Paddle verify returned invalid_url — usually a bad transaction id in the return URL.", raw);
+    }
+    setStatus(raw || t("error.paymentVerifyFailed"), "error");
   }
 }
 
