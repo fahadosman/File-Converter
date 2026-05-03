@@ -870,7 +870,13 @@ function startPaddleCheckout() {
   })
     .then(async (response) => {
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.error || t("error.paymentInitFailed"));
+      if (!response.ok) {
+        const parts = [payload.error, payload.hint].filter(Boolean);
+        const msg = parts.length ? parts.join(" — ") : t("error.paymentInitFailed");
+        const err = new Error(msg);
+        if (payload.checkoutOrigin) err.checkoutOrigin = payload.checkoutOrigin;
+        throw err;
+      }
       if (!payload.url) throw new Error("Unable to start checkout. Missing checkout URL.");
       window.location.assign(payload.url);
     })

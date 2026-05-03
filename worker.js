@@ -227,6 +227,26 @@ async function paddleRequest(path, env, init = {}) {
   return payload;
 }
 
+/** Public https origin for post-checkout redirect; must match a Paddle-approved checkout domain. */
+function resolveAppBaseUrl(request, env) {
+  const configured = String(env.APP_BASE_URL || "").trim().replace(/\/$/, "");
+  if (configured) return configured;
+
+  const url = new URL(request.url);
+  const hostHeader = (request.headers.get("Host") || "").split(":")[0].trim();
+  const host = hostHeader || url.hostname;
+  const proto =
+    (request.headers.get("X-Forwarded-Proto") || "").split(",")[0].trim().toLowerCase() ||
+    (url.protocol === "https:" ? "https" : "http");
+  const scheme = proto === "https" || proto === "http" ? proto : url.protocol === "https:" ? "https" : "http";
+  if (host) return `${scheme}://${host}`;
+  return String(url.origin).replace(/\/$/, "");
+}
+
+function isPaddleCheckoutDomainError(message) {
+  return /approved by Paddle|checkout\.url/i.test(String(message || ""));
+}
+
 async function createCheckout(request, env) {
   const body = await request.json().catch(() => ({}));
   const priceId = String(body.priceId || env.PADDLE_PRICE_ID || "").trim();
@@ -236,18 +256,35 @@ async function createCheckout(request, env) {
   const customData = { source: "file-converter-web" };
   if (productId) customData.product_id = productId;
 
-  const appBaseUrl = String(env.APP_BASE_URL || new URL(request.url).origin).replace(/\/$/, "");
+  const appBaseUrl = resolveAppBaseUrl(request, env);
   const successUrl = `${appBaseUrl}/?transaction_id={transaction_id}`;
 
-  const payload = await paddleRequest("/transactions", env, {
-    method: "POST",
-    body: JSON.stringify({
-      items: [{ price_id: priceId, quantity: 1 }],
-      collection_mode: "automatic",
-      custom_data: customData,
-      checkout: { url: successUrl },
-    }),
-  });
+  let payload;
+  try {
+    payload = await paddleRequest("/transactions", env, {
+      method: "POST",
+      body: JSON.stringify({
+        items: [{ price_id: priceId, quantity: 1 }],
+        collection_mode: "automatic",
+        custom_data: customData,
+        checkout: { url: successUrl },
+      }),
+    });
+  } catch (error) {
+    const msg = String(error.message || "Paddle request failed.");
+    if (isPaddleCheckoutDomainError(msg)) {
+      return json(
+        {
+          error: msg,
+          hint:
+            "In Paddle Billing, open Checkout / payment links settings and add this exact hostname to approved domains (or your default payment link allowed domains). Set Worker secret APP_BASE_URL to your public site origin with no trailing slash, e.g. https://filesconverter.org — use the same host users see in the browser (www vs non-www must match).",
+          checkoutOrigin: appBaseUrl,
+        },
+        400
+      );
+    }
+    throw error;
+  }
 
   const data = payload && payload.data;
   const checkoutUrl = data && data.checkout && data.checkout.url;
