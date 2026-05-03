@@ -170,6 +170,42 @@ function getCanonicalRedirect(url) {
   return null;
 }
 
+/** Human-readable message from Paddle Billing API error payloads. */
+function formatPaddleError(payload) {
+  const err = payload && payload.error;
+  if (!err) return "Paddle request failed.";
+  if (typeof err === "string") return err;
+  const detail = err.detail;
+  if (Array.isArray(detail)) {
+    const parts = detail.map((d) => {
+      if (!d || typeof d !== "object") return String(d);
+      return d.description || d.message || d.title || d.code || JSON.stringify(d);
+    });
+    const joined = parts.filter(Boolean).join("; ");
+    if (joined) return joined;
+  }
+  if (typeof detail === "string" && detail) return detail;
+  if (err.message && typeof err.message === "string") return err.message;
+  if (err.code && typeof err.code === "string") return err.code;
+  try {
+    return JSON.stringify(err);
+  } catch (e) {
+    return "Paddle request failed.";
+  }
+}
+
+/** True when Paddle considers the transaction successfully collected (Billing API v2). */
+function isTransactionPaid(data) {
+  if (!data || typeof data !== "object") return false;
+  const status = String(data.status || "").toLowerCase();
+  if (status === "completed" || status === "billed" || status === "paid") return true;
+  const payments = Array.isArray(data.payments) ? data.payments : [];
+  return payments.some((p) => {
+    const ps = String(p && p.status ? p.status : "").toLowerCase();
+    return ps === "captured" || ps === "completed" || ps === "paid";
+  });
+}
+
 async function paddleRequest(path, env, init = {}) {
   if (!env.PADDLE_API_KEY) {
     throw new Error("PADDLE_API_KEY is not configured.");
@@ -186,43 +222,50 @@ async function paddleRequest(path, env, init = {}) {
   });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const message = payload?.error?.detail || payload?.error || "Paddle request failed.";
-    throw new Error(message);
+    throw new Error(formatPaddleError(payload));
   }
   return payload;
 }
 
 async function createCheckout(request, env) {
   const body = await request.json().catch(() => ({}));
-  const priceId = body.priceId || env.PADDLE_PRICE_ID;
+  const priceId = String(body.priceId || env.PADDLE_PRICE_ID || "").trim();
   if (!priceId) return json({ error: "PADDLE_PRICE_ID is not configured." }, 500);
 
-  const appBaseUrl = env.APP_BASE_URL || new URL(request.url).origin;
+  const productId = String(body.productId || env.PADDLE_PRODUCT_ID || "").trim();
+  const customData = { source: "file-converter-web" };
+  if (productId) customData.product_id = productId;
+
+  const appBaseUrl = String(env.APP_BASE_URL || new URL(request.url).origin).replace(/\/$/, "");
   const successUrl = `${appBaseUrl}/?transaction_id={transaction_id}`;
 
   const payload = await paddleRequest("/transactions", env, {
     method: "POST",
     body: JSON.stringify({
       items: [{ price_id: priceId, quantity: 1 }],
-      custom_data: { source: "file-converter-web" },
+      collection_mode: "automatic",
+      custom_data: customData,
       checkout: { url: successUrl },
     }),
   });
 
-  const transaction = payload?.data || {};
-  const checkoutUrl = transaction?.checkout?.url;
+  const data = payload && payload.data;
+  const checkoutUrl = data && data.checkout && data.checkout.url;
   if (!checkoutUrl) return json({ error: "Paddle checkout URL was not returned." }, 502);
-  return json({ url: checkoutUrl, transactionId: transaction.id });
+  const transactionId = data && data.id;
+  if (!transactionId) return json({ error: "Paddle transaction id was not returned." }, 502);
+  return json({ url: checkoutUrl, transactionId });
 }
 
 async function verifyCheckout(request, env) {
   const body = await request.json().catch(() => ({}));
-  const transactionId = body.transactionId;
+  const transactionId = String(body.transactionId || "").trim();
   if (!transactionId) return json({ error: "transactionId is required." }, 400);
 
   const payload = await paddleRequest(`/transactions/${encodeURIComponent(transactionId)}`, env);
-  const status = String(payload?.data?.status || "").toLowerCase();
-  const isPremium = status === "paid" || status === "completed";
+  const data = payload && payload.data;
+  const status = String((data && data.status) || "").toLowerCase();
+  const isPremium = isTransactionPaid(data);
   return json({ isPremium, status, transactionId });
 }
 
@@ -281,83 +324,115 @@ export default {
       return Response.redirect(new URL(canonicalRedirect, `${url.protocol}//${url.host}`).toString(), 301);
     }
 
-    if (request.method !== "GET" || isApiPath(url.pathname)) {
-      return withSecurityHeaders(await env.ASSETS.fetch(request), request.url);
-    }
+    try {
+      if (request.method !== "GET" || isApiPath(url.pathname)) {
+        return withSecurityHeaders(await env.ASSETS.fetch(request), request.url);
+      }
 
-    if (url.pathname === "/sitemap.xml" || url.pathname === "/robots.txt") {
-      const assetResponse = await env.ASSETS.fetch(request);
-      const text = await assetResponse.text();
-      const host = `${url.protocol}//${url.host}`;
-      const rewritten = text.replaceAll("https://fileconverter.pages.dev", host);
-      return withSecurityHeaders(
-        withCacheHeaders(
-        new Response(rewritten, {
-          status: assetResponse.status,
-          headers: assetResponse.headers,
-        }),
-        request.url,
-        "BYPASS"
-        ),
-        request.url
-      );
-    }
+      if (url.pathname === "/sitemap.xml" || url.pathname === "/robots.txt") {
+        const assetResponse = await env.ASSETS.fetch(request);
+        const text = await assetResponse.text();
+        const host = `${url.protocol}//${url.host}`;
+        const rewritten = text.replaceAll("https://fileconverter.pages.dev", host);
+        return withSecurityHeaders(
+          withCacheHeaders(
+            new Response(rewritten, {
+              status: assetResponse.status,
+              headers: assetResponse.headers,
+            }),
+            request.url,
+            "BYPASS"
+          ),
+          request.url
+        );
+      }
 
-    const normalizedUrl = normalizeCacheUrl(url);
-    const cacheKeyRequest = new Request(normalizedUrl.toString(), request);
-    const cache = caches.default;
-    const cached = await cache.match(cacheKeyRequest);
-    if (cached) return withSecurityHeaders(withCacheHeaders(cached, normalizedUrl, "HIT"), request.url);
+      const normalizedUrl = normalizeCacheUrl(url);
+      const cacheKeyRequest = new Request(normalizedUrl.toString(), request);
+      const cache = caches.default;
+      const cached = await cache.match(cacheKeyRequest);
+      if (cached) return withSecurityHeaders(withCacheHeaders(cached, normalizedUrl, "HIT"), request.url);
 
-    const originResponse = await env.ASSETS.fetch(cacheKeyRequest);
-    if (isLikelyMissingAsset(url.pathname, originResponse)) {
-      return withSecurityHeaders(
-        new Response("Not Found", {
-          status: 404,
-          headers: { "content-type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=60" },
-        }),
-        request.url
-      );
-    }
-    const cachable = originResponse.ok && !originResponse.headers.has("set-cookie");
-    let response = withCacheHeaders(originResponse, normalizedUrl, "MISS");
+      const originResponse = await env.ASSETS.fetch(cacheKeyRequest);
+      if (isLikelyMissingAsset(url.pathname, originResponse)) {
+        return withSecurityHeaders(
+          new Response("Not Found", {
+            status: 404,
+            headers: { "content-type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=60" },
+          }),
+          request.url
+        );
+      }
+      const cachable = originResponse.ok && !originResponse.headers.has("set-cookie");
+      let response = withCacheHeaders(originResponse, normalizedUrl, "MISS");
 
-    if (cachable) {
-      ctx.waitUntil(cache.put(cacheKeyRequest, response.clone()));
-    }
+      if (cachable) {
+        ctx.waitUntil(
+          cache.put(cacheKeyRequest, response.clone()).catch((err) => {
+            console.error(
+              JSON.stringify({
+                level: "error",
+                type: "cache_put_failed",
+                requestId,
+                path: url.pathname,
+                message: err && err.message ? err.message : String(err),
+              })
+            );
+          })
+        );
+      }
 
-    const elapsed = Date.now() - start;
-    const headers = new Headers(response.headers);
-    headers.set("Server-Timing", `edge;dur=${elapsed}`);
-    headers.set("X-Request-Id", requestId);
-    response = new Response(response.body, { status: response.status, headers });
+      const elapsed = Date.now() - start;
+      const headers = new Headers(response.headers);
+      headers.set("Server-Timing", `edge;dur=${elapsed}`);
+      headers.set("X-Request-Id", requestId);
+      response = new Response(response.body, { status: response.status, headers });
 
-    if (response.status >= 500) {
+      if (response.status >= 500) {
+        console.error(
+          JSON.stringify({
+            level: "error",
+            type: "origin_5xx",
+            requestId,
+            path: url.pathname,
+            status: response.status,
+            elapsed,
+          })
+        );
+      }
+
+      if (response.status >= 400 && response.status < 500) {
+        console.warn(
+          JSON.stringify({
+            level: "warn",
+            type: "origin_4xx",
+            requestId,
+            path: url.pathname,
+            status: response.status,
+            elapsed,
+          })
+        );
+      }
+
+      return withSecurityHeaders(response, request.url);
+    } catch (error) {
       console.error(
         JSON.stringify({
           level: "error",
-          type: "origin_5xx",
+          type: "asset_route_exception",
           requestId,
           path: url.pathname,
-          status: response.status,
-          elapsed,
+          message: error.message || "Request failed.",
         })
       );
+      return new Response("Service temporarily unavailable.", {
+        status: 503,
+        headers: {
+          "content-type": "text/plain; charset=utf-8",
+          "cache-control": "no-store",
+          "X-Request-Id": requestId,
+        },
+      });
     }
-
-    if (response.status >= 400 && response.status < 500) {
-      console.warn(
-        JSON.stringify({
-          level: "warn",
-          type: "origin_4xx",
-          requestId,
-          path: url.pathname,
-          status: response.status,
-          elapsed,
-        })
-      );
-    }
-
-    return withSecurityHeaders(response, request.url);
   },
 };

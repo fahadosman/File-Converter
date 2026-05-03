@@ -3,6 +3,7 @@ const PREMIUM_OVERRIDE_KEY = "convertpro-premium-override";
 const USAGE_COUNT_KEY = "convertpro-usage-count-persist";
 const LOCALES = window.APP_LOCALES || {};
 const PADDLE_PRICE_ID = "pri_01kpzq1hxhq4vxpjzsa0yn6vdj";
+const PADDLE_PRODUCT_ID = "pro_01kpzq091w8qwadsgs3462rc8f";
 const LOCAL_HOSTS = new Set(["", "localhost", "127.0.0.1"]);
 const SECURITY_API_BASE =
   window.__PAYMENTS_API_BASE__ ||
@@ -856,12 +857,16 @@ function clearPendingDownload(message = t("download.waiting")) {
 }
 
 function startPaddleCheckout() {
+  if (!SECURITY_API_BASE) {
+    setStatus(t("error.paymentInitFailed"), "error");
+    return;
+  }
   setStatus(t("status.paymentInit"), "busy");
   fetch(`${SECURITY_API_BASE}/api/payments/paddle/checkout`, {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ priceId: PADDLE_PRICE_ID }),
+    body: JSON.stringify({ priceId: PADDLE_PRICE_ID, productId: PADDLE_PRODUCT_ID }),
   })
     .then(async (response) => {
       const payload = await response.json().catch(() => ({}));
@@ -881,7 +886,11 @@ async function syncPaymentFromReturn() {
     const hashQuery = hash.includes("?") ? hash.split("?")[1] : "";
     const hashParams = new URLSearchParams(hashQuery);
 
-    const transactionId = params.get("transaction_id") || hashParams.get("transaction_id");
+    const transactionId =
+      params.get("transaction_id") ||
+      hashParams.get("transaction_id") ||
+      params.get("_ptxn") ||
+      hashParams.get("_ptxn");
     if (!state.isPremium && transactionId) {
       const verifyResponse = await fetch(`${SECURITY_API_BASE}/api/payments/paddle/verify`, {
         method: "POST",
@@ -903,6 +912,8 @@ async function syncPaymentFromReturn() {
 
     params.delete("transaction_id");
     hashParams.delete("transaction_id");
+    params.delete("_ptxn");
+    hashParams.delete("_ptxn");
     const cleanHash = hashParams.toString() ? `#/?${hashParams.toString()}` : "";
     const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${cleanHash}`;
     window.history.replaceState({}, "", clean);
