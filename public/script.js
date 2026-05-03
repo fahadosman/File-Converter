@@ -856,9 +856,9 @@ function clearPendingDownload(message = t("download.waiting")) {
   els.downloadInfo.textContent = message;
 }
 
-/** Paddle Billing transaction ids always use the txn_ prefix (avoid bogus query params hitting the API). */
+/** Paddle Billing transaction ids use the txn_ prefix + alphanumeric suffix (avoid bogus URL params). */
 function isPaddleTransactionId(value) {
-  return /^txn_[0-9a-z]{8,}$/i.test(String(value || "").trim());
+  return /^txn_[0-9a-z]{4,}$/i.test(String(value || "").trim());
 }
 
 function startPaddleCheckout() {

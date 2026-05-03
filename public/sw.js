@@ -1,4 +1,4 @@
-const CACHE_VERSION = "fc-v1";
+const CACHE_VERSION = "fc-v2";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const PRECACHE_URLS = ["/", "/index.html", "/tools.html", "/styles.min.css", "/app-loader.js", "/offline.html"];

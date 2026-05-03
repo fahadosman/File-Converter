@@ -299,8 +299,10 @@ async function verifyCheckout(request, env) {
   const body = await request.json().catch(() => ({}));
   const transactionId = String(body.transactionId || "").trim();
   if (!transactionId) return json({ error: "transactionId is required." }, 400);
-  if (!/^txn_[0-9a-z]{8,}$/i.test(transactionId)) {
-    return json({ error: "Invalid transaction id. Expected a Paddle transaction id (txn_…)." }, 400);
+  // Paddle Billing ids are txn_ + alphanumeric (see Paddle ID reference). Reject garbage without 400 so
+  // older cached clients do not show an error toast when the return URL has a placeholder or junk param.
+  if (!/^txn_[0-9a-z]{4,}$/i.test(transactionId)) {
+    return json({ isPremium: false, status: "skipped_invalid_id", transactionId: null });
   }
 
   const payload = await paddleRequest(`/transactions/${encodeURIComponent(transactionId)}`, env);
