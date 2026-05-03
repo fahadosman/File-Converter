@@ -7,10 +7,10 @@ directory = "./public"
 not_found_handling = "single-page-application"
 
 # Secrets (wrangler secret put): PADDLE_API_KEY — API key for the matching PADDLE_ENV.
-# Strongly recommended: APP_BASE_URL = your live origin, no trailing slash, e.g. https://filesconverter.org
-#   Must match Paddle’s approved checkout / default payment link domain (same host as in the browser; www vs apex).
+# APP_BASE_URL: origin used in Paddle checkout.url (must be allowlisted in Paddle). Override via secret if needed.
 # Optional secrets: PADDLE_PRICE_ID (override catalog price).
 [vars]
 PADDLE_ENV = "live"
+APP_BASE_URL = "https://filesconverter.org"
 PADDLE_PRICE_ID = "pri_01kpzq1hxhq4vxpjzsa0yn6vdj"
 PADDLE_PRODUCT_ID = "pro_01kpzq091w8qwadsgs3462rc8f"
