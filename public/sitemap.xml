@@ -46,6 +46,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://filesconverter.org/refund.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://filesconverter.org/terms.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

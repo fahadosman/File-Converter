@@ -38,6 +38,7 @@ const REDIRECTS = new Map([
   ["/security", "/security.html"],
   ["/help", "/help.html"],
   ["/blog", "/blog.html"],
+  ["/refund", "/refund.html"],
 ]);
 
 function json(data, status = 200) {
