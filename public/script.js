@@ -861,6 +861,11 @@ function isPaddleTransactionId(value) {
   return /^txn_[0-9a-z]{4,}$/i.test(String(value || "").trim());
 }
 
+/** Success URL still has literal `{transaction_id}` when Paddle substitution was not configured — not an error. */
+function isPaddleReturnUrlPlaceholder(value) {
+  return /^\{[^}]+\}$/.test(String(value || "").trim());
+}
+
 function startPaddleCheckout() {
   if (!SECURITY_API_BASE) {
     setStatus(t("error.paymentInitFailed"), "error");
@@ -903,7 +908,7 @@ async function syncPaymentFromReturn() {
       params.get("_ptxn") ||
       hashParams.get("_ptxn");
     const trimmedId = String(transactionId || "").trim();
-    if (!state.isPremium && trimmedId && !isPaddleTransactionId(trimmedId)) {
+    if (!state.isPremium && trimmedId && !isPaddleTransactionId(trimmedId) && !isPaddleReturnUrlPlaceholder(trimmedId)) {
       console.warn("[payment] Ignoring non-Paddle transaction id in URL (prevents verify errors).", trimmedId);
     }
     if (!state.isPremium && trimmedId && isPaddleTransactionId(trimmedId) && SECURITY_API_BASE) {
