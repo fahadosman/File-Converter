@@ -146,7 +146,7 @@
       '<div class="footer-grid footer-grid--clean">' +
       '<section class="footer-col footer-col--brand"><h4>Files Converter</h4><p class="footer-tagline">Fast, secure, and simple document tools built to save your time.</p></section>' +
       '<section class="footer-col"><h4>Product</h4><a href="/index.html">Home</a><a href="/features.html">Features</a><a href="/tools.html">Tools</a><a href="/faq.html">FAQ</a></section>' +
-      '<section class="footer-col"><h4>Legal</h4><a href="/security.html">Security</a><a href="/privacy.html">Privacy policy</a><a href="/terms.html">Terms &amp; conditions</a><a href="/refund.html">Refund policy</a></section>' +
+      '<section class="footer-col"><h4>Legal</h4><a href="/terms.html">Terms &amp; conditions</a><a href="/privacy.html">Privacy policy</a><a href="/refund.html">Refund policy</a><a href="/security.html">Security</a></section>' +
       '<section class="footer-col"><h4>Company</h4><a href="/about.html">About us</a><a href="/contact.html">Contact us</a></section>' +
       "</div>" +
       '<div class="footer-copyline">Copyright ©2026 fahad usman All Rights Reserved.</div>';

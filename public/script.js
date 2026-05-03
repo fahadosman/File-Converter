@@ -2,8 +2,8 @@ const FREE_LIMIT = 5;
 const PREMIUM_OVERRIDE_KEY = "convertpro-premium-override";
 const USAGE_COUNT_KEY = "convertpro-usage-count-persist";
 const LOCALES = window.APP_LOCALES || {};
-const PADDLE_PRICE_ID = "pri_01kpzq1hxhq4vxpjzsa0yn6vdj";
-const PADDLE_PRODUCT_ID = "pro_01kpzq091w8qwadsgs3462rc8f";
+const PADDLE_PRICE_ID = "pri_01kqpmbpz27fa1aa82dfkfywd5";
+const PADDLE_PRODUCT_ID = "pro_01kqpm80qy2vgyb676wt1cwq5t";
 const LOCAL_HOSTS = new Set(["", "localhost", "127.0.0.1"]);
 const SECURITY_API_BASE =
   window.__PAYMENTS_API_BASE__ ||

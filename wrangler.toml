@@ -12,5 +12,5 @@ not_found_handling = "single-page-application"
 [vars]
 PADDLE_ENV = "live"
 APP_BASE_URL = "https://filesconverter.org"
-PADDLE_PRICE_ID = "pri_01kpzq1hxhq4vxpjzsa0yn6vdj"
-PADDLE_PRODUCT_ID = "pro_01kpzq091w8qwadsgs3462rc8f"
+PADDLE_PRICE_ID = "pri_01kqpmbpz27fa1aa82dfkfywd5"
+PADDLE_PRODUCT_ID = "pro_01kqpm80qy2vgyb676wt1cwq5t"
