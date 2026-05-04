@@ -254,7 +254,7 @@ const loadedLibPromises = new Map();
 const state = {
   activeTool: tools[0],
   deviceId: "",
-  theme: "dark",
+  theme: "light",
   language: "en",
   isPremium: false,
   usageCount: 0,
@@ -604,8 +604,7 @@ function applyTheme(theme) {
 
 function initTheme() {
   const savedTheme = localStorage.getItem("convertpro-theme");
-  const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
-  const chosen = savedTheme === "light" || savedTheme === "dark" ? savedTheme : (prefersLight ? "light" : "dark");
+  const chosen = savedTheme === "light" || savedTheme === "dark" ? savedTheme : "light";
   applyTheme(chosen);
   if (IS_SAFARI) document.documentElement.classList.add("safari-optimized");
   if (IS_MAC) document.documentElement.classList.add("mac-performance");

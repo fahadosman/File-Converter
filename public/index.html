@@ -22,9 +22,7 @@
       } catch (e) {
         savedTheme = null;
       }
-      var prefersLight =
-        window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
-      var theme = savedTheme === "light" || savedTheme === "dark" ? savedTheme : (prefersLight ? "light" : "dark");
+      var theme = savedTheme === "light" || savedTheme === "dark" ? savedTheme : "light";
       document.documentElement.setAttribute("data-theme", theme);
       if (isApple) {
         document.documentElement.classList.add("apple-performance", "mac-performance");
@@ -281,6 +279,12 @@
       .related-grid-compact {
         grid-template-columns: repeat(2, 1fr);
       }
+    }
+
+    .split-row-cards,
+    .related-rating-row {
+      content-visibility: auto;
+      contain-intrinsic-size: 1px 700px;
     }
   </style>
   <script>
@@ -585,6 +589,12 @@
         <h4>Files Converter</h4>
         <p class="footer-tagline">
           Fast, secure, and simple document tools built to save your time.
+        </p>
+        <p class="footer-tagline" style="margin-top:0.75rem;">
+          Premium checkout is processed by Paddle.
+          <a href="/terms.html">Terms &amp; conditions</a> ·
+          <a href="/privacy.html">Privacy policy</a> ·
+          <a href="/refund.html">Refund policy</a>
         </p>
       </section>
       <section class="footer-col">
