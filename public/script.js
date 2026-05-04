@@ -1177,7 +1177,6 @@ async function syncPaymentFromReturn() {
 function clearLegacyClientStorage() {
   const keysToDelete = [
     "convertpro-device-id",
-    "convertpro-language",
     "convertpro-plan",
     "convertpro-usage-count",
   ];
