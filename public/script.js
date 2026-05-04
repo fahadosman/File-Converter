@@ -2,6 +2,109 @@ const FREE_LIMIT = 5;
 const PREMIUM_OVERRIDE_KEY = "convertpro-premium-override";
 const USAGE_COUNT_KEY = "convertpro-usage-count-persist";
 const LOCALES = window.APP_LOCALES || {};
+const DEFAULT_LOCALE = "en-us";
+const LOCALE_ALIASES = {
+  en: "en",
+  "en-us": "en",
+  "en-gb": "en",
+  "en-ca": "en",
+  "en-au": "en",
+  ru: "ru",
+  "ru-ru": "ru",
+  es: "es",
+  "es-es": "es",
+  "es-mx": "es",
+  ur: "ur",
+  "ur-pk": "ur",
+  hi: "hi",
+  "hi-in": "hi",
+  ar: "ar",
+  fr: "fr",
+  "fr-fr": "fr",
+  "fr-ca": "fr",
+  de: "de",
+  "de-de": "de",
+};
+const COUNTRY_TO_LOCALE = {
+  pk: "ur-pk",
+  in: "hi-in",
+  es: "es-es",
+  mx: "es-mx",
+  fr: "fr-fr",
+  de: "de-de",
+  gb: "en-gb",
+  uk: "en-gb",
+  us: "en-us",
+  au: "en-au",
+  ca: "en-ca",
+  ae: "ar",
+  sa: "ar",
+  qa: "ar",
+  kw: "ar",
+  bh: "ar",
+  om: "ar",
+};
+const LOCALE_OPTIONS = [
+  { value: "en-us", label: "English (US)" },
+  { value: "en-gb", label: "English (UK)" },
+  { value: "en-ca", label: "English (CA)" },
+  { value: "en-au", label: "English (AU)" },
+  { value: "ru-ru", label: "Русский" },
+  { value: "ur-pk", label: "اردو (Pakistan)" },
+  { value: "hi-in", label: "हिन्दी (India)" },
+  { value: "es-es", label: "Español (España)" },
+  { value: "es-mx", label: "Español (México)" },
+  { value: "ar", label: "العربية" },
+  { value: "fr-fr", label: "Français (France)" },
+  { value: "fr-ca", label: "Français (Canada)" },
+  { value: "de-de", label: "Deutsch (Deutschland)" },
+];
+const SEO_META_HOME = {
+  en: {
+    title: "File Converters - Free Online File Conversion Tools",
+    description: "Convert PDF, Word, Excel, images, audio, video and more — free, fast, and secure. 100+ converters all in your browser.",
+  },
+  es: {
+    title: "Convertidores de Archivos - Herramientas Gratis en Linea",
+    description: "Convierte PDF, Word, Excel, imagenes, audio y video en linea. Gratis, rapido y seguro.",
+  },
+  ur: {
+    title: "فائل کنورٹرز - مفت آن لائن فائل کنورژن ٹولز",
+    description: "PDF، Word، Excel، تصاویر، آڈیو اور ویڈیو فائلیں مفت، تیز اور محفوظ طریقے سے کنورٹ کریں۔",
+  },
+  hi: {
+    title: "फाइल कन्वर्टर - मुफ्त ऑनलाइन फाइल कन्वर्ज़न टूल्स",
+    description: "PDF, Word, Excel, इमेज, ऑडियो और वीडियो फाइलों को ऑनलाइन मुफ्त, तेज और सुरक्षित तरीके से कन्वर्ट करें।",
+  },
+  ar: {
+    title: "محول الملفات - ادوات تحويل ملفات اونلاين مجانا",
+    description: "حوّل ملفات PDF وWord وExcel والصور والصوت والفيديو بسرعة وامان عبر المتصفح.",
+  },
+  fr: {
+    title: "Convertisseur de Fichiers - Outils Gratuits en Ligne",
+    description: "Convertissez PDF, Word, Excel, images, audio et video gratuitement en ligne, rapidement et en securite.",
+  },
+  de: {
+    title: "Dateikonverter - Kostenlose Online Konvertierungstools",
+    description: "PDF, Word, Excel, Bilder, Audio und Video online kostenlos, schnell und sicher konvertieren.",
+  },
+  ru: {
+    title: "Конвертер файлов - бесплатные онлайн инструменты",
+    description: "Конвертируйте PDF, Word, Excel, изображения, аудио и видео онлайн бесплатно и быстро.",
+  },
+};
+
+function toDisplayLocale(locale) {
+  const normalized = String(locale || "").toLowerCase();
+  if (normalized === "en") return "en-us";
+  if (normalized === "es") return "es-es";
+  if (normalized === "ru") return "ru-ru";
+  if (normalized === "ur") return "ur-pk";
+  if (normalized === "hi") return "hi-in";
+  if (normalized === "fr") return "fr-fr";
+  if (normalized === "de") return "de-de";
+  return normalized || DEFAULT_LOCALE;
+}
 const PADDLE_PRICE_ID = "pri_01kqpmbpz27fa1aa82dfkfywd5";
 const PADDLE_PRODUCT_ID = "pro_01kqpm80qy2vgyb676wt1cwq5t";
 const LOCAL_HOSTS = new Set(["", "localhost", "127.0.0.1"]);
@@ -469,7 +572,8 @@ function scheduleRenderToolButtons() {
 }
 
 function t(key, vars = {}) {
-  const dict = LOCALES[state.language] || LOCALES.en || {};
+  const dictLocale = LOCALE_ALIASES[state.language] || state.language || "en";
+  const dict = LOCALES[dictLocale] || LOCALES.en || {};
   const fallback = (LOCALES.en || {})[key] || key;
   const template = dict[key] || fallback;
   return String(template).replace(/\{(\w+)\}/g, (_, token) => (vars[token] ?? `{${token}}`));
@@ -514,9 +618,12 @@ function localizeTools() {
 }
 
 function applyLanguage(language) {
-  state.language = LOCALES[language] ? language : "en";
-  document.documentElement.lang = state.language;
-  if (els.languageSelect) els.languageSelect.value = state.language;
+  const normalized = String(language || "").toLowerCase();
+  const chosen = LOCALE_ALIASES[normalized] ? toDisplayLocale(normalized) : DEFAULT_LOCALE;
+  state.language = chosen;
+  document.documentElement.lang = chosen;
+  if (els.languageSelect) els.languageSelect.value = chosen;
+  applySeoMetadata(chosen);
   applyStaticTranslations();
   localizeTools();
   refreshPlan();
@@ -524,24 +631,86 @@ function applyLanguage(language) {
   scheduleRenderToolButtons();
 }
 
-function initLanguage() {
-  const saved = localStorage.getItem("convertpro-language");
-  if (saved && LOCALES[saved]) {
-    applyLanguage(saved);
-    return;
-  }
+function applySeoMetadata(language) {
+  const dictLocale = LOCALE_ALIASES[String(language || "").toLowerCase()] || "en";
+  const meta = SEO_META_HOME[dictLocale] || SEO_META_HOME.en;
+  if (!meta) return;
+  if (meta.title) document.title = meta.title;
+  const descNode = document.querySelector('meta[name="description"]');
+  if (descNode && meta.description) descNode.setAttribute("content", meta.description);
+  const ogTitle = document.querySelector('meta[property="og:title"]');
+  if (ogTitle && meta.title) ogTitle.setAttribute("content", meta.title);
+  const ogDesc = document.querySelector('meta[property="og:description"]');
+  if (ogDesc && meta.description) ogDesc.setAttribute("content", meta.description);
+  const twTitle = document.querySelector('meta[name="twitter:title"]');
+  if (twTitle && meta.title) twTitle.setAttribute("content", meta.title);
+  const twDesc = document.querySelector('meta[name="twitter:description"]');
+  if (twDesc && meta.description) twDesc.setAttribute("content", meta.description);
+}
+
+function detectLocaleFromNavigator() {
   const candidates = Array.isArray(navigator.languages) && navigator.languages.length
     ? navigator.languages
-    : [navigator.language || "en"];
-  let detected = "en";
+    : [navigator.language || "en-US"];
   for (const lang of candidates) {
-    const base = String(lang || "").toLowerCase().split("-")[0];
-    if (LOCALES[base]) {
-      detected = base;
-      break;
-    }
+    const normalized = String(lang || "").toLowerCase();
+    if (LOCALE_ALIASES[normalized]) return normalized;
+    const base = normalized.split("-")[0];
+    if (base === "ur") return "ur-pk";
+    if (base === "hi") return "hi-in";
+    if (base === "ar") return "ar";
+    if (base === "fr") return "fr-fr";
+    if (base === "de") return "de-de";
+    if (base === "es") return "es-es";
+    if (base === "en") return "en-us";
+    if (LOCALE_ALIASES[base]) return base;
   }
-  applyLanguage(detected);
+  return "";
+}
+
+async function detectLocaleFromGeo() {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 1500);
+    const response = await fetch("https://ipapi.co/json/", {
+      signal: controller.signal,
+      headers: { Accept: "application/json" },
+    });
+    clearTimeout(timeout);
+    if (!response.ok) return "";
+    const data = await response.json();
+    const countryCode = String(data?.country_code || "").toLowerCase();
+    return COUNTRY_TO_LOCALE[countryCode] || "";
+  } catch (_) {
+    return "";
+  }
+}
+
+function populateLanguageOptions() {
+  if (!els.languageSelect) return;
+  const current = state.language || DEFAULT_LOCALE;
+  els.languageSelect.innerHTML = LOCALE_OPTIONS.map((option) =>
+    `<option value="${option.value}">${option.label}</option>`
+  ).join("");
+  els.languageSelect.value = current;
+}
+
+async function initLanguage() {
+  const saved = localStorage.getItem("convertpro-language");
+  if (saved && LOCALE_ALIASES[String(saved).toLowerCase()]) {
+    applyLanguage(saved);
+    populateLanguageOptions();
+    return;
+  }
+  const browserLocale = detectLocaleFromNavigator();
+  if (browserLocale) {
+    applyLanguage(browserLocale);
+    populateLanguageOptions();
+    return;
+  }
+  const geoLocale = await detectLocaleFromGeo();
+  applyLanguage(geoLocale || DEFAULT_LOCALE);
+  populateLanguageOptions();
 }
 
 function setStatus(message, type = "ok") {

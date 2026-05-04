@@ -367,5 +367,124 @@ window.APP_LOCALES = {
     "tools.excel-to-pdf.description": "Hojas a PDF",
     "tools.jpg-to-pdf.name": "JPG a PDF",
     "tools.jpg-to-pdf.description": "Imágenes a PDF"
+  },
+  ur: {
+    "nav.top.all": "تمام ٹولز",
+    "nav.top.workflow": "ورک فلو",
+    "nav.top.organize": "PDF ترتیب",
+    "nav.top.convert": "PDF کنورٹ کریں",
+    "tools.allConverters": "تمام کنورٹرز",
+    "tools.searchPlaceholder": "کنورٹر تلاش کریں...",
+    "actions.convertNow": "ابھی کنورٹ کریں",
+    "actions.reset": "ری سیٹ",
+    "download.title": "ڈاؤن لوڈ سنٹر",
+    "download.button": "فائل ڈاؤن لوڈ کریں",
+    "status.ready": "تیار",
+    "related.title": "متعلقہ PDF ٹولز",
+    "footer.product.title": "پروڈکٹ",
+    "footer.legal.title": "قانونی",
+    "footer.company.title": "کمپنی",
+    "footer.copyline": "Copyright ©2026 fahad usman All Rights Reserved.",
+    "tools.pdf-to-word.name": "PDF سے Word",
+    "tools.word-to-pdf.name": "Word سے PDF"
+  },
+  hi: {
+    "nav.top.all": "सभी टूल्स",
+    "nav.top.workflow": "वर्कफ़्लो",
+    "nav.top.organize": "PDF व्यवस्थित करें",
+    "nav.top.convert": "PDF कन्वर्ट करें",
+    "tools.allConverters": "सभी कन्वर्टर",
+    "tools.searchPlaceholder": "कन्वर्टर खोजें...",
+    "actions.convertNow": "कन्वर्ट करें",
+    "actions.reset": "रीसेट",
+    "download.title": "डाउनलोड सेंटर",
+    "download.button": "फ़ाइल डाउनलोड करें",
+    "status.ready": "तैयार",
+    "related.title": "संबंधित PDF टूल्स",
+    "footer.product.title": "प्रोडक्ट",
+    "footer.legal.title": "कानूनी",
+    "footer.company.title": "कंपनी",
+    "footer.copyline": "Copyright ©2026 fahad usman All Rights Reserved.",
+    "tools.pdf-to-word.name": "PDF से Word",
+    "tools.word-to-pdf.name": "Word से PDF"
+  },
+  ar: {
+    "nav.top.all": "كل الأدوات",
+    "nav.top.workflow": "سير العمل",
+    "nav.top.organize": "تنظيم PDF",
+    "nav.top.convert": "تحويل PDF",
+    "tools.allConverters": "كل المحولات",
+    "tools.searchPlaceholder": "ابحث عن محول...",
+    "actions.convertNow": "تحويل الآن",
+    "actions.reset": "إعادة تعيين",
+    "download.title": "مركز التنزيل",
+    "download.button": "تنزيل الملف",
+    "status.ready": "جاهز",
+    "related.title": "أدوات PDF ذات صلة",
+    "footer.product.title": "المنتج",
+    "footer.legal.title": "القانوني",
+    "footer.company.title": "الشركة",
+    "footer.copyline": "Copyright ©2026 fahad usman All Rights Reserved.",
+    "tools.pdf-to-word.name": "PDF إلى Word",
+    "tools.word-to-pdf.name": "Word إلى PDF"
+  },
+  fr: {
+    "nav.top.all": "Tous les outils",
+    "nav.top.workflow": "Flux de travail",
+    "nav.top.organize": "Organiser PDF",
+    "nav.top.convert": "Convertir PDF",
+    "tools.allConverters": "Tous les convertisseurs",
+    "tools.searchPlaceholder": "Rechercher des convertisseurs...",
+    "actions.convertNow": "Convertir",
+    "actions.reset": "Reinitialiser",
+    "download.title": "Centre de telechargement",
+    "download.button": "Telecharger le fichier",
+    "status.ready": "Pret",
+    "related.title": "Outils PDF associes",
+    "footer.product.title": "Produit",
+    "footer.legal.title": "Mentions legales",
+    "footer.company.title": "Entreprise",
+    "footer.copyline": "Copyright ©2026 fahad usman All Rights Reserved.",
+    "tools.pdf-to-word.name": "PDF vers Word",
+    "tools.word-to-pdf.name": "Word vers PDF"
+  },
+  de: {
+    "nav.top.all": "Alle Tools",
+    "nav.top.workflow": "Workflows",
+    "nav.top.organize": "PDF organisieren",
+    "nav.top.convert": "PDF konvertieren",
+    "tools.allConverters": "Alle Konverter",
+    "tools.searchPlaceholder": "Konverter suchen...",
+    "actions.convertNow": "Jetzt konvertieren",
+    "actions.reset": "Zurucksetzen",
+    "download.title": "Download-Center",
+    "download.button": "Datei herunterladen",
+    "status.ready": "Bereit",
+    "related.title": "Verwandte PDF-Tools",
+    "footer.product.title": "Produkt",
+    "footer.legal.title": "Rechtliches",
+    "footer.company.title": "Unternehmen",
+    "footer.copyline": "Copyright ©2026 fahad usman All Rights Reserved.",
+    "tools.pdf-to-word.name": "PDF zu Word",
+    "tools.word-to-pdf.name": "Word zu PDF"
   }
 };
+
+// Ensure full key parity across locales.
+// Missing keys in non-English locales automatically fall back to English text,
+// so new UI strings never render as raw i18n keys.
+(function ensureLocaleParity() {
+  var locales = window.APP_LOCALES || {};
+  var base = locales.en || {};
+  var targets = ["ru", "es", "ur", "hi", "ar", "fr", "de"];
+  for (var i = 0; i < targets.length; i += 1) {
+    var code = targets[i];
+    if (!locales[code]) locales[code] = {};
+    var dict = locales[code];
+    Object.keys(base).forEach(function (key) {
+      if (dict[key] == null || dict[key] === "") {
+        dict[key] = base[key];
+      }
+    });
+  }
+})();
