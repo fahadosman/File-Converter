@@ -6,11 +6,9 @@ main = "worker.js"
 directory = "./public"
 not_found_handling = "single-page-application"
 
-# Secrets (wrangler secret put): PADDLE_API_KEY — API key for the matching PADDLE_ENV.
-# APP_BASE_URL: origin used in Paddle checkout.url (must be allowlisted in Paddle). Override via secret if needed.
+# Secrets (wrangler secret put): PADDLE_API_KEY — API key for the matching PADDLE_ENV (used by /api/payments/paddle/verify only).
 # Optional secrets: PADDLE_PRICE_ID (override catalog price).
 [vars]
 PADDLE_ENV = "live"
-APP_BASE_URL = "https://filesconverter.org"
 PADDLE_PRICE_ID = "pri_01kqpmbpz27fa1aa82dfkfywd5"
 PADDLE_PRODUCT_ID = "pro_01kqpm80qy2vgyb676wt1cwq5t"

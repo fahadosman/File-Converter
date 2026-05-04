@@ -95,6 +95,8 @@ window.APP_LOCALES = {
     "error.invalidType": "Invalid file type: {name}. Please choose only {accept} files.",
     "error.allowedForTool": "Only {accept} files are allowed for {tool}.",
     "error.paymentInitFailed": "Unable to start payment. Please try again.",
+    "error.paddleClientToken":
+      "Premium checkout needs a Paddle client-side token. Set window.__PADDLE_CLIENT_TOKEN__ (Paddle Dashboard → Developer tools → Authentication).",
     "error.paymentVerifyFailed": "Payment verification failed. Please contact support.",
     "error.paymentFailed": "Payment was not completed.",
     "tools.merge-pdf.name": "Merge PDF",
@@ -216,6 +218,8 @@ window.APP_LOCALES = {
     "error.invalidType": "Недопустимый тип файла: {name}. Выберите только {accept}.",
     "error.allowedForTool": "Для {tool} разрешены только {accept}.",
     "error.paymentInitFailed": "Не удалось запустить оплату. Попробуйте снова.",
+    "error.paddleClientToken":
+      "Для оплаты Premium нужен клиентский токен Paddle. Задайте window.__PADDLE_CLIENT_TOKEN__ (Paddle → Developer tools → Authentication).",
     "error.paymentVerifyFailed": "Не удалось подтвердить платеж. Обратитесь в поддержку.",
     "error.paymentFailed": "Платеж не был завершен.",
     "tools.merge-pdf.name": "Объединить PDF",
@@ -337,6 +341,8 @@ window.APP_LOCALES = {
     "error.invalidType": "Tipo de archivo no válido: {name}. Elige solo {accept}.",
     "error.allowedForTool": "Solo se permiten archivos {accept} para {tool}.",
     "error.paymentInitFailed": "No se pudo iniciar el pago. Inténtalo de nuevo.",
+    "error.paddleClientToken":
+      "El pago Premium requiere un token de cliente de Paddle. Define window.__PADDLE_CLIENT_TOKEN__ (Paddle → Developer tools → Authentication).",
     "error.paymentVerifyFailed": "La verificación del pago falló. Contacta soporte.",
     "error.paymentFailed": "El pago no se completó.",
     "tools.merge-pdf.name": "Unir PDF",

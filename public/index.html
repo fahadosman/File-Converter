@@ -31,8 +31,10 @@
       }
       if (!window.__PAYMENTS_API_BASE__ &&
         (window.location.hostname === "" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
-        window.__PAYMENTS_API_BASE__ = "http://localhost:8899";
+        window.__PAYMENTS_API_BASE__ = "http://localhost:8787";
       }
+      // Premium: Paddle.js client-side token (Dashboard → Developer tools → Authentication).
+      window.__PADDLE_CLIENT_TOKEN__ = "live_ec43cb1ba3a189b364ccf1c0d5f";
     })();
   </script>
   <link rel="stylesheet" href="styles.min.css" />

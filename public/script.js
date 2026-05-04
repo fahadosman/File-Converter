@@ -866,29 +866,103 @@ function isPaddleReturnUrlPlaceholder(value) {
   return /^\{[^}]+\}$/.test(String(value || "").trim());
 }
 
+const PADDLE_JS_SRC = "https://cdn.paddle.com/paddle/v2/paddle.js";
+
+function getPaddleClientToken() {
+  return String(window.__PADDLE_CLIENT_TOKEN__ || "").trim();
+}
+
+let paddleScriptPromise = null;
+
+function loadPaddleScript() {
+  if (window.Paddle) return Promise.resolve();
+  if (paddleScriptPromise) return paddleScriptPromise;
+  paddleScriptPromise = new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = PADDLE_JS_SRC;
+    s.async = true;
+    s.dataset.fcPaddlejs = "1";
+    s.onload = () => resolve();
+    s.onerror = () => {
+      paddleScriptPromise = null;
+      reject(new Error("Failed to load Paddle.js"));
+    };
+    document.head.appendChild(s);
+  });
+  return paddleScriptPromise;
+}
+
+function onPaddleCheckoutCompleted(event) {
+  const transactionId = event?.data?.transaction_id;
+  if (!transactionId || state.isPremium) return;
+  verifyPremiumWithServer(transactionId).catch((err) => {
+    setStatus(String(err.message || "") || t("error.paymentVerifyFailed"), "error");
+  });
+}
+
+async function ensurePaddleBilling(clientToken) {
+  await loadPaddleScript();
+  if (!window.Paddle) throw new Error("Paddle.js unavailable.");
+  if (window.__FC_PADDLE_BILLING_INIT__) return;
+  window.Paddle.Initialize({
+    token: clientToken,
+    eventCallback: (evt) => {
+      if (evt && evt.name === "checkout.completed") onPaddleCheckoutCompleted(evt);
+    },
+  });
+  window.__FC_PADDLE_BILLING_INIT__ = true;
+}
+
+async function verifyPremiumWithServer(transactionId) {
+  const trimmedId = String(transactionId || "").trim();
+  if (!trimmedId || !isPaddleTransactionId(trimmedId) || !SECURITY_API_BASE) return false;
+  const verifyResponse = await fetch(`${SECURITY_API_BASE}/api/payments/paddle/verify`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ transactionId: trimmedId }),
+  });
+  const verifyPayload = await verifyResponse.json().catch(() => ({}));
+  if (!verifyResponse.ok) throw new Error(verifyPayload.error || t("error.paymentVerifyFailed"));
+  if (verifyPayload.isPremium) {
+    state.isPremium = true;
+    persistPlanState();
+    closePremiumLimitDialog();
+    refreshPlan();
+    setStatus(t("status.premiumActivated"));
+    showToastWithType(t("status.premiumActivated"), "success");
+    return true;
+  }
+  return false;
+}
+
 function startPaddleCheckout() {
+  const clientToken = getPaddleClientToken();
+  if (!clientToken) {
+    setStatus(t("error.paddleClientToken"), "error");
+    return;
+  }
   if (!SECURITY_API_BASE) {
     setStatus(t("error.paymentInitFailed"), "error");
     return;
   }
   setStatus(t("status.paymentInit"), "busy");
-  fetch(`${SECURITY_API_BASE}/api/payments/paddle/checkout`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ priceId: PADDLE_PRICE_ID, productId: PADDLE_PRODUCT_ID }),
-  })
-    .then(async (response) => {
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        const parts = [payload.error, payload.hint].filter(Boolean);
-        const msg = parts.length ? parts.join(" — ") : t("error.paymentInitFailed");
-        const err = new Error(msg);
-        if (payload.checkoutOrigin) err.checkoutOrigin = payload.checkoutOrigin;
-        throw err;
-      }
-      if (!payload.url) throw new Error("Unable to start checkout. Missing checkout URL.");
-      window.location.assign(payload.url);
+  const path = window.location.pathname || "/";
+  const successUrl = `${window.location.origin}${path}?transaction_id={transaction_id}`;
+
+  ensurePaddleBilling(clientToken)
+    .then(() => {
+      const theme = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+      window.Paddle.Checkout.open({
+        items: [{ priceId: PADDLE_PRICE_ID, quantity: 1 }],
+        customData: { source: "file-converter-web", product_id: PADDLE_PRODUCT_ID },
+        settings: {
+          displayMode: "overlay",
+          theme,
+          successUrl,
+        },
+      });
+      setStatus(t("status.ready"));
     })
     .catch((error) => {
       setStatus(error.message || t("error.paymentInitFailed"), "error");
@@ -912,22 +986,7 @@ async function syncPaymentFromReturn() {
       console.warn("[payment] Ignoring non-Paddle transaction id in URL (prevents verify errors).", trimmedId);
     }
     if (!state.isPremium && trimmedId && isPaddleTransactionId(trimmedId) && SECURITY_API_BASE) {
-      const verifyResponse = await fetch(`${SECURITY_API_BASE}/api/payments/paddle/verify`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ transactionId: trimmedId }),
-      });
-      const verifyPayload = await verifyResponse.json().catch(() => ({}));
-      if (!verifyResponse.ok) throw new Error(verifyPayload.error || t("error.paymentVerifyFailed"));
-      if (verifyPayload.isPremium) {
-        state.isPremium = true;
-        persistPlanState();
-        closePremiumLimitDialog();
-        refreshPlan();
-        setStatus(t("status.premiumActivated"));
-        showToastWithType(t("status.premiumActivated"), "success");
-      }
+      await verifyPremiumWithServer(trimmedId);
     }
 
     params.delete("transaction_id");

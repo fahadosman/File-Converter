@@ -281,73 +281,6 @@ async function paddleRequest(path, env, init = {}) {
   return payload;
 }
 
-/** Public https origin for post-checkout redirect; must match a Paddle-approved checkout domain. */
-function resolveAppBaseUrl(request, env) {
-  const configured = String(env.APP_BASE_URL || "").trim().replace(/\/$/, "");
-  if (configured) return configured;
-
-  const url = new URL(request.url);
-  const hostHeader = (request.headers.get("Host") || "").split(":")[0].trim();
-  const host = hostHeader || url.hostname;
-  const proto =
-    (request.headers.get("X-Forwarded-Proto") || "").split(",")[0].trim().toLowerCase() ||
-    (url.protocol === "https:" ? "https" : "http");
-  const scheme = proto === "https" || proto === "http" ? proto : url.protocol === "https:" ? "https" : "http";
-  if (host) return `${scheme}://${host}`;
-  return String(url.origin).replace(/\/$/, "");
-}
-
-function isPaddleCheckoutDomainError(message) {
-  return /approved by Paddle|checkout\.url/i.test(String(message || ""));
-}
-
-async function createCheckout(request, env) {
-  const body = await request.json().catch(() => ({}));
-  const priceId = String(body.priceId || env.PADDLE_PRICE_ID || "").trim();
-  if (!priceId) return json({ error: "PADDLE_PRICE_ID is not configured." }, 500);
-
-  const productId = String(body.productId || env.PADDLE_PRODUCT_ID || "").trim();
-  const customData = { source: "file-converter-web" };
-  if (productId) customData.product_id = productId;
-
-  const appBaseUrl = resolveAppBaseUrl(request, env);
-  const successUrl = `${appBaseUrl}/?transaction_id={transaction_id}`;
-
-  let payload;
-  try {
-    payload = await paddleRequest("/transactions", env, {
-      method: "POST",
-      body: JSON.stringify({
-        items: [{ price_id: priceId, quantity: 1 }],
-        collection_mode: "automatic",
-        custom_data: customData,
-        checkout: { url: successUrl },
-      }),
-    });
-  } catch (error) {
-    const msg = String(error.message || "Paddle request failed.");
-    if (isPaddleCheckoutDomainError(msg)) {
-      return json(
-        {
-          error: msg,
-          hint:
-            "In Paddle Billing, open Checkout / payment links settings and add this exact hostname to approved domains (or your default payment link allowed domains). Set Worker secret APP_BASE_URL to your public site origin with no trailing slash, e.g. https://filesconverter.org — use the same host users see in the browser (www vs non-www must match).",
-          checkoutOrigin: appBaseUrl,
-        },
-        400
-      );
-    }
-    throw error;
-  }
-
-  const data = payload && payload.data;
-  const checkoutUrl = data && data.checkout && data.checkout.url;
-  if (!checkoutUrl) return json({ error: "Paddle checkout URL was not returned." }, 502);
-  const transactionId = data && data.id;
-  if (!transactionId) return json({ error: "Paddle transaction id was not returned." }, 502);
-  return json({ url: checkoutUrl, transactionId });
-}
-
 async function verifyCheckout(request, env) {
   const body = await request.json().catch(() => ({}));
   const transactionId = String(body.transactionId || "").trim();
@@ -402,9 +335,6 @@ export default {
         const payload = await request.json().catch(() => ({}));
         console.log(JSON.stringify({ level: "info", type: "rum", requestId, payload }));
         return withCors(json({ ok: true }, 202));
-      }
-      if (url.pathname === "/api/payments/paddle/checkout" && request.method === "POST") {
-        return withCors(await createCheckout(request, env));
       }
       if (url.pathname === "/api/payments/paddle/verify" && request.method === "POST") {
         return withCors(await verifyCheckout(request, env));

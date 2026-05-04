@@ -21,11 +21,10 @@ Then visit:
 
 ## Paddle Integration (Production)
 
-Premium checkout is now server-verified through the Cloudflare Worker (`worker.js`):
+Checkout runs in the browser with **Paddle.js** and a **client-side token** (no server route to create checkout). The Cloudflare Worker only verifies payments:
 
-- `POST /api/payments/paddle/checkout` creates a Paddle transaction and returns checkout URL.
-- `POST /api/payments/paddle/verify` verifies the returned `transaction_id` with Paddle API.
-- Frontend upgrades to Premium only after server verification succeeds.
+- `POST /api/payments/paddle/verify` checks the `transaction_id` with the Paddle API and sets the premium cookie when paid.
+- Set `window.__PADDLE_CLIENT_TOKEN__` on the site (from Paddle Dashboard → Developer tools → Authentication). Use a `test_` token for sandbox and `live_` for production; it must match `PADDLE_ENV` / your catalog.
 
 ### Setup
 
@@ -37,9 +36,8 @@ npm install
 
 2. Configure Worker secrets and vars:
    - Copy `.dev.vars.example` to `.dev.vars` for local development values.
-   - `PADDLE_API_KEY` (secret: set with `wrangler secret put PADDLE_API_KEY`)
+   - `PADDLE_API_KEY` (secret: set with `wrangler secret put PADDLE_API_KEY`) — used only by `/api/payments/paddle/verify`, not exposed to the browser.
    - `PADDLE_PRICE_ID` (if different from default in frontend)
-   - `APP_BASE_URL` (your deployed HTTPS app URL)
    - `PADDLE_ENV` (`live` or `sandbox`, default is `live`)
 
 3. Run locally with Worker + assets:
