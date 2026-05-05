@@ -42,6 +42,18 @@
     bh: "ar",
     om: "ar"
   };
+  var AUTO_TRANSLATE_LANG = {
+    en: "en",
+    es: "es",
+    ru: "ru",
+    ur: "ur",
+    hi: "hi",
+    ar: "ar",
+    fr: "fr",
+    de: "de"
+  };
+  var AUTO_TRANSLATE_CACHE_PREFIX = "fc-auto-i18n:v1:";
+  var activeTranslationRun = 0;
   var LANGUAGE_OPTIONS_HTML = '<option value="en-us">English (US)</option><option value="en-gb">English (UK)</option><option value="en-ca">English (CA)</option><option value="en-au">English (AU)</option><option value="ru-ru">Русский</option><option value="ur-pk">اردو (Pakistan)</option><option value="hi-in">हिन्दी (India)</option><option value="es-es">Español (España)</option><option value="es-mx">Español (México)</option><option value="ar">العربية</option><option value="fr-fr">Français (France)</option><option value="fr-ca">Français (Canada)</option><option value="de-de">Deutsch (Deutschland)</option>';
   var SEO_META_BY_PATH = {
     "/index.html": {
@@ -79,6 +91,18 @@
       ar: { title: "تحويل Word الى PDF مجانا اونلاين", description: "حوّل ملفات Word الى PDF بسرعة وامان عبر الانترنت." },
       fr: { title: "Convertisseur Word en PDF Gratuit en Ligne", description: "Convertissez Word en PDF gratuitement en ligne en quelques clics." },
       de: { title: "Word zu PDF Konverter Kostenlos Online", description: "Word-Dokumente online kostenlos und sicher in PDF konvertieren." }
+    },
+    "/blog-pdf-to-word.html": {
+      en: { title: "PDF to Word Converter Online: Keep Formatting Intact (2026 Guide)", description: "Convert PDF to Word online with better formatting quality. Learn how to handle scanned PDFs, table-heavy files, and layout cleanup for DOCX output." }
+    },
+    "/blog-split-pdf.html": {
+      en: { title: "How to Split PDF Pages Online Free (Fast and Clean Workflow)", description: "Split PDF pages online for free. Learn how to extract pages, create smaller PDF files, and organize large documents without quality loss." }
+    },
+    "/blog-pdf-to-powerpoint.html": {
+      en: { title: "PDF to PowerPoint Converter: Turn Reports into Slides (2026)", description: "Convert PDF to PowerPoint online for free. Learn practical tips to turn reports into editable slides with better text flow and presentation-ready layout." }
+    },
+    "/blog-heic-to-jpg.html": {
+      en: { title: "HEIC to JPG Converter Online: iPhone Photos Made Compatible", description: "Convert HEIC to JPG online for easier sharing and compatibility. Learn the best HEIC conversion settings for web uploads, email, and legacy apps." }
     }
   };
   var NAV_ITEMS = [
@@ -428,6 +452,18 @@
       ar: { h1: "شروط خدمة محولات الملفات اونلاين: ماذا تفحص قبل الرفع (2026)", lead: "افهم الشروط والخصوصية وسياسات الصيغ قبل رفع ملفاتك." },
       fr: { h1: "Conditions d'utilisation des convertisseurs en ligne : que verifier avant l'envoi (2026)", lead: "Comprenez les conditions, la confidentialite et les formats avant de televerser vos fichiers." },
       de: { h1: "Nutzungsbedingungen fur Online-Dateikonverter: Was vor dem Upload zu prufen ist (2026)", lead: "Prufen Sie Bedingungen, Datenschutz und Formatrichtlinien vor dem Hochladen." }
+    },
+    "/blog-pdf-to-word.html": {
+      en: { h1: "PDF to Word Converter Online: Keep Formatting Intact (2026 Guide)", lead: "Convert PDF to Word with cleaner structure, better OCR handling, and fewer DOCX formatting fixes." }
+    },
+    "/blog-split-pdf.html": {
+      en: { h1: "How to Split PDF Pages Online Free (Fast and Clean Workflow)", lead: "Extract page ranges and split large PDFs into shareable files with a quick, reliable flow." }
+    },
+    "/blog-pdf-to-powerpoint.html": {
+      en: { h1: "PDF to PowerPoint Converter: Turn Reports into Slides (2026)", lead: "Turn PDF reports into editable slides and improve structure for presentation-ready decks." }
+    },
+    "/blog-heic-to-jpg.html": {
+      en: { h1: "HEIC to JPG Converter Online: iPhone Photos Made Compatible", lead: "Convert HEIC photos to JPG for better compatibility across forms, websites, and older apps." }
     }
   };
 
@@ -504,6 +540,169 @@
     return path;
   }
 
+  function getBaseLocale(locale) {
+    return LOCALE_ALIASES[String(locale || "").toLowerCase()] || "en";
+  }
+
+  function shouldSkipAutoTranslateNode(node) {
+    if (!node || !node.parentElement) return true;
+    var parent = node.parentElement;
+    if (!parent.tagName) return true;
+    var tag = String(parent.tagName).toUpperCase();
+    if (tag === "SCRIPT" || tag === "STYLE" || tag === "NOSCRIPT" || tag === "CODE" || tag === "PRE" || tag === "TEXTAREA") return true;
+    if (parent.closest && parent.closest("[data-no-auto-translate='1']")) return true;
+    return false;
+  }
+
+  function collectTranslatableTextNodes() {
+    var nodes = [];
+    if (!document.body) return nodes;
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (node) {
+        if (shouldSkipAutoTranslateNode(node)) return NodeFilter.FILTER_REJECT;
+        var value = String(node.nodeValue || "");
+        if (!value.trim()) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    var current = walker.nextNode();
+    while (current) {
+      nodes.push(current);
+      current = walker.nextNode();
+    }
+    return nodes;
+  }
+
+  function collectTranslatableAttributes() {
+    var entries = [];
+    if (!document.body) return entries;
+    var attrs = ["placeholder", "title", "aria-label", "aria-placeholder", "alt"];
+    var elements = document.body.querySelectorAll("*");
+    elements.forEach(function (el) {
+      if (el.closest && el.closest("[data-no-auto-translate='1']")) return;
+      var tag = String(el.tagName || "").toUpperCase();
+      if (tag === "SCRIPT" || tag === "STYLE" || tag === "NOSCRIPT") return;
+      attrs.forEach(function (attr) {
+        var value = el.getAttribute(attr);
+        if (!value || !String(value).trim()) return;
+        entries.push({ el: el, attr: attr, value: value });
+      });
+    });
+    return entries;
+  }
+
+  function getOriginalTextForNode(node) {
+    if (!node) return "";
+    if (node.__fcOriginalText == null) node.__fcOriginalText = String(node.nodeValue || "");
+    return String(node.__fcOriginalText || "");
+  }
+
+  function restoreOriginalAutoTranslatedText() {
+    var nodes = collectTranslatableTextNodes();
+    nodes.forEach(function (node) {
+      if (node.__fcOriginalText != null) node.nodeValue = String(node.__fcOriginalText || "");
+    });
+    var attrs = collectTranslatableAttributes();
+    attrs.forEach(function (entry) {
+      var key = "__fcOriginalAttr_" + entry.attr;
+      if (entry.el[key] != null) entry.el.setAttribute(entry.attr, String(entry.el[key] || ""));
+    });
+  }
+
+  function getAutoTranslateCache(locale) {
+    try {
+      var key = AUTO_TRANSLATE_CACHE_PREFIX + getBaseLocale(locale) + ":" + (window.location.pathname || "/");
+      var raw = localStorage.getItem(key);
+      if (!raw) return {};
+      var parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function setAutoTranslateCache(locale, cache) {
+    try {
+      var key = AUTO_TRANSLATE_CACHE_PREFIX + getBaseLocale(locale) + ":" + (window.location.pathname || "/");
+      localStorage.setItem(key, JSON.stringify(cache || {}));
+    } catch (e) {
+      // Ignore cache storage failures.
+    }
+  }
+
+  async function translateTextValue(text, targetLang) {
+    var url =
+      "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&dt=t&tl=" +
+      encodeURIComponent(targetLang) +
+      "&q=" +
+      encodeURIComponent(text);
+    var response = await fetch(url, { headers: { Accept: "application/json" } });
+    if (!response.ok) throw new Error("translate_request_failed");
+    var payload = await response.json();
+    var chunks = Array.isArray(payload && payload[0]) ? payload[0] : [];
+    var translated = chunks.map(function (part) {
+      return Array.isArray(part) ? String(part[0] || "") : "";
+    }).join("");
+    return translated || text;
+  }
+
+  async function applyAutoPageTranslation(locale) {
+    var runId = ++activeTranslationRun;
+    var baseLocale = getBaseLocale(locale);
+    var targetLang = AUTO_TRANSLATE_LANG[baseLocale] || "en";
+    restoreOriginalAutoTranslatedText();
+    if (baseLocale === "en") return;
+
+    var cache = getAutoTranslateCache(locale);
+    var changedCache = false;
+
+    var textNodes = collectTranslatableTextNodes();
+    for (var i = 0; i < textNodes.length; i += 1) {
+      if (runId !== activeTranslationRun) return;
+      var node = textNodes[i];
+      var source = getOriginalTextForNode(node);
+      var key = "t:" + source;
+      if (cache[key]) {
+        node.nodeValue = cache[key];
+        continue;
+      }
+      try {
+        var translated = await translateTextValue(source, targetLang);
+        if (runId !== activeTranslationRun) return;
+        node.nodeValue = translated;
+        cache[key] = translated;
+        changedCache = true;
+      } catch (e) {
+        // Keep source text if translation fails.
+      }
+    }
+
+    var attrs = collectTranslatableAttributes();
+    for (var j = 0; j < attrs.length; j += 1) {
+      if (runId !== activeTranslationRun) return;
+      var entry = attrs[j];
+      var attrKey = "__fcOriginalAttr_" + entry.attr;
+      if (entry.el[attrKey] == null) entry.el[attrKey] = String(entry.value || "");
+      var sourceAttr = String(entry.el[attrKey] || "");
+      var cacheKey = "a:" + entry.attr + ":" + sourceAttr;
+      if (cache[cacheKey]) {
+        entry.el.setAttribute(entry.attr, cache[cacheKey]);
+        continue;
+      }
+      try {
+        var translatedAttr = await translateTextValue(sourceAttr, targetLang);
+        if (runId !== activeTranslationRun) return;
+        entry.el.setAttribute(entry.attr, translatedAttr);
+        cache[cacheKey] = translatedAttr;
+        changedCache = true;
+      } catch (e2) {
+        // Keep source attribute if translation fails.
+      }
+    }
+
+    if (changedCache) setAutoTranslateCache(locale, cache);
+  }
+
   function setSeoMetadataForLocale(locale) {
     var path = normalizePath(window.location.pathname || "/");
     var dictLocale = LOCALE_ALIASES[String(locale || "").toLowerCase()] || "en";
@@ -568,6 +767,7 @@
     document.documentElement.dir = String(display).toLowerCase().indexOf("ar") === 0 ? "rtl" : "ltr";
     setSeoMetadataForLocale(display);
     applyPageTextForLocale(display);
+    applyAutoPageTranslation(display);
   }
 
   function getPreferredLanguage() {
@@ -636,6 +836,7 @@
     }
     header.classList.add("global-topbar", "glass-navbar");
     header.setAttribute("data-glass-navbar", "");
+    header.setAttribute("data-no-auto-translate", "1");
 
     var brandLabel = header.querySelector(".brand span:last-child");
     if (brandLabel) brandLabel.textContent = "Files Converter";
@@ -709,17 +910,20 @@
       "</div>" +
       '<div class="footer-copyline">Copyright ©2026 fahad usman All Rights Reserved.</div>';
     if (footer) {
+      footer.setAttribute("data-no-auto-translate", "1");
       footer.innerHTML = footerHtml;
       return;
     }
     footer = document.querySelector("footer");
     if (footer) {
       footer.className = "site-footer";
+      footer.setAttribute("data-no-auto-translate", "1");
       footer.innerHTML = footerHtml;
       return;
     }
     footer = document.createElement("footer");
     footer.className = "site-footer";
+    footer.setAttribute("data-no-auto-translate", "1");
     footer.innerHTML = footerHtml;
     document.body.appendChild(footer);
   }
