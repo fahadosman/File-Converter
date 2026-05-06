@@ -52,6 +52,9 @@
     fr: "fr",
     de: "de"
   };
+  var ADSENSE_CLIENT_ID = "ca-pub-9865861681091700";
+  // Set your live GA4 ID once here to enable consent-gated analytics site-wide.
+  var DEFAULT_GA4_MEASUREMENT_ID = "G-XXXXXXXXXX";
   var AUTO_TRANSLATE_CACHE_PREFIX = "fc-auto-i18n:v1:";
   var activeTranslationRun = 0;
   var LANGUAGE_OPTIONS_HTML = '<option value="en-us">English (US)</option><option value="en-gb">English (UK)</option><option value="en-ca">English (CA)</option><option value="en-au">English (AU)</option><option value="ru-ru">Русский</option><option value="ur-pk">اردو (Pakistan)</option><option value="hi-in">हिन्दी (India)</option><option value="es-es">Español (España)</option><option value="es-mx">Español (México)</option><option value="ar">العربية</option><option value="fr-fr">Français (France)</option><option value="fr-ca">Français (Canada)</option><option value="de-de">Deutsch (Deutschland)</option>';
@@ -103,6 +106,36 @@
     },
     "/blog-heic-to-jpg.html": {
       en: { title: "HEIC to JPG Converter Online: iPhone Photos Made Compatible", description: "Convert HEIC to JPG online for easier sharing and compatibility. Learn the best HEIC conversion settings for web uploads, email, and legacy apps." }
+    },
+    "/blog-remove-pages-pdf.html": {
+      en: { title: "Remove Pages from PDF Online: Clean Documents Before Sharing (2026)", description: "Remove pages from PDF online with a practical workflow for contracts, reports, and client-ready sharing." }
+    },
+    "/blog-repair-pdf.html": {
+      en: { title: "Repair PDF Online: Fix Corrupted or Unreadable Files Fast (2026)", description: "Repair damaged PDF files online and recover readable pages quickly for business workflows." }
+    },
+    "/blog-excel-to-csv.html": {
+      en: { title: "Excel to CSV Converter Guide: Clean Data Exports for BI and Uploads (2026)", description: "Convert Excel to CSV with better delimiter, encoding, and data consistency for analytics and imports." }
+    },
+    "/blog-speech-to-text.html": {
+      en: { title: "Speech to Text Converter: Better Transcripts for Meetings and Content (2026)", description: "Convert speech to text online and improve transcript quality for meetings, interviews, and content workflows." }
+    },
+    "/blog-pdf-compress-email.html": {
+      en: { title: "Compress PDF for Email: Send Files Under Attachment Limits (2026)", description: "Compress PDF files for email while preserving readability and file quality for sharing." }
+    },
+    "/blog-json-to-xml.html": {
+      en: { title: "JSON to XML Converter: Prepare Data for Legacy Integrations (2026)", description: "Convert JSON to XML for enterprise integrations with cleaner mapping and validation." }
+    },
+    "/blog-csv-to-json.html": {
+      en: { title: "CSV to JSON Converter: Build Cleaner API Payloads from Spreadsheets (2026)", description: "Convert CSV to JSON for cleaner API payloads and automation-ready structured data." }
+    },
+    "/blog-word-to-txt.html": {
+      en: { title: "Word to TXT Converter: Extract Plain Text for Fast Editing (2026)", description: "Convert Word documents to TXT for scripts, CMS updates, and plain text workflows." }
+    },
+    "/blog-pdf-to-html-seo.html": {
+      en: { title: "PDF to HTML for SEO: Republish Documents as Searchable Content (2026)", description: "Turn PDF content into HTML for stronger indexing, readability, and internal linking." }
+    },
+    "/blog-xml-to-json.html": {
+      en: { title: "XML to JSON Converter: Modernize Legacy Data for APIs (2026)", description: "Convert XML to JSON with reliable mapping for modern app and API workflows." }
     }
   };
   var NAV_ITEMS = [
@@ -464,6 +497,36 @@
     },
     "/blog-heic-to-jpg.html": {
       en: { h1: "HEIC to JPG Converter Online: iPhone Photos Made Compatible", lead: "Convert HEIC photos to JPG for better compatibility across forms, websites, and older apps." }
+    },
+    "/blog-remove-pages-pdf.html": {
+      en: { h1: "Remove Pages from PDF Online: Clean Documents Before Sharing (2026)", lead: "Delete unwanted pages from PDF files and keep final documents clean for sharing." }
+    },
+    "/blog-repair-pdf.html": {
+      en: { h1: "Repair PDF Online: Fix Corrupted or Unreadable Files Fast (2026)", lead: "Recover damaged PDF files using a practical repair-first workflow." }
+    },
+    "/blog-excel-to-csv.html": {
+      en: { h1: "Excel to CSV Converter Guide: Clean Data Exports for BI and Uploads (2026)", lead: "Export cleaner CSV files from Excel for reliable uploads and analytics pipelines." }
+    },
+    "/blog-speech-to-text.html": {
+      en: { h1: "Speech to Text Converter: Better Transcripts for Meetings and Content (2026)", lead: "Create cleaner transcripts from audio with practical quality improvements." }
+    },
+    "/blog-pdf-compress-email.html": {
+      en: { h1: "Compress PDF for Email: Send Files Under Attachment Limits (2026)", lead: "Reduce PDF attachment size while preserving readability for clients and teams." }
+    },
+    "/blog-json-to-xml.html": {
+      en: { h1: "JSON to XML Converter: Prepare Data for Legacy Integrations (2026)", lead: "Convert JSON into XML for enterprise and legacy data workflows." }
+    },
+    "/blog-csv-to-json.html": {
+      en: { h1: "CSV to JSON Converter: Build Cleaner API Payloads from Spreadsheets (2026)", lead: "Transform CSV sheets into structured JSON for modern integrations." }
+    },
+    "/blog-word-to-txt.html": {
+      en: { h1: "Word to TXT Converter: Extract Plain Text for Fast Editing (2026)", lead: "Extract plain text from DOCX files for lightweight editing and automation." }
+    },
+    "/blog-pdf-to-html-seo.html": {
+      en: { h1: "PDF to HTML for SEO: Republish Documents as Searchable Content (2026)", lead: "Republish PDF content as HTML to improve discoverability and on-page SEO." }
+    },
+    "/blog-xml-to-json.html": {
+      en: { h1: "XML to JSON Converter: Modernize Legacy Data for APIs (2026)", lead: "Convert XML feeds into JSON for modern app and API compatibility." }
     }
   };
 
@@ -928,10 +991,216 @@
     document.body.appendChild(footer);
   }
 
+  function getAnalyticsMeasurementId() {
+    var fromWindow = String(window.__GA_MEASUREMENT_ID__ || "").trim();
+    if (fromWindow) return fromWindow;
+    var meta = document.querySelector('meta[name="ga4-measurement-id"]');
+    if (meta) {
+      var fromMeta = String(meta.getAttribute("content") || "").trim();
+      if (fromMeta) return fromMeta;
+    }
+    var fromDefault = String(DEFAULT_GA4_MEASUREMENT_ID || "").trim();
+    if (fromDefault && fromDefault !== "G-XXXXXXXXXX") return fromDefault;
+    return "";
+  }
+
+  function setAnalyticsDisabledState(measurementId, disabled) {
+    if (!measurementId) return;
+    window["ga-disable-" + measurementId] = Boolean(disabled);
+  }
+
+  function ensureAnalyticsLoaded() {
+    var measurementId = getAnalyticsMeasurementId();
+    if (!measurementId) return;
+    if (window.__FC_ANALYTICS_LOADED__ === true) return;
+    setAnalyticsDisabledState(measurementId, false);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || function () {
+      window.dataLayer.push(arguments);
+    };
+    window.gtag("js", new Date());
+    window.gtag("config", measurementId, { anonymize_ip: true });
+    var script = document.createElement("script");
+    script.async = true;
+    script.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(measurementId);
+    document.head.appendChild(script);
+    window.__FC_ANALYTICS_LOADED__ = true;
+    window.__FC_ANALYTICS_MEASUREMENT_ID__ = measurementId;
+  }
+
+  function syncAnalyticsWithConsent(consent) {
+    var measurementId = getAnalyticsMeasurementId();
+    var analyticsAllowed = Boolean(consent && consent.analytics);
+    if (!measurementId) return;
+    if (analyticsAllowed) {
+      ensureAnalyticsLoaded();
+      return;
+    }
+    setAnalyticsDisabledState(measurementId, true);
+  }
+
+  function ensureCookieConsentUi() {
+    var STORAGE_KEY = "fc-cookie-consent-v1";
+    if (document.getElementById("fcCookieConsentBanner")) return;
+
+    var style = document.createElement("style");
+    style.id = "fcCookieConsentStyles";
+    style.textContent = ""
+      + ".fc-cookie-consent-banner{position:fixed;left:0;right:0;bottom:0;z-index:1200;background:#fff;border-top:1px solid #d8dfeb;box-shadow:0 -10px 30px rgba(15,23,42,.08);padding:14px 18px;display:none}"
+      + ".fc-cookie-consent-banner.show{display:block}"
+      + ".fc-cookie-consent-content{max-width:1180px;margin:0 auto;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}"
+      + ".fc-cookie-consent-text h3{margin:0 0 4px;font-size:1.1rem}"
+      + ".fc-cookie-consent-text p{margin:0;color:#334155;font-size:.95rem;line-height:1.45}"
+      + ".fc-cookie-actions{display:flex;gap:10px;flex-wrap:wrap}"
+      + ".fc-cookie-btn{border:1px solid #1d4ed8;border-radius:8px;padding:10px 16px;font-weight:600;cursor:pointer;background:#fff;color:#1d4ed8}"
+      + ".fc-cookie-btn.primary{background:#2563eb;color:#fff}"
+      + ".fc-cookie-modal{position:fixed;inset:0;z-index:1300;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,.5);padding:18px}"
+      + ".fc-cookie-modal.show{display:flex}"
+      + ".fc-cookie-modal-card{width:min(920px,100%);max-height:86vh;overflow:auto;background:#fff;border-radius:10px;border:1px solid #dbe3f2;box-shadow:0 20px 40px rgba(2,6,23,.2);padding:20px}"
+      + ".fc-cookie-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}"
+      + ".fc-cookie-modal-head h3{margin:0}"
+      + ".fc-cookie-close{border:0;background:transparent;font-size:24px;cursor:pointer;line-height:1}"
+      + ".fc-cookie-row{border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-top:10px;display:flex;justify-content:space-between;gap:12px;align-items:center}"
+      + ".fc-cookie-row p{margin:4px 0 0;color:#475569;font-size:.92rem}"
+      + ".fc-cookie-switch{appearance:none;width:46px;height:26px;border-radius:999px;background:#cbd5e1;position:relative;cursor:pointer;outline:0;border:0;transition:background .2s ease}"
+      + ".fc-cookie-switch::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s ease}"
+      + ".fc-cookie-switch:checked{background:#22c55e}"
+      + ".fc-cookie-switch:checked::after{transform:translateX(20px)}";
+    document.head.appendChild(style);
+
+    var wrapper = document.createElement("div");
+    wrapper.innerHTML = ''
+      + '<div id="fcCookieConsentBanner" class="fc-cookie-consent-banner" role="region" aria-label="Cookie consent banner">'
+      + '  <div class="fc-cookie-consent-content">'
+      + '    <div class="fc-cookie-consent-text">'
+      + '      <h3>We value your privacy</h3>'
+      + '      <p>We use necessary cookies to run this site and optional analytics cookies to improve experience. You can accept all, reject optional cookies, or customize your preferences.</p>'
+      + '    </div>'
+      + '    <div class="fc-cookie-actions">'
+      + '      <button class="fc-cookie-btn" id="fcCookieCustomizeBtn" type="button">Customize</button>'
+      + '      <button class="fc-cookie-btn" id="fcCookieRejectBtn" type="button">Reject All</button>'
+      + '      <button class="fc-cookie-btn primary" id="fcCookieAcceptBtn" type="button">Accept All</button>'
+      + '    </div>'
+      + '  </div>'
+      + '</div>'
+      + '<div id="fcCookieModal" class="fc-cookie-modal" aria-hidden="true">'
+      + '  <div class="fc-cookie-modal-card" role="dialog" aria-modal="true" aria-labelledby="fcCookieModalTitle">'
+      + '    <div class="fc-cookie-modal-head">'
+      + '      <h3 id="fcCookieModalTitle">Customize Consent Preferences</h3>'
+      + '      <button class="fc-cookie-close" id="fcCookieCloseModalBtn" aria-label="Close cookie preferences" type="button">&times;</button>'
+      + '    </div>'
+      + '    <p>Necessary cookies are always enabled. Analytics cookies help us improve content and feature quality.</p>'
+      + '    <div class="fc-cookie-row"><div><strong>Necessary</strong><p>Required for secure and basic website functionality.</p></div><strong>Always Active</strong></div>'
+      + '    <div class="fc-cookie-row"><div><strong>Analytics</strong><p>Used to understand website usage and improve conversion flows.</p></div><input id="fcCookieAnalyticsToggle" class="fc-cookie-switch" type="checkbox" aria-label="Enable analytics cookies" /></div>'
+      + '    <div class="fc-cookie-actions" style="margin-top:14px;">'
+      + '      <button class="fc-cookie-btn" id="fcCookieRejectModalBtn" type="button">Reject All</button>'
+      + '      <button class="fc-cookie-btn" id="fcCookieSavePrefsBtn" type="button">Save My Preferences</button>'
+      + '      <button class="fc-cookie-btn primary" id="fcCookieAcceptModalBtn" type="button">Accept All</button>'
+      + '    </div>'
+      + '  </div>'
+      + '</div>';
+    document.body.appendChild(wrapper);
+
+    var banner = document.getElementById("fcCookieConsentBanner");
+    var modal = document.getElementById("fcCookieModal");
+    var analyticsToggle = document.getElementById("fcCookieAnalyticsToggle");
+    if (!banner || !modal || !analyticsToggle) return;
+
+    function readConsent() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function writeConsent(analyticsEnabled) {
+      var payload = {
+        necessary: true,
+        analytics: Boolean(analyticsEnabled),
+        updatedAt: new Date().toISOString()
+      };
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch (e) {}
+      window.__FC_COOKIE_CONSENT__ = payload;
+      syncAnalyticsWithConsent(payload);
+    }
+
+    function closeModal() {
+      modal.classList.remove("show");
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    function openModal() {
+      var existing = readConsent();
+      analyticsToggle.checked = existing ? Boolean(existing.analytics) : false;
+      modal.classList.add("show");
+      modal.setAttribute("aria-hidden", "false");
+    }
+
+    function hideBanner() {
+      banner.classList.remove("show");
+    }
+
+    function showBanner() {
+      banner.classList.add("show");
+    }
+
+    function acceptAll() {
+      writeConsent(true);
+      closeModal();
+      hideBanner();
+    }
+
+    function rejectAll() {
+      writeConsent(false);
+      closeModal();
+      hideBanner();
+    }
+
+    function savePreferences() {
+      writeConsent(analyticsToggle.checked);
+      closeModal();
+      hideBanner();
+    }
+
+    var currentConsent = readConsent();
+    if (currentConsent) {
+      window.__FC_COOKIE_CONSENT__ = currentConsent;
+      syncAnalyticsWithConsent(currentConsent);
+    } else {
+      syncAnalyticsWithConsent({ necessary: true, analytics: false });
+      showBanner();
+    }
+
+    document.getElementById("fcCookieCustomizeBtn").addEventListener("click", openModal);
+    document.getElementById("fcCookieAcceptBtn").addEventListener("click", acceptAll);
+    document.getElementById("fcCookieRejectBtn").addEventListener("click", rejectAll);
+    document.getElementById("fcCookieCloseModalBtn").addEventListener("click", closeModal);
+    document.getElementById("fcCookieAcceptModalBtn").addEventListener("click", acceptAll);
+    document.getElementById("fcCookieRejectModalBtn").addEventListener("click", rejectAll);
+    document.getElementById("fcCookieSavePrefsBtn").addEventListener("click", savePreferences);
+    modal.addEventListener("click", function (event) {
+      if (event.target === modal) closeModal();
+    });
+  }
+
+  function ensureAdsenseScript() {
+    var existing = document.querySelector('script[src*="pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]');
+    if (existing) return;
+    var script = document.createElement("script");
+    script.async = true;
+    script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + encodeURIComponent(ADSENSE_CLIENT_ID);
+    script.setAttribute("crossorigin", "anonymous");
+    document.head.appendChild(script);
+  }
+
   function boot() {
+    ensureAdsenseScript();
     ensureHeader();
     ensureFooter(getPreferredLanguage());
     initTheme();
+    ensureCookieConsentUi();
     applyLocalePresentation(getPreferredLanguage());
     var hasSavedLocale = false;
     try { hasSavedLocale = Boolean(localStorage.getItem("convertpro-language")); } catch (e) {}
