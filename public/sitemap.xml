@@ -56,6 +56,36 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://filesconverter.org/articles/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://filesconverter.org/articles/is-filesconverter-org-safe-to-use/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://filesconverter.org/articles/how-browser-conversion-keeps-files-private/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://filesconverter.org/articles/spot-impersonator-file-converter-domains/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://filesconverter.org/blog-is-filesconverter-safe.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://filesconverter.org/secure-file-conversion.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://filesconverter.org/blog.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

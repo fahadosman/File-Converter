@@ -266,8 +266,8 @@
       <p style="margin:0; color:var(--muted); font-size:0.85rem;">Legal & Security</p>
       <h1 style="margin:8px 0 10px;">🔐 Security and data protection</h1>
       <p style="margin:0; color:var(--muted); max-width: 800px; margin-left: auto; margin-right: auto;">
-        Files Converter is built to protect your documents at every stage.
-        We use strong security controls, encrypted transfers, and strict access policies to keep your data safe.
+        Files Converter runs most conversions <strong>in your browser</strong>—your documents are not uploaded to our servers for processing.
+        This page explains what we do, what we do not claim, and how to stay safe from copycat or risky converter sites.
       </p>
     </section>
 
@@ -280,7 +280,7 @@
         <div class="security-card">
           <details>
             <summary>General privacy policy</summary>
-            <p>We only process the information necessary to run conversions and provide account features. Your uploaded files are handled securely and removed automatically after the retention window.</p>
+            <p>Standard tools convert files locally in your browser. We do not store your document contents on our servers for those conversions. We collect only what is needed to operate the website (usage limits, payments, basic diagnostics).</p>
           </details>
         </div>
         <!-- Data subject rights -->
@@ -294,14 +294,14 @@
         <div class="security-card">
           <details>
             <summary>Data ownership & user control</summary>
-            <p>You remain the owner of your files. Files Converter does not claim ownership of uploaded content and provides mechanisms to delete or revoke access where supported.</p>
+            <p>You remain the owner of your files. We do not claim ownership of your content and do not use converted files for advertising or model training.</p>
           </details>
         </div>
         <!-- Additional: Retention details (extra from original to fill cards nicely) but keeps original spirit -->
         <div class="security-card">
           <details>
             <summary>Data retention & removal</summary>
-            <p>Uploads are kept for a maximum of 2 hours for processing and download. After that, files are permanently purged. You can also manually delete files after conversion.</p>
+            <p>For in-browser tools, there is no server-side file retention—processing happens on your device. Closing the tab ends the session; clear browser data if you share the computer.</p>
           </details>
         </div>
         <!-- GDPR alignment -->
@@ -314,16 +314,16 @@
       </div>
     </div>
 
-    <!-- ========== CERTIFICATIONS AND COMPLIANCE ========== -->
+    <!-- ========== HOW CONVERSION WORKS ========== -->
     <div class="info-section">
-      <h2 class="security-section-heading">✅ Certifications & compliance</h2>
-      <p class="security-subhead">Security, privacy, and trust are central to our architecture and operational standards.</p>
+      <h2 class="security-section-heading">✅ How conversion actually works</h2>
+      <p class="security-subhead">We publish accurate information—not fake certification badges. Here is our real architecture.</p>
       <div class="security-card-grid">
-        <div class="security-card"><details><summary>ISO-aligned controls</summary><p>Our internal controls are designed to reflect globally recognized information security and governance practices for risk reduction and service reliability.</p></details></div>
-        <div class="security-card"><details><summary>GDPR-ready privacy model</summary><p>We align data handling with GDPR principles such as data minimization, purpose limitation, and accountability in processing activities.</p></details></div>
-        <div class="security-card"><details><summary>eIDAS-aware signature workflows</summary><p>For document signing scenarios, our process design supports traceability, integrity, and auditable event records in modern electronic workflows.</p></details></div>
-        <div class="security-card"><details><summary>SOC2-type controls</summary><p>We maintain internal controls consistent with trust principles: security, availability, and confidentiality of customer data.</p></details></div>
-        <div class="security-card"><details><summary>Regular third-party audits</summary><p>We undergo independent assessments to validate our security posture and compliance with privacy frameworks.</p></details></div>
+        <div class="security-card"><details open><summary>Client-side processing (default)</summary><p>Supported converters load open-source libraries in your browser (PDF.js, docx, xlsx, etc.). Your file is read from device memory and the output is generated locally for download.</p></details></div>
+        <div class="security-card"><details><summary>No server file storage for standard tools</summary><p>We do not keep copies of your documents on our infrastructure for typical in-browser conversions. Verify in your browser’s Network tab: your file bytes should not be posted to our domain during conversion.</p></details></div>
+        <div class="security-card"><details><summary>HTTPS for the website</summary><p>Pages and APIs are served over encrypted HTTPS so site code and usage signals are protected in transit.</p></details></div>
+        <div class="security-card"><details><summary>Official domain only</summary><p>Use <strong>filesconverter.org</strong> only. Look-alike domains are not operated by us. See <a href="/articles/spot-impersonator-file-converter-domains/">how to spot fake converter sites</a>.</p></details></div>
+        <div class="security-card"><details><summary>Privacy principles we follow</summary><p>Data minimization, clear retention language, and no sale of personal data. See the <a href="/privacy.html">Privacy Policy</a> for full detail.</p></details></div>
       </div>
     </div>
 
@@ -336,30 +336,24 @@
         <div class="security-card"><details><summary>Encrypted network communications</summary><p>Traffic between clients and services uses encrypted channels (TLS 1.2+) to prevent interception and tampering.</p></details></div>
         <div class="security-card"><details><summary>Secure software lifecycle</summary><p>We apply secure coding, dependency monitoring, and release controls to reduce software risk.</p></details></div>
         <div class="security-card"><details><summary>Password storage</summary><p>Passwords are never stored in plain text. We use secure hashing and appropriate salting practices (bcrypt/Argon2).</p></details></div>
-        <div class="security-card"><details><summary>Data privacy & retention</summary><p>Uploads are retained for a limited period to support download workflows, then removed automatically. Additional deletion controls provided where applicable.</p></details></div>
-        <div class="security-card"><details><summary>Backup policies</summary><p>Backups are encrypted and managed with controlled access to support resilience and disaster recovery. Old backups are deleted securely.</p></details></div>
+        <div class="security-card"><details><summary>Data privacy & retention</summary><p>Standard conversions do not create server-side file backups. Website configuration may be backed up; user document contents from in-browser tools are not.</p></details></div>
+        <div class="security-card"><details><summary>No malware bundles</summary><p>Downloads are the converted file you requested—not installers, browser extensions, or “PC cleaner” software. If a download looks unexpected, stop and contact support.</p></details></div>
         <div class="security-card"><details><summary>Availability & incident response</summary><p>We monitor system health and apply incident handling procedures to maintain service continuity and rapid remediation.</p></details></div>
         <div class="security-card"><details><summary>API security controls</summary><p>APIs use authentication tokens, rate limiting, and input validation to prevent abuse and injection attacks.</p></details></div>
         <div class="security-card"><details><summary>Vulnerability management</summary><p>Regular scanning, dependency patching, and coordinated disclosure program to address potential weaknesses.</p></details></div>
-        <div class="security-card"><details><summary>End-to-end encryption for uploads</summary><p>Files are encrypted during transit and at rest using industry-standard algorithms. Encryption keys are managed with strict isolation.</p></details></div>
+        <div class="security-card"><details><summary>What “secure upload” means here</summary><p>You select a file from your device; for in-browser tools it is not uploaded to us for processing. The site itself uses HTTPS. This is different from server-based converters that store files for hours.</p></details></div>
       </div>
     </div>
 
-    <!-- ========== INTERNAL SECURITY ========== -->
+    <!-- ========== OPERATOR & SUPPORT ========== -->
     <div class="info-section">
-      <h2 class="security-section-heading">🏢 Internal security</h2>
-      <p class="security-subhead">Security operations, access discipline, and governance practices used by our team.</p>
+      <h2 class="security-section-heading">🏢 Operator & support</h2>
+      <p class="security-subhead">Files Converter is operated by Fahad Usman. You can reach a real person if something looks wrong.</p>
       <div class="security-card-grid">
-        <div class="security-card"><details><summary>Controlled account management</summary><p>Access is granted by role, reviewed periodically, and removed when no longer required.</p></details></div>
-        <div class="security-card"><details><summary>Password management standards</summary><p>Internal users follow strong authentication and credential hygiene requirements including unique passphrases.</p></details></div>
-        <div class="security-card"><details><summary>Two-factor authentication</summary><p>Privileged and sensitive systems require extra authentication factors to reduce account compromise risk.</p></details></div>
-        <div class="security-card"><details><summary>Physical access controls</summary><p>Operational environments use controlled physical security practices and access restrictions for data centers.</p></details></div>
-        <div class="security-card"><details><summary>Onboarding & offboarding checks</summary><p>Access is provisioned and revoked through documented workflows to keep permissions accurate.</p></details></div>
-        <div class="security-card"><details><summary>Least privilege principle</summary><p>Users and services receive only the minimum permissions needed to perform their responsibilities.</p></details></div>
-        <div class="security-card"><details><summary>Security awareness training</summary><p>All team members complete annual privacy and security training to maintain a strong human firewall.</p></details></div>
-        <div class="security-card"><details><summary>Incident response plan</summary><p>We have a documented IR plan with designated roles, communication protocols, and post-mortem analysis.</p></details></div>
-        <div class="security-card"><details><summary>Logging & monitoring</summary><p>Comprehensive audit logs and real-time alerting for suspicious activities, unauthorized access attempts.</p></details></div>
-        <div class="security-card"><details><summary>Third-party risk management</summary><p>All vendors and subprocessors are screened for security posture and sign data protection agreements.</p></details></div>
+        <div class="security-card"><details open><summary>Who runs this site</summary><p>Files Converter is an independent project launched in 2026. Founder details and contact email are on the <a href="/about.html">About</a> page.</p></details></div>
+        <div class="security-card"><details><summary>Report a security concern</summary><p>Email <a href="mailto:fahadusmanofficial9@gmail.com">fahadusmanofficial9@gmail.com</a> with steps to reproduce. We take impersonation sites and suspicious behavior reports seriously.</p></details></div>
+        <div class="security-card"><details><summary>Dependency updates</summary><p>We update CDN libraries and site code when security patches are available. Major changes are tested before release.</p></details></div>
+        <div class="security-card"><details><summary>Further reading</summary><p><a href="/articles/is-filesconverter-org-safe-to-use/">Is Files Converter safe?</a> · <a href="/articles/how-browser-conversion-keeps-files-private/">Browser privacy guide</a> · <a href="/faq.html">FAQ</a></p></details></div>
       </div>
     </div>
 
