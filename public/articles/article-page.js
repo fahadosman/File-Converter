@@ -20,7 +20,7 @@
     if (!title || !meta || !body) return;
     title.textContent = article.title;
     meta.textContent = "By " + (article.author || "File Converters Team") + " • Updated " + formatDate(article.updatedAt);
-    body.innerHTML = (article.sections || []).map(function (section) {
+    var sectionsHtml = (article.sections || []).map(function (section) {
       var paragraphs = (section.paragraphs || []).map(function (text) {
         return "<p>" + text + "</p>";
       }).join("");
@@ -29,6 +29,22 @@
         : "";
       return '<section class="article-section"><h2>' + section.heading + "</h2>" + paragraphs + bullets + "</section>";
     }).join("");
+    var faqHtml = Array.isArray(article.faqs) && article.faqs.length
+      ? (
+        '<section class="article-section article-faq">' +
+        "<h2>Frequently asked questions</h2>" +
+        article.faqs.map(function (faq) {
+          return (
+            "<details>" +
+            "<summary>" + faq.question + "</summary>" +
+            "<p>" + faq.answer + "</p>" +
+            "</details>"
+          );
+        }).join("") +
+        "</section>"
+      )
+      : "";
+    body.innerHTML = sectionsHtml + faqHtml;
   }
 
   function renderSidebar(payload, article) {

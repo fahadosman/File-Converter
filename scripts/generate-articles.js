@@ -12,6 +12,32 @@ function readJson(file) {
 function articleHtml(article) {
   const canonicalUrl = `https://filesconverter.org/articles/${article.slug}/`;
   const keywords = (article.keywords || []).join(", ");
+  const authorName = article.author || "File Converters Team";
+  const authorType = authorName === "File Converters Team" ? "Organization" : "Person";
+  const articleSchema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.title,
+    description: article.description,
+    author: { "@type": authorType, name: authorName },
+    datePublished: article.publishedAt,
+    dateModified: article.updatedAt,
+    mainEntityOfPage: canonicalUrl,
+  });
+  const faqSchema = Array.isArray(article.faqs) && article.faqs.length
+    ? `<script type="application/ld+json">${JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: article.faqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.answer,
+          },
+        })),
+      })}</script>`
+    : "";
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,18 +60,8 @@ function articleHtml(article) {
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${article.title}" />
   <meta name="twitter:description" content="${article.description}" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": "${article.title}",
-    "description": "${article.description}",
-    "author": { "@type": "Organization", "name": "${article.author || "File Converters Team"}" },
-    "datePublished": "${article.publishedAt}",
-    "dateModified": "${article.updatedAt}",
-    "mainEntityOfPage": "${canonicalUrl}"
-  }
-  </script>
+  <script type="application/ld+json">${articleSchema}</script>
+  ${faqSchema}
 </head>
 <body class="info-page" data-article-slug="${article.slug}">
   <div class="background-glow" aria-hidden="true"></div>

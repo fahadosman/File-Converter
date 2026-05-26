@@ -9,11 +9,26 @@
   function renderList(payload) {
     var mount = document.getElementById("articleList");
     if (!mount || !payload || !Array.isArray(payload.articles)) return;
-    mount.innerHTML = payload.articles.map(function (article) {
+    var articles = payload.articles.slice().sort(function (a, b) {
+      var aTime = new Date(a.updatedAt || a.publishedAt || 0).getTime();
+      var bTime = new Date(b.updatedAt || b.publishedAt || 0).getTime();
+      return bTime - aTime;
+    });
+    mount.innerHTML = articles.map(function (article) {
+      var keywords = Array.isArray(article.keywords) && article.keywords.length
+        ? (
+          '<div class="article-tag-list">' +
+          article.keywords.slice(0, 3).map(function (keyword) {
+            return '<span class="article-tag">' + keyword + "</span>";
+          }).join("") +
+          "</div>"
+        )
+        : "";
       return (
         '<article class="card article-list-item">' +
         '<h3>' + article.title + "</h3>" +
         '<p>' + article.excerpt + "</p>" +
+        keywords +
         '<p class="article-meta">Updated: ' + formatDate(article.updatedAt) + "</p>" +
         '<a class="article-link" href="/articles/' + article.slug + '/">Read article</a>' +
         "</article>"
