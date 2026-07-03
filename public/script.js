@@ -968,20 +968,30 @@ async function assertSessionCanUse() {
     }
     return;
   }
-  const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/status`, {
-    credentials: "include",
-  });
-  if (!response.ok) throw new Error("Unable to verify usage security.");
-  const payload = await response.json();
-  syncUsageCount(payload.usageCount, { maxWithCurrent: true });
-  const backendPremium = Boolean(payload.isPremium);
-  state.isPremium = state.isPremium || backendPremium;
-  persistPlanState();
-  refreshPlan();
-  if (state.usageCount >= FREE_LIMIT) {
-    const error = new Error(t("error.freeLimit"));
-    error.code = "FREE_LIMIT_REACHED";
-    throw error;
+  try {
+    const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/status`, {
+      credentials: "include",
+    });
+    if (!response.ok) throw new Error("Unable to verify usage security.");
+    const payload = await response.json();
+    syncUsageCount(payload.usageCount, { maxWithCurrent: true });
+    const backendPremium = Boolean(payload.isPremium);
+    state.isPremium = state.isPremium || backendPremium;
+    persistPlanState();
+    refreshPlan();
+    if (state.usageCount >= FREE_LIMIT) {
+      const error = new Error(t("error.freeLimit"));
+      error.code = "FREE_LIMIT_REACHED";
+      throw error;
+    }
+  } catch (error) {
+    if (error?.code === "FREE_LIMIT_REACHED") throw error;
+    if (!canUse()) {
+      const limitError = new Error(t("error.freeLimit"));
+      limitError.code = "FREE_LIMIT_REACHED";
+      throw limitError;
+    }
+    state.securityApiReady = false;
   }
 }
 
@@ -990,34 +1000,40 @@ async function secureConsumeUsage() {
     addUsageFallback();
     return;
   }
-  const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/consume`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({}),
-  });
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const backendSaysLimit =
-      response.status === 403 ||
-      Number(payload.usageCount || 0) >= FREE_LIMIT ||
-      String(payload.error || "").toLowerCase().includes("limit");
-    if (backendSaysLimit) {
-      syncUsageCount(payload.usageCount || FREE_LIMIT, { maxWithCurrent: true });
-      state.isPremium = Boolean(payload.isPremium);
-      persistPlanState();
-      refreshPlan();
-      const error = new Error(t("error.freeLimit"));
-      error.code = "FREE_LIMIT_REACHED";
-      throw error;
+  try {
+    const response = await fetch(`${SECURITY_API_BASE}/api/usage/session/consume`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const backendSaysLimit =
+        response.status === 403 ||
+        Number(payload.usageCount || 0) >= FREE_LIMIT ||
+        String(payload.error || "").toLowerCase().includes("limit");
+      if (backendSaysLimit) {
+        syncUsageCount(payload.usageCount || FREE_LIMIT, { maxWithCurrent: true });
+        state.isPremium = Boolean(payload.isPremium);
+        persistPlanState();
+        refreshPlan();
+        const error = new Error(t("error.freeLimit"));
+        error.code = "FREE_LIMIT_REACHED";
+        throw error;
+      }
+      throw new Error(payload.error || "Usage security check failed.");
     }
-    throw new Error(payload.error || "Usage security check failed.");
+    syncUsageCount(payload.usageCount || state.usageCount, { maxWithCurrent: true });
+    const backendPremium = Boolean(payload.isPremium);
+    state.isPremium = state.isPremium || backendPremium;
+    persistPlanState();
+    refreshPlan();
+  } catch (error) {
+    if (error?.code === "FREE_LIMIT_REACHED") throw error;
+    state.securityApiReady = false;
+    addUsageFallback();
   }
-  syncUsageCount(payload.usageCount || state.usageCount, { maxWithCurrent: true });
-  const backendPremium = Boolean(payload.isPremium);
-  state.isPremium = state.isPremium || backendPremium;
-  persistPlanState();
-  refreshPlan();
 }
 
 function dl(blob, name) {
@@ -2565,6 +2581,25 @@ function getToolFromPath() {
     "pdf-compress": "compress-pdf",
     "pdf-to-powerpoint": "pdf-to-ppt",
     "powerpoint-to-pdf": "ppt-to-pdf",
+    "image-to-text": "image-to-text-ocr",
+    "mp4-to-mp3": "video-to-audio",
+    "pdf-to-png": "pdf-to-jpg",
+    "png-to-pdf": "jpg-to-pdf",
+    "csv-to-pdf": "txt-to-pdf",
+    "pdf-to-csv": "pdf-to-text",
+    "doc-to-docx": "odt-to-docx",
+    "docx-to-doc": "word-to-txt",
+    "png-to-svg": "svg-to-png",
+    "webp-to-jpgpng": "webp-to-jpg",
+    "svg-to-raster": "svg-to-png",
+    "tiff-to-raster": "tiff-to-jpg",
+    "add-page-numbers": "merge-pdf",
+    "add-watermark": "merge-pdf",
+    "edit-pdf": "merge-pdf",
+    "extract-pages": "split-pdf",
+    "organize-pdf": "merge-pdf",
+    "remove-pages": "split-pdf",
+    "repair-pdf": "compress-pdf",
   };
   const id = aliases[rawId] || rawId;
   return tools.find((t) => t.id === id) || null;

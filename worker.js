@@ -294,10 +294,6 @@ function getCanonicalRedirect(url) {
   if (REDIRECTS.has(url.pathname)) {
     return REDIRECTS.get(url.pathname);
   }
-  if (url.pathname.startsWith("/tool/")) {
-    const slug = url.pathname.replace(/^\/tool\//, "").replace(/\/index\.html$/, "").replace(/\/$/, "");
-    if (slug) return `/tools/${slug}.html`;
-  }
   return null;
 }
 
