@@ -884,9 +884,9 @@
       var shell = document.querySelector(".app-shell");
       var host = shell || main || document.body;
       var wrapper = document.createElement("header");
-      wrapper.className = "topbar global-topbar glass-navbar";
+      wrapper.className = "topbar global-topbar";
       wrapper.innerHTML =
-        '<a href="/index.html" class="brand brand-link"><span class="brand-logo-wrap"><img class="brand-logo" src="/logo-v2.png" alt="Files Converter logo" /></span><span>Files Converter</span></a>' +
+        '<a href="/index.html" class="brand brand-link"><span class="brand-logo-wrap"><img class="brand-logo" src="/logo-v2.png" alt="File Converter" width="240" height="44" loading="eager" decoding="async" /></span></a>' +
         '<nav class="topbar-nav">' + buildNav(currentPath, getPreferredLanguage()) + "</nav>" +
         '<button type="button" class="nav-toggle" aria-expanded="false">Menu</button>' +
         '<div class="topbar-controls"><select id="languageSelect" class="language-select" aria-label="Select language">' + LANGUAGE_OPTIONS_HTML + '</select><button id="themeBulb" class="theme-toggle" type="button" aria-label="Switch to light mode" title="Theme: Dark"><span class="theme-toggle__track"><span class="theme-toggle__sun" aria-hidden="true">☀</span><span class="theme-toggle__knob" aria-hidden="true"><span class="theme-toggle__moon">☾</span></span></span></button></div>';
@@ -897,12 +897,14 @@
       }
       header = wrapper;
     }
-    header.classList.add("global-topbar", "glass-navbar");
-    header.setAttribute("data-glass-navbar", "");
+    header.classList.add("global-topbar");
+    header.setAttribute("data-topbar", "");
     header.setAttribute("data-no-auto-translate", "1");
 
     var brandLabel = header.querySelector(".brand span:last-child");
-    if (brandLabel) brandLabel.textContent = "Files Converter";
+    if (brandLabel && !brandLabel.classList.contains("brand-logo-wrap") && !brandLabel.classList.contains("brand-crown")) {
+      brandLabel.remove();
+    }
 
     var nav = header.querySelector(".topbar-nav");
     if (!nav) {
@@ -1196,6 +1198,7 @@
   }
 
   function boot() {
+    document.documentElement.classList.add("flat-ui");
     ensureAdsenseScript();
     ensureHeader();
     ensureFooter(getPreferredLanguage());

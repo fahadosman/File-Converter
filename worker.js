@@ -31,6 +31,14 @@ const STATIC_EXTENSIONS = new Set([
 const USAGE_FREE_LIMIT = 5;
 const USAGE_COOKIE_COUNT = "fc_usage";
 const USAGE_COOKIE_PREMIUM = "fc_pm";
+const API_RATE_WINDOW_SEC = 60;
+const API_RATE_MAX_PER_WINDOW = 120;
+const ALLOWED_SITE_HOSTS = new Set([
+  "filesconverter.org",
+  "www.filesconverter.org",
+  "localhost",
+  "127.0.0.1",
+]);
 
 const REDIRECTS = new Map([
   ["/tools", "/tools.html"],
@@ -44,6 +52,7 @@ const REDIRECTS = new Map([
   ["/help", "/help.html"],
   ["/blog", "/blog.html"],
   ["/refund", "/refund.html"],
+  ["/fifa-football", "/fifa-football.html"],
 ]);
 
 function json(data, status = 200) {
@@ -110,6 +119,56 @@ function isApiPath(pathname) {
   return pathname.startsWith("/api/");
 }
 
+function getClientIp(request) {
+  return request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For")?.split(",")[0]?.trim() || "unknown";
+}
+
+function isAllowedOrigin(request, url) {
+  const origin = request.headers.get("Origin");
+  if (!origin) return true;
+  try {
+    const originHost = new URL(origin).hostname.toLowerCase();
+    const requestHost = url.hostname.toLowerCase();
+    if (originHost === requestHost) return true;
+    return ALLOWED_SITE_HOSTS.has(originHost);
+  } catch (e) {
+    return false;
+  }
+}
+
+async function isApiRateLimited(request, routeKey) {
+  const ip = getClientIp(request);
+  const cache = caches.default;
+  const cacheKey = new Request(`https://rate-limit.internal/${routeKey}/${ip}`);
+  const cached = await cache.match(cacheKey);
+  let count = 0;
+  if (cached) {
+    count = parseInt(await cached.text(), 10) || 0;
+  }
+  if (count >= API_RATE_MAX_PER_WINDOW) return true;
+  await cache.put(
+    cacheKey,
+    new Response(String(count + 1), {
+      headers: { "Cache-Control": `max-age=${API_RATE_WINDOW_SEC}` },
+    })
+  );
+  return false;
+}
+
+function apiDenied(message, status = 403) {
+  return withCors(json({ error: message }, status));
+}
+
+async function guardApiRequest(request, url, routeKey) {
+  if (!isAllowedOrigin(request, url)) {
+    return apiDenied("Origin not allowed.", 403);
+  }
+  if (await isApiRateLimited(request, routeKey)) {
+    return apiDenied("Too many requests. Please try again shortly.", 429);
+  }
+  return null;
+}
+
 function getExtension(pathname) {
   const last = pathname.split("/").pop() || "";
   const dot = last.lastIndexOf(".");
@@ -169,13 +228,31 @@ function withSecurityHeaders(response, requestUrl) {
   headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   headers.set("Cross-Origin-Resource-Policy", "same-origin");
   headers.set("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+  headers.set("X-Permitted-Cross-Domain-Policies", "none");
+  headers.set("X-DNS-Prefetch-Control", "off");
+  headers.set("Origin-Agent-Cluster", "?1");
   headers.set("X-Robots-Tag", "all");
   headers.set("Alt-Svc", 'h3=":443"; ma=86400');
-  headers.set("Content-Security-Policy", "upgrade-insecure-requests; block-all-mixed-content");
+  headers.set("Content-Security-Policy", "upgrade-insecure-requests; block-all-mixed-content; object-src 'none'; base-uri 'self'; frame-ancestors 'self'");
   if (isHtmlRoute(url.pathname)) {
     headers.set(
       "Content-Security-Policy",
-      "default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; block-all-mixed-content"
+      [
+        "default-src 'self' https: data: blob:",
+        "script-src 'self' 'unsafe-inline' https:",
+        "style-src 'self' 'unsafe-inline' https:",
+        "img-src 'self' data: blob: https:",
+        "font-src 'self' data: https:",
+        "connect-src 'self' https:",
+        "worker-src 'self' blob:",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "frame-src https://cdn.paddle.com https://buy.paddle.com https://checkout.paddle.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com",
+        "frame-ancestors 'self'",
+        "upgrade-insecure-requests",
+        "block-all-mixed-content",
+      ].join("; ")
     );
   }
   return new Response(response.body, { status: response.status, headers });
@@ -332,23 +409,33 @@ export default {
 
     try {
       if (url.pathname === "/api/rum" && request.method === "POST") {
+        const blocked = await guardApiRequest(request, url, "rum");
+        if (blocked) return blocked;
         const payload = await request.json().catch(() => ({}));
         console.log(JSON.stringify({ level: "info", type: "rum", requestId, payload }));
         return withCors(json({ ok: true }, 202));
       }
       if (url.pathname === "/api/payments/paddle/verify" && request.method === "POST") {
+        const blocked = await guardApiRequest(request, url, "paddle-verify");
+        if (blocked) return blocked;
         return withCors(await verifyCheckout(request, env));
       }
       if (url.pathname === "/api/health" && request.method === "GET") {
         return withCors(json({ ok: true, service: "fileconverter-worker", ts: new Date().toISOString() }));
       }
       if (url.pathname === "/api/usage/session/start" && request.method === "POST") {
+        const blocked = await guardApiRequest(request, url, "usage-start");
+        if (blocked) return blocked;
         return withCors(json(usageSessionPayload(request)));
       }
       if (url.pathname === "/api/usage/session/status" && request.method === "GET") {
+        const blocked = await guardApiRequest(request, url, "usage-status");
+        if (blocked) return blocked;
         return withCors(json(usageSessionPayload(request)));
       }
       if (url.pathname === "/api/usage/session/consume" && request.method === "POST") {
+        const blocked = await guardApiRequest(request, url, "usage-consume");
+        if (blocked) return blocked;
         return handleUsageConsume(request);
       }
     } catch (error) {

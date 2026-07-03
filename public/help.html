@@ -27,16 +27,7 @@
       var prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
       var theme = savedTheme === "light" || savedTheme === "dark" ? savedTheme : (prefersLight ? "light" : "dark");
       applyTheme(theme);
-    })();
-  </script>
-  <script>
-    (function () {
-      var isApple = /mac|iphone|ipad|ipod/i.test(navigator.platform + " " + navigator.userAgent);
-      if (isApple) return;
-      var glassCss = document.createElement("link");
-      glassCss.rel = "stylesheet";
-      glassCss.href = "liquid-glass.css";
-      document.head.appendChild(glassCss);
+      document.documentElement.classList.add("flat-ui");
     })();
   </script>
   <link rel="stylesheet" href="styles.css" />
@@ -57,27 +48,23 @@
 
     .guide-card {
       background: var(--card-surface);
-      backdrop-filter: blur(4px);
       border-radius: 1.25rem;
       padding: 1.25rem 1rem 1rem 1rem;
-      transition: all 0.2s ease;
+      transition: border-color 0.15s ease;
       border: 1px solid var(--border-light, rgba(0,0,0,0.05));
-      box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
       display: flex;
       flex-direction: column;
       height: 100%;
-      background: var(--card-bg, rgba(255,255,255,0.6));
     }
 
     [data-theme="dark"] .guide-card {
-      background: rgba(20, 20, 30, 0.7);
+      background: var(--card-surface);
       border-color: rgba(255,255,255,0.08);
-      backdrop-filter: blur(6px);
     }
 
     .guide-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 14px 28px rgba(0,0,0,0.08);
+      border-color: var(--accent);
     }
 
     /* inner details/summary dropdown (preserves expand/collapse) */
@@ -222,7 +209,7 @@
     <header class="topbar glass-navbar" data-glass-navbar>
       <a href="/index.html" class="brand brand-link">
         <span class="brand-logo-wrap">
-          <img class="brand-logo" src="logo-v2.png" alt="Files Converter logo" />
+          <img class="brand-logo" src="logo-v2.png" alt="File Converter" width="240" height="44" loading="eager" decoding="async" fetchpriority="high" />
         </span>
         <span>Files Converter</span>
       </a>

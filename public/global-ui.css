@@ -1,13 +1,13 @@
 :root {
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.25);
-  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  --surface-bg: rgba(12, 18, 40, 0.92);
+  --surface-border: rgba(255, 255, 255, 0.12);
+  --surface-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
 }
 
 [data-theme="light"] {
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(16, 24, 40, 0.14);
-  --glass-shadow: 0 10px 30px rgba(20, 34, 80, 0.12);
+  --surface-bg: rgba(255, 255, 255, 0.96);
+  --surface-border: rgba(39, 57, 118, 0.18);
+  --surface-shadow: 0 10px 24px rgba(20, 34, 80, 0.08);
 }
 
 body {
@@ -27,11 +27,9 @@ main {
 .faq-card,
 .auth-modal__dialog,
 .glass-surface {
-  background: linear-gradient(160deg, var(--glass-bg), rgba(255, 255, 255, 0.02));
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: var(--surface-bg, var(--card-surface, rgba(12, 18, 40, 0.92)));
+  border: 1px solid var(--surface-border, var(--panel-border, rgba(255, 255, 255, 0.12)));
+  box-shadow: var(--surface-shadow, 0 10px 24px rgba(0, 0, 0, 0.12));
 }
 
 .global-topbar .brand,
@@ -58,8 +56,8 @@ main {
 
 .nav-toggle {
   display: none;
-  border: 1px solid var(--panel-border, var(--glass-border));
-  background: var(--soft-bg, var(--glass-bg));
+  border: 1px solid var(--panel-border, var(--surface-border));
+  background: var(--soft-bg, var(--surface-bg));
   color: var(--text, inherit);
   border-radius: 10px;
   padding: 8px 10px;

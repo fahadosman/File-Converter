@@ -4,6 +4,18 @@
   display: none !important;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 :root {
   --bg: #060816;
   --panel-border: rgba(255, 255, 255, 0.12);
@@ -25,6 +37,8 @@
   --iap-coral: rgba(124, 140, 255, 0.22);
   --cta-shadow: 0 4px 14px rgba(124, 140, 255, 0.28);
   --select-bg: linear-gradient(135deg, rgba(124, 140, 255, 0.22), rgba(66, 215, 255, 0.16));
+  --card-surface: rgba(12, 18, 40, 0.92);
+  --card-surface-elevated: rgba(18, 24, 48, 0.98);
 }
 
 [data-theme="light"] {
@@ -48,6 +62,8 @@
   --iap-coral: rgba(87, 107, 255, 0.2);
   --cta-shadow: 0 6px 18px rgba(87, 107, 255, 0.22);
   --select-bg: linear-gradient(135deg, rgba(87, 107, 255, 0.14), rgba(32, 166, 214, 0.14));
+  --card-surface: rgba(255, 255, 255, 0.96);
+  --card-surface-elevated: #ffffff;
 }
 
 [data-theme="dark"] body {
@@ -79,10 +95,7 @@ body {
 }
 
 .background-glow {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(120deg, rgba(124, 140, 255, 0.08), rgba(66, 215, 255, 0.05));
+  display: none;
 }
 
 /* Reduce scroll-time paint cost on macOS devices. */
@@ -276,11 +289,16 @@ body {
 }
 
 .brand-logo {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  object-fit: cover;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+  width: auto;
+  height: 44px;
+  max-width: min(240px, 52vw);
+  border-radius: 0;
+  object-fit: contain;
+  box-shadow: none;
+}
+
+.brand > span:last-child:not(.brand-logo-wrap):not(.visually-hidden) {
+  display: none;
 }
 
 .brand-crown {
@@ -413,11 +431,11 @@ body {
 
 .tool-list-panel,
 .card {
-  background: linear-gradient(155deg, var(--soft-bg), rgba(255, 255, 255, 0.02));
+  background: var(--card-surface);
   border: 1px solid var(--panel-border);
-  border-radius: 24px;
-  backdrop-filter: blur(10px);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  border-radius: 20px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  transition: border-color 0.15s ease, transform 0.15s ease;
 }
 
 /* Safari can struggle with layered blur + shadows in large UIs. */
@@ -926,15 +944,46 @@ button {
 
 .iap-banner {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(220px, 0.7fr);
-  gap: 24px;
-  align-items: center;
-  padding: 24px 26px;
-  border-radius: 22px;
+  grid-template-columns: minmax(0, 1.4fr) minmax(180px, 0.6fr);
+  gap: 20px;
+  align-items: stretch;
+  padding: 22px 24px;
+  border-radius: 20px;
   border: 1px solid var(--panel-border);
-  background: var(--iap-bg);
-  overflow: hidden;
+  background: var(--card-surface-elevated);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
   position: relative;
+  overflow: hidden;
+}
+
+.iap-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+}
+
+.iap-banner__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.iap-banner__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #07111f;
+  background: linear-gradient(120deg, #ffda6f, #ffd24a);
+  border: 1px solid rgba(255, 210, 74, 0.7);
 }
 
 .iap-banner__text h3 {
@@ -1079,11 +1128,208 @@ button {
 }
 
 .iap-banner__visual {
-  position: relative;
-  min-height: 140px;
+  display: none;
+}
+
+.iap-banner__aside {
+  display: grid;
+  gap: 10px;
+  align-content: center;
+}
+
+.iap-stat {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--panel-border);
+  background: var(--soft-bg);
+}
+
+.iap-stat strong {
+  font-size: 1.15rem;
+  color: var(--accent);
+}
+
+.iap-stat span {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Home pricing plans (flat, no glass) */
+.pricing-plans {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 0;
+}
+
+.pricing-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 20px;
+  border-radius: 20px;
+  border: 1px solid var(--panel-border);
+  background: var(--card-surface);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.pricing-plan--featured {
+  border-color: rgba(124, 140, 255, 0.55);
+  background: linear-gradient(160deg, rgba(124, 140, 255, 0.12), var(--card-surface-elevated));
+  box-shadow: 0 14px 30px rgba(124, 140, 255, 0.16);
+}
+
+.pricing-plan__badge {
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--soft-bg);
+  border: 1px solid var(--panel-border);
+}
+
+.pricing-plan--featured .pricing-plan__badge {
+  color: #07111f;
+  background: linear-gradient(120deg, var(--accent), var(--accent-2));
+  border-color: transparent;
+}
+
+.pricing-plan h3 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.pricing-plan__price {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.pricing-plan__price small {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.pricing-plan ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  line-height: 1.6;
+  flex: 1;
+}
+
+.plan-btn {
+  margin-top: auto;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+  background: var(--soft-bg);
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+
+.plan-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent);
+}
+
+.plan-btn--primary {
+  border: none;
+  color: #07111f;
+  background: linear-gradient(120deg, var(--accent), var(--accent-2));
+  box-shadow: var(--cta-shadow);
+}
+
+/* Flat UI: disable liquid glass sitewide */
+.flat-ui .glass-surface::before,
+.flat-ui .glass-pricing-card::before,
+.flat-ui .card::before,
+.flat-ui .tool-list-panel::before {
+  display: none !important;
+}
+
+.flat-ui .glass-surface,
+.flat-ui .glass-pricing-card,
+.flat-ui .glass-btn,
+.flat-ui .glass-navbar,
+.flat-ui .glass-modal__panel {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.flat-ui body,
+.apple-performance body {
+  background: var(--bg);
+}
+
+.flat-ui [data-theme="dark"] body {
+  background: var(--bg);
+}
+
+.flat-ui .topbar,
+.flat-ui .global-topbar {
+  background: var(--card-surface);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  padding: 10px 14px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+/* Performance */
+.tool-grid {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 900px;
+}
+
+.tool-btn,
+.pill-filter,
+.filter-btn,
+.plan-btn,
+.iap-cta {
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 780px) {
+  .pricing-plans {
+    grid-template-columns: 1fr;
+  }
+
+  .iap-banner {
+    grid-template-columns: 1fr;
+  }
+
+  .iap-banner__aside {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .iap-banner__aside {
+    grid-template-columns: 1fr;
+  }
 }
 
 .iap-banner__coral {
@@ -1295,8 +1541,7 @@ button {
   margin: 6vh auto 0;
   border-radius: 20px;
   border: 1px solid var(--panel-border);
-  background: linear-gradient(160deg, var(--soft-bg-strong), rgba(255, 255, 255, 0.04));
-  backdrop-filter: blur(12px);
+  background: var(--card-surface-elevated);
   padding: 22px;
   overflow: hidden;
 }
@@ -1640,11 +1885,9 @@ button {
     font-size: 20px;
   }
 
-  .brand span:last-child {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 55vw;
+  .brand-logo {
+    height: 36px;
+    max-width: min(180px, 46vw);
   }
 
   .premium-tag--top {

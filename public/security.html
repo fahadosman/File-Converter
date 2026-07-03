@@ -57,27 +57,23 @@
 
     .security-card {
       background: var(--card-surface);
-      backdrop-filter: blur(4px);
       border-radius: 1.25rem;
       padding: 1.25rem 1rem 1rem 1rem;
-      transition: all 0.2s ease;
+      transition: border-color 0.15s ease;
       border: 1px solid var(--border-light, rgba(0,0,0,0.05));
-      box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
       display: flex;
       flex-direction: column;
       height: 100%;
-      background: var(--card-bg, rgba(255,255,255,0.6));
     }
 
     [data-theme="dark"] .security-card {
-      background: rgba(20, 20, 30, 0.7);
+      background: var(--card-surface);
       border-color: rgba(255,255,255,0.08);
-      backdrop-filter: blur(6px);
     }
 
     .security-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 14px 28px rgba(0,0,0,0.08);
+      border-color: var(--accent);
     }
 
     /* details/summary dropdown style */
@@ -244,7 +240,7 @@
     <header class="topbar glass-navbar" data-glass-navbar>
       <a href="/index.html" class="brand brand-link">
         <span class="brand-logo-wrap">
-          <img class="brand-logo" src="logo-v2.png" alt="Files Converter logo" />
+          <img class="brand-logo" src="logo-v2.png" alt="File Converter" width="240" height="44" loading="eager" decoding="async" fetchpriority="high" />
         </span>
         <span>Files Converter</span>
       </a>
@@ -339,7 +335,9 @@
         <div class="security-card"><details><summary>Data privacy & retention</summary><p>Standard conversions do not create server-side file backups. Website configuration may be backed up; user document contents from in-browser tools are not.</p></details></div>
         <div class="security-card"><details><summary>No malware bundles</summary><p>Downloads are the converted file you requested—not installers, browser extensions, or “PC cleaner” software. If a download looks unexpected, stop and contact support.</p></details></div>
         <div class="security-card"><details><summary>Availability & incident response</summary><p>We monitor system health and apply incident handling procedures to maintain service continuity and rapid remediation.</p></details></div>
-        <div class="security-card"><details><summary>API security controls</summary><p>APIs use authentication tokens, rate limiting, and input validation to prevent abuse and injection attacks.</p></details></div>
+        <div class="security-card"><details><summary>API security controls</summary><p>Edge APIs enforce origin checks, per-IP rate limits, and JSON-only payloads. Abuse triggers HTTP 429 responses before requests reach application logic.</p></details></div>
+        <div class="security-card"><details><summary>Content Security Policy (CSP)</summary><p>HTML pages use a strict CSP: object-src blocked, base-uri locked to self, frame-ancestors limited, and only approved payment/ad frames allowed.</p></details></div>
+        <div class="security-card"><details><summary>HTTPS-only delivery</summary><p>HTTP requests are permanently redirected to HTTPS. HSTS preload headers reduce downgrade and sslstrip risk.</p></details></div>
         <div class="security-card"><details><summary>Vulnerability management</summary><p>Regular scanning, dependency patching, and coordinated disclosure program to address potential weaknesses.</p></details></div>
         <div class="security-card"><details><summary>What “secure upload” means here</summary><p>You select a file from your device; for in-browser tools it is not uploaded to us for processing. The site itself uses HTTPS. This is different from server-based converters that store files for hours.</p></details></div>
       </div>

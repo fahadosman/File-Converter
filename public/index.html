@@ -26,6 +26,7 @@
       }
       var theme = savedTheme === "light" || savedTheme === "dark" ? savedTheme : "light";
       document.documentElement.setAttribute("data-theme", theme);
+      document.documentElement.classList.add("flat-ui");
       if (isApple) {
         document.documentElement.classList.add("apple-performance", "mac-performance");
       }
@@ -49,25 +50,22 @@
     }
 
     .split-card {
-      background: var(--card-surface, rgba(255,255,255,0.6));
-      backdrop-filter: blur(12px);
-      border-radius: 1.5rem;
+      background: var(--card-surface, rgba(255,255,255,0.96));
+      border-radius: 1.25rem;
       padding: 1.8rem;
       border: 1px solid var(--border-light, rgba(0,0,0,0.05));
-      box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
       height: 100%;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: border-color 0.15s ease;
     }
 
     [data-theme="dark"] .split-card {
-      background: rgba(20, 20, 30, 0.7);
+      background: var(--card-surface, rgba(12, 18, 40, 0.92));
       border-color: rgba(255,255,255,0.08);
-      backdrop-filter: blur(12px);
     }
 
     .split-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+      border-color: var(--accent, #7c8cff);
     }
 
     .split-card h2 {
@@ -152,8 +150,7 @@
     }
 
     .rating-compact-card {
-      background: var(--card-surface, rgba(255,255,255,0.6));
-      backdrop-filter: blur(12px);
+      background: var(--card-surface, rgba(255,255,255,0.96));
       border-radius: 1.25rem;
       padding: 1.5rem;
       border: 1px solid var(--border-light, rgba(0,0,0,0.05));
@@ -164,7 +161,7 @@
     }
 
     [data-theme="dark"] .rating-compact-card {
-      background: rgba(20, 20, 30, 0.7);
+      background: var(--card-surface, rgba(12, 18, 40, 0.92));
     }
 
     .rating-compact-header {
@@ -237,9 +234,9 @@
       display: none;
     }
 
-    /* Glass pricing cards keep original styling but ensure spacing */
-    .glass-pricing-grid {
-      margin-bottom: 0;
+    /* Pricing spacing */
+    .pricing-spacing {
+      margin-bottom: 2rem;
     }
 
     /* Updated header navigation styles */
@@ -289,18 +286,6 @@
       contain-intrinsic-size: 1px 700px;
     }
   </style>
-  <script>
-    (function () {
-      var html = document.documentElement;
-      var isApple = html.classList.contains("apple-performance");
-      if (isApple) return;
-
-      var glassCss = document.createElement("link");
-      glassCss.rel = "stylesheet";
-      glassCss.href = "liquid-glass.css";
-      document.head.appendChild(glassCss);
-    })();
-  </script>
 
   <link rel="canonical" href="https://filesconverter.org/" />
   <link rel="alternate" hreflang="en" href="https://filesconverter.org/" />
@@ -333,13 +318,13 @@
   <div class="background-glow" aria-hidden="true"></div>
 
   <main class="app-shell">
-    <header class="topbar glass-navbar" data-glass-navbar>
+    <header class="topbar" data-topbar>
       <div class="brand">
         <span class="brand-logo-wrap">
-          <img class="brand-logo" src="logo-v2.png" alt="Files Converter logo" width="40" height="40" loading="eager" decoding="async" fetchpriority="high" />
+          <img class="brand-logo" src="logo-v2.png" alt="File Converter" width="240" height="44" loading="eager" decoding="async" fetchpriority="high" />
           <span id="brandCrown" class="brand-crown hidden" aria-label="Premium user">👑</span>
         </span>
-        <span id="brandTitle">Files Converter</span>
+        <span id="brandTitle" class="visually-hidden">Files Converter</span>
       </div>
       <!-- Added navigation links: Home, Features, Tools, FAQ, About us, Contact us -->
       <nav class="topbar-nav">
@@ -414,30 +399,29 @@
         <div id="toolList" class="tool-grid" aria-label="Converter tools"></div>
       </section>
 
-      <!-- Glass pricing cards with proper spacing -->
       <div class="pricing-spacing">
-        <section class="glass-pricing-grid" aria-label="Pricing plans">
-          <article class="glass-pricing-card" data-plan="free">
-            <p class="glass-pricing-card__tag">Free</p>
+        <section class="pricing-plans" aria-label="Pricing plans">
+          <article class="pricing-plan" data-plan="free">
+            <span class="pricing-plan__badge">Free</span>
             <h3>Starter</h3>
-            <p class="glass-pricing-card__price">$0<span>/month</span></p>
+            <p class="pricing-plan__price">$0<small>/month</small></p>
             <ul>
               <li>5 free conversions</li>
               <li>Core converter tools</li>
               <li>Community support</li>
             </ul>
-            <button type="button" class="glass-btn">Current Plan</button>
+            <button type="button" class="plan-btn">Current Plan</button>
           </article>
-          <article class="glass-pricing-card glass-pricing-card--featured" data-plan="premium">
-            <p class="glass-pricing-card__tag">Premium</p>
+          <article class="pricing-plan pricing-plan--featured" data-plan="premium">
+            <span class="pricing-plan__badge">Premium</span>
             <h3>Pro</h3>
-            <p class="glass-pricing-card__price">$2<span>/month</span></p>
+            <p class="pricing-plan__price">$2<small>/month</small></p>
             <ul>
               <li>Unlimited conversions</li>
               <li>Priority processing</li>
               <li>All premium tools</li>
             </ul>
-            <button id="glassPremiumBtn" type="button" class="glass-btn glass-btn--primary">Upgrade to Premium</button>
+            <button id="glassPremiumBtn" type="button" class="plan-btn plan-btn--primary">Upgrade to Premium</button>
           </article>
         </section>
       </div>
@@ -577,29 +561,26 @@
 
         <article class="iap-banner" aria-labelledby="iap-heading">
           <div class="iap-banner__text">
-            <h3 id="iap-heading">
-              Get more with Premium
-            </h3>
+            <div class="iap-banner__head">
+              <span class="iap-banner__badge">Premium</span>
+              <h3 id="iap-heading">Unlock unlimited conversions</h3>
+            </div>
             <ul class="iap-banner__list">
-              <li>Full access to every converter and priority processing</li>
-              <li>Advanced tools, larger files, and fewer limits on your workflow</li>
-              <li>Connect tools and build custom conversion flows</li>
+              <li>Full access to every converter with priority processing</li>
+              <li>Larger files and advanced tools for daily workflows</li>
+              <li>Build faster with fewer limits on every format</li>
             </ul>
             <p id="planStatus" class="iap-plan-line">Free Plan: 0/5 conversions used</p>
             <button id="upgradeBtn" class="iap-cta cta-btn" type="button">
               <span class="iap-cta__icon" aria-hidden="true">👑</span>
-              Get Premium
+              Get Premium — $2/mo
             </button>
           </div>
-          <div class="iap-banner__visual" aria-hidden="true">
-            <div class="iap-banner__coral"></div>
-            <div class="iap-banner__doc">
-              <span class="iap-banner__doc-line"></span>
-              <div class="iap-banner__doc-block"></div>
-              <div class="iap-banner__doc-block iap-banner__doc-block--sm"></div>
-            </div>
-            <span class="iap-banner__spark">✦</span>
-          </div>
+          <aside class="iap-banner__aside" aria-hidden="true">
+            <div class="iap-stat"><strong>∞</strong><span>Unlimited</span></div>
+            <div class="iap-stat"><strong>100+</strong><span>Tools</span></div>
+            <div class="iap-stat"><strong>$2</strong><span>Per month</span></div>
+          </aside>
         </article>
       </section>
     </div>
@@ -685,22 +666,6 @@
   </div>
 
   <script src="locales.js" defer></script>
-  <script>
-    (function () {
-      var isApple = document.documentElement.classList.contains("apple-performance");
-      if (isApple) return;
-
-      var s1 = document.createElement("script");
-      s1.src = "liquid-glass-components.js";
-      s1.defer = true;
-      document.body.appendChild(s1);
-
-      var s2 = document.createElement("script");
-      s2.src = "liquid-glass.js";
-      s2.defer = true;
-      document.body.appendChild(s2);
-    })();
-  </script>
   <script src="app-loader.js" defer></script>
 </body>
 </html>

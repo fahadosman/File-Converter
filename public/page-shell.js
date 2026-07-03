@@ -41,22 +41,6 @@
     });
   };
 
-  const loadGlassEnhancements = () => {
-    const path = window.location.pathname || "/";
-    const isHome = path === "/" || path === "/index.html";
-    if (!isHome) return;
-    const isApple = /mac|iphone|ipad|ipod/i.test((navigator.platform || "") + " " + (navigator.userAgent || ""));
-    if (isApple) return;
-
-    if (!document.querySelector('link[data-glass-css="1"]')) {
-      const css = document.createElement("link");
-      css.rel = "stylesheet";
-      css.href = "liquid-glass.css";
-      css.dataset.glassCss = "1";
-      document.head.appendChild(css);
-    }
-  };
-
   const enableLowPowerMode = () => {
     const ua = (navigator.userAgent || "").toLowerCase();
     const isAndroid = ua.includes("android");
@@ -69,7 +53,6 @@
     const style = document.createElement("style");
     style.textContent = `
       .low-power-ui .background-glow { display: none !important; }
-      .low-power-ui .glass-navbar, .low-power-ui .glass-surface, .low-power-ui .split-card, .low-power-ui .rating-compact-card { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
       .low-power-ui * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.08s !important; }
     `;
     document.head.appendChild(style);
@@ -124,15 +107,11 @@
     } catch (_) {}
   };
 
+  document.documentElement.classList.add("flat-ui");
   applyTheme(getResolvedTheme());
   enableLowPowerMode();
   initThemeToggle();
   lazyLoadMedia();
   registerServiceWorker();
   trackWebVitals();
-  if ("requestIdleCallback" in window) {
-    window.requestIdleCallback(loadGlassEnhancements, { timeout: 1200 });
-  } else {
-    setTimeout(loadGlassEnhancements, 200);
-  }
 })();

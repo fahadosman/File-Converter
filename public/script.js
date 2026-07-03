@@ -519,6 +519,7 @@ const els = {
   brandTitle: document.getElementById("brandTitle"),
   planStatus: document.getElementById("planStatus"),
   upgradeBtn: document.getElementById("upgradeBtn"),
+  glassPremiumBtn: document.getElementById("glassPremiumBtn"),
   iapBanner: document.querySelector(".iap-banner"),
   downloadBtn: document.getElementById("downloadBtn"),
   downloadInfo: document.getElementById("downloadInfo"),
@@ -775,6 +776,7 @@ function initTheme() {
   const savedTheme = localStorage.getItem("convertpro-theme");
   const chosen = savedTheme === "light" || savedTheme === "dark" ? savedTheme : "light";
   applyTheme(chosen);
+  document.documentElement.classList.add("flat-ui");
   if (IS_SAFARI) document.documentElement.classList.add("safari-optimized");
   if (IS_MAC) document.documentElement.classList.add("mac-performance");
   if (IS_APPLE_DEVICE) document.documentElement.classList.add("apple-performance");
@@ -799,6 +801,7 @@ function initScrollPerformanceMode() {
 }
 
 function playThemeToggleSound(isLightMode) {
+  if (IS_APPLE_DEVICE) return;
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   if (!AudioCtx) return;
   const ctx = new AudioCtx();
@@ -2737,6 +2740,7 @@ if (HAS_CONVERTER_APP) {
     els.themeBulb.addEventListener("click", toggleThemeWithSound);
   }
   els.upgradeBtn.addEventListener("click", upgrade);
+  if (els.glassPremiumBtn) els.glassPremiumBtn.addEventListener("click", upgrade);
   if (els.premiumDialogUpgradeBtn) els.premiumDialogUpgradeBtn.addEventListener("click", upgrade);
   if (els.premiumDialogCloseBtn) els.premiumDialogCloseBtn.addEventListener("click", closePremiumLimitDialog);
   if (els.premiumLimitDialog) {
