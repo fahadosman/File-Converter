@@ -302,6 +302,52 @@
       }
     }
 
+    .seo-keywords-section {
+      margin-top: 1.5rem;
+    }
+
+    .seo-keywords-section h2 {
+      margin-top: 0;
+      font-size: 1.45rem;
+    }
+
+    .seo-keywords-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 1rem;
+    }
+
+    .seo-keyword-link {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--panel-border);
+      background: var(--soft-bg);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+      transition: border-color 0.12s ease, color 0.12s ease;
+    }
+
+    .seo-keyword-link:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .trust-content-section p {
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .trust-content-section ul {
+      color: var(--muted);
+      line-height: 1.65;
+      padding-left: 1.2rem;
+    }
+
     /* Updated header navigation styles */
     .topbar-nav {
       display: flex;
@@ -353,6 +399,7 @@
   <link rel="canonical" href="https://filesconverter.org/" />
   <link rel="alternate" hreflang="en" href="https://filesconverter.org/" />
   <link rel="alternate" hreflang="x-default" href="https://filesconverter.org/" />
+  <meta name="keywords" content="file converter, PDF to Word, Word to PDF, JPG to PNG, PNG to JPG, HEIC to JPG, WebP to JPG, JPG to PDF, PDF to JPG, Excel to PDF, PDF to Excel, MP4 to MP3, online file converter, free document converter" />
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Files Converter - Free Online PDF, Word, Excel, Image, and File Converter Tools" />
@@ -473,7 +520,7 @@
               <li>Core converter tools</li>
               <li>Community support</li>
             </ul>
-            <button type="button" class="plan-btn">Current Plan</button>
+            <button type="button" class="plan-btn" disabled>Current Plan</button>
           </article>
           <article class="pricing-plan pricing-plan--featured" data-plan="premium">
             <span class="pricing-plan__badge">Premium</span>
@@ -484,7 +531,7 @@
               <li>Priority processing</li>
               <li>All premium tools</li>
             </ul>
-            <button id="premiumPlanBtn" type="button" class="plan-btn plan-btn--primary">Upgrade to Premium</button>
+            <button id="premiumPlanBtn" type="button" class="plan-btn plan-btn--primary" data-upgrade-premium>Upgrade to Premium</button>
           </article>
         </section>
       </div>
@@ -521,6 +568,75 @@
           </div>
         </div>
       </div>
+
+      <section class="info-section card trust-content-section" style="padding:24px; margin-top: 1.5rem;">
+        <h2 style="margin-top:0;">Built for real people, not clickbait</h2>
+        <p>
+          Files Converter is an independent website operated by Fahad Usman. We publish clear policies, explain how tools work, and focus on practical conversion tasks people search for every day — from <strong>PDF to Word</strong> edits to <strong>HEIC to JPG</strong> uploads and <strong>MP4 to MP3</strong> audio exports.
+        </p>
+        <p>
+          Most conversions run in your browser, which means fewer unnecessary uploads and a workflow that feels faster on Mac, Windows, and mobile. Premium checkout is handled by Paddle with published <a href="/terms.html">terms</a>, <a href="/privacy.html">privacy</a>, and <a href="/refund.html">refund</a> pages so expectations stay transparent.
+        </p>
+        <ul>
+          <li>Original guides and troubleshooting articles in our <a href="/articles/">articles hub</a></li>
+          <li>Security overview at <a href="/security.html">security</a> with real technical controls</li>
+          <li>Human support path via <a href="/contact.html">contact</a> and detailed <a href="/faq.html">FAQ</a></li>
+          <li>No fake download buttons, no impersonator redirects, no misleading “unlimited free” traps</li>
+        </ul>
+      </section>
+
+      <section class="info-section card seo-keywords-section" style="padding:24px;">
+        <h2>Popular free online converters</h2>
+        <p style="color:var(--muted); margin-bottom:0;">
+          Search-friendly tools for documents, images, audio, video, and archives. Open any converter below — no install required.
+        </p>
+        <nav class="seo-keywords-grid" aria-label="Popular file converters">
+          <a class="seo-keyword-link" href="/tools/pdf-to-word.html">PDF to Word</a>
+          <a class="seo-keyword-link" href="/tools/word-to-pdf.html">Word to PDF</a>
+          <a class="seo-keyword-link" href="/tools/jpg-to-png.html">JPG to PNG</a>
+          <a class="seo-keyword-link" href="/tools/png-to-jpg.html">PNG to JPG</a>
+          <a class="seo-keyword-link" href="/tools/heic-to-jpg.html">HEIC to JPG</a>
+          <a class="seo-keyword-link" href="/tools/webp-to-jpg.html">WebP to JPG</a>
+          <a class="seo-keyword-link" href="/tools/jpg-to-pdf.html">JPG to PDF</a>
+          <a class="seo-keyword-link" href="/tools/pdf-to-jpg.html">PDF to JPG</a>
+          <a class="seo-keyword-link" href="/tools/webp-to-png.html">WebP to PNG</a>
+          <a class="seo-keyword-link" href="/tools/excel-to-pdf.html">Excel to PDF</a>
+          <a class="seo-keyword-link" href="/tools/pdf-to-excel.html">PDF to Excel</a>
+          <a class="seo-keyword-link" href="/tools/powerpoint-to-pdf.html">PowerPoint to PDF</a>
+          <a class="seo-keyword-link" href="/tools/pdf-to-powerpoint.html">PDF to PowerPoint</a>
+          <a class="seo-keyword-link" href="/tools/pdf-to-text.html">PDF to Text</a>
+          <a class="seo-keyword-link" href="/tools/txt-to-pdf.html">Text to PDF</a>
+          <a class="seo-keyword-link" href="/tools/html-to-pdf.html">HTML to PDF</a>
+          <a class="seo-keyword-link" href="/tools/pdf-to-html.html">PDF to HTML</a>
+          <a class="seo-keyword-link" href="/tools/epub-to-pdf.html">EPUB to PDF</a>
+          <a class="seo-keyword-link" href="/tools/pdf-to-epub.html">PDF to EPUB</a>
+          <a class="seo-keyword-link" href="/tools/mobi-to-epub.html">MOBI to EPUB</a>
+          <a class="seo-keyword-link" href="/tools/video-to-audio.html">MP4 to MP3</a>
+          <a class="seo-keyword-link" href="/tools/mp3-to-wav.html">MP3 to WAV</a>
+          <a class="seo-keyword-link" href="/tools/wav-to-mp3.html">WAV to MP3</a>
+          <a class="seo-keyword-link" href="/tools/mov-to-mp4.html">MOV to MP4</a>
+          <a class="seo-keyword-link" href="/tools/avi-to-mp4.html">AVI to MP4</a>
+          <a class="seo-keyword-link" href="/tools/mkv-to-mp4.html">MKV to MP4</a>
+          <a class="seo-keyword-link" href="/tools/mp4-to-gif.html">MP4 to GIF</a>
+          <a class="seo-keyword-link" href="/tools/gif-to-mp4.html">GIF to MP4</a>
+          <a class="seo-keyword-link" href="/tools/zip-to-rar.html">ZIP to RAR</a>
+          <a class="seo-keyword-link" href="/tools/rar-to-zip.html">RAR to ZIP</a>
+          <a class="seo-keyword-link" href="/tools/xml-to-json.html">XML to JSON</a>
+          <a class="seo-keyword-link" href="/tools/json-to-xml.html">JSON to XML</a>
+          <a class="seo-keyword-link" href="/tools/csv-to-excel.html">CSV to Excel</a>
+          <a class="seo-keyword-link" href="/tools/excel-to-csv.html">Excel to CSV</a>
+          <a class="seo-keyword-link" href="/tools/docx-to-odt.html">DOCX to ODT</a>
+          <a class="seo-keyword-link" href="/tools/odt-to-docx.html">ODT to DOCX</a>
+          <a class="seo-keyword-link" href="/tools/svg-to-png.html">SVG to PNG</a>
+          <a class="seo-keyword-link" href="/tools/bmp-to-jpg.html">BMP to JPG</a>
+          <a class="seo-keyword-link" href="/tools/tiff-to-jpg.html">TIFF to JPG</a>
+          <a class="seo-keyword-link" href="/tools/ico-to-png.html">ICO to PNG</a>
+          <a class="seo-keyword-link" href="/tools/image-to-text-ocr.html">Image to Text</a>
+          <a class="seo-keyword-link" href="/tools/merge-pdf.html">Merge PDF</a>
+          <a class="seo-keyword-link" href="/tools/pdf-compress.html">Compress PDF</a>
+          <a class="seo-keyword-link" href="/tools.html">All file converters</a>
+        </nav>
+      </section>
 
       <section class="info-section card" style="padding:24px; margin-top: 1.5rem;">
         <h2 style="margin-top:0;">A more human way to convert files online</h2>
@@ -634,7 +750,7 @@
               <li>Build faster with fewer limits on every format</li>
             </ul>
             <p id="planStatus" class="iap-plan-line">Free Plan: 0/5 conversions used</p>
-            <button id="upgradeBtn" class="iap-cta cta-btn" type="button">
+            <button id="upgradeBtn" class="iap-cta cta-btn" type="button" data-upgrade-premium>
               <span class="iap-cta__icon" aria-hidden="true">👑</span>
               Get Premium — $2/mo
             </button>
@@ -720,7 +836,7 @@
         </div>
       </div>
       <div class="actions">
-        <button id="premiumDialogUpgradeBtn" class="primary-btn cta-btn" type="button">
+        <button id="premiumDialogUpgradeBtn" class="primary-btn cta-btn" type="button" data-upgrade-premium>
           <span class="iap-cta__icon" aria-hidden="true">👑</span>
           Get Premium
         </button>
@@ -728,6 +844,56 @@
     </div>
   </div>
 
+  <script>
+    (function () {
+      function bindThemeToggle() {
+        var btn = document.getElementById("themeBulb");
+        if (!btn || btn.dataset.themeReady === "1") return;
+        btn.dataset.themeReady = "1";
+        btn.addEventListener("click", function () {
+          var current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+          var next = current === "light" ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", next);
+          try { localStorage.setItem("convertpro-theme", next); } catch (e) {}
+          btn.setAttribute("title", "Theme: " + (next === "light" ? "Light" : "Dark"));
+          btn.setAttribute("aria-label", "Switch to " + (next === "light" ? "dark" : "light") + " mode");
+        });
+      }
+
+      function ensureAppScript(cb) {
+        if (typeof window.__fcUpgrade === "function") {
+          cb();
+          return;
+        }
+        var existing = document.querySelector('script[data-fc-app="1"]');
+        if (existing) {
+          existing.addEventListener("load", cb, { once: true });
+          return;
+        }
+        var script = document.createElement("script");
+        script.src = "script.min.js?v=20260703b";
+        script.defer = true;
+        script.dataset.fcApp = "1";
+        script.addEventListener("load", cb, { once: true });
+        document.body.appendChild(script);
+      }
+
+      document.addEventListener("click", function (event) {
+        var upgradeBtn = event.target.closest("[data-upgrade-premium]");
+        if (!upgradeBtn) return;
+        event.preventDefault();
+        ensureAppScript(function () {
+          if (typeof window.__fcUpgrade === "function") window.__fcUpgrade();
+        });
+      });
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", bindThemeToggle);
+      } else {
+        bindThemeToggle();
+      }
+    })();
+  </script>
   <script src="locales.js" defer></script>
   <script src="app-loader.js" defer></script>
 </body>

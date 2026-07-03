@@ -53,7 +53,7 @@
     if (loaded || loading) return;
     loading = true;
     const script = document.createElement("script");
-    script.src = "script.min.js";
+    script.src = "script.min.js?v=20260703b";
     script.defer = true;
     script.onload = () => {
       loaded = true;

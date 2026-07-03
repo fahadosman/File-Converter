@@ -560,8 +560,8 @@
     var saved = safeGetTheme();
     applyTheme(saved || "light");
     var toggle = document.getElementById("themeBulb");
-    if (!toggle || toggle.dataset.globalThemeBound === "1") return;
-    toggle.dataset.globalThemeBound = "1";
+    if (!toggle || toggle.dataset.themeReady === "1") return;
+    toggle.dataset.themeReady = "1";
     toggle.addEventListener("click", function () {
       var current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
       var next = current === "light" ? "dark" : "light";

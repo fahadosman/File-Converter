@@ -834,14 +834,26 @@ function refreshPlan() {
   if (els.brandCrown) els.brandCrown.classList.toggle("hidden", !state.isPremium);
   if (state.isPremium) {
     els.planStatus.textContent = t("plan.active");
-    els.upgradeBtn.innerHTML = `${crown}${t("plan.enabled")}`;
-    els.upgradeBtn.disabled = true;
+    if (els.upgradeBtn) {
+      els.upgradeBtn.innerHTML = `${crown}${t("plan.enabled")}`;
+      els.upgradeBtn.disabled = true;
+    }
+    if (els.glassPremiumBtn) {
+      els.glassPremiumBtn.textContent = t("plan.enabled");
+      els.glassPremiumBtn.disabled = true;
+    }
     if (els.iapBanner) els.iapBanner.classList.add("hidden");
     return;
   }
   els.planStatus.textContent = t("plan.free", { used: state.usageCount, limit: FREE_LIMIT });
-  els.upgradeBtn.innerHTML = `${crown}${t("plan.getPremium")} - $2`;
-  els.upgradeBtn.disabled = false;
+  if (els.upgradeBtn) {
+    els.upgradeBtn.innerHTML = `${crown}${t("plan.getPremium")} - $2`;
+    els.upgradeBtn.disabled = false;
+  }
+  if (els.glassPremiumBtn) {
+    els.glassPremiumBtn.textContent = "Upgrade to Premium";
+    els.glassPremiumBtn.disabled = false;
+  }
   if (els.iapBanner) els.iapBanner.classList.remove("hidden");
 }
 
@@ -869,8 +881,14 @@ function initPlan() {
 }
 
 function upgrade() {
+  if (state.isPremium) {
+    showToastWithType(t("plan.enabled"), "success");
+    return;
+  }
   startPaddleCheckout();
 }
+
+window.__fcUpgrade = upgrade;
 
 function openPremiumLimitDialog() {
   showToolView();
@@ -1110,10 +1128,12 @@ async function verifyPremiumWithServer(transactionId) {
 function startPaddleCheckout() {
   const clientToken = getPaddleClientToken();
   if (!clientToken) {
+    showToastWithType(t("error.paddleClientToken"), "error");
     setStatus(t("error.paddleClientToken"), "error");
     return;
   }
   if (!SECURITY_API_BASE) {
+    showToastWithType(t("error.paymentInitFailed"), "error");
     setStatus(t("error.paymentInitFailed"), "error");
     return;
   }
@@ -2736,10 +2756,11 @@ initTheme();
 if (HAS_CONVERTER_APP) {
   els.convertBtn.addEventListener("click", runConversion);
   els.resetBtn.addEventListener("click", resetForm);
-  if (els.themeBulb) {
+  if (els.themeBulb && els.themeBulb.dataset.themeReady !== "1") {
+    els.themeBulb.dataset.themeReady = "1";
     els.themeBulb.addEventListener("click", toggleThemeWithSound);
   }
-  els.upgradeBtn.addEventListener("click", upgrade);
+  if (els.upgradeBtn) els.upgradeBtn.addEventListener("click", upgrade);
   if (els.glassPremiumBtn) els.glassPremiumBtn.addEventListener("click", upgrade);
   if (els.premiumDialogUpgradeBtn) els.premiumDialogUpgradeBtn.addEventListener("click", upgrade);
   if (els.premiumDialogCloseBtn) els.premiumDialogCloseBtn.addEventListener("click", closePremiumLimitDialog);
