@@ -71,7 +71,6 @@
     /* Card styling */
     .info-section.card {
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
       border-radius: var(--card-radius);
       border: var(--card-border);
       box-shadow: var(--card-shadow);
@@ -144,7 +143,6 @@
       padding: 1.2rem 1.8rem;
       border-radius: 1rem;
       margin: 1.8rem 0;
-      backdrop-filter: blur(4px);
     }
 
     hr {
@@ -207,7 +205,7 @@
 <body class="info-page">
   <div class="background-glow" aria-hidden="true"></div>
   <main class="app-shell">
-    <header class="topbar glass-navbar" data-glass-navbar>
+    <header class="topbar" data-topbar>
       <a href="/index.html" class="brand brand-link">
         <span class="brand-logo-wrap">
           <img class="brand-logo" src="logo-v2.png" alt="File Converter" width="240" height="44" loading="eager" decoding="async" fetchpriority="high" />

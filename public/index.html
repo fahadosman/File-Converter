@@ -38,7 +38,7 @@
       window.__PADDLE_CLIENT_TOKEN__ = "live_ec43cb1ba3a189b364ccf1c0d5f";
     })();
   </script>
-  <link rel="stylesheet" href="styles.min.css" />
+  <link rel="stylesheet" href="styles.min.css?v=20260703" />
   <style>
     /* Additional layout improvements */
     .split-row-cards {
@@ -236,7 +236,70 @@
 
     /* Pricing spacing */
     .pricing-spacing {
-      margin-bottom: 2rem;
+      margin: 2rem 0;
+    }
+
+    .pricing-plans {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .pricing-plan {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 26px 24px;
+      border-radius: 20px;
+      border: 1px solid var(--panel-border);
+      background: var(--card-surface);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+      min-height: 300px;
+    }
+
+    .pricing-plan--featured {
+      border-color: rgba(124, 140, 255, 0.55);
+      background: linear-gradient(165deg, rgba(124, 140, 255, 0.14), var(--card-surface-elevated));
+      box-shadow: 0 16px 34px rgba(124, 140, 255, 0.18);
+    }
+
+    .pricing-plan ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      flex: 1;
+    }
+
+    .pricing-plan ul li::before {
+      content: "✓ ";
+      color: var(--ok);
+      font-weight: 800;
+    }
+
+    .plan-btn {
+      margin-top: auto;
+      width: 100%;
+      padding: 13px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--panel-border);
+      background: var(--soft-bg);
+      color: var(--text);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .plan-btn--primary {
+      border: none;
+      color: #07111f;
+      background: linear-gradient(120deg, var(--accent), var(--accent-2));
+      box-shadow: var(--cta-shadow);
+    }
+
+    @media (max-width: 780px) {
+      .pricing-plans {
+        grid-template-columns: 1fr;
+      }
     }
 
     /* Updated header navigation styles */
@@ -421,7 +484,7 @@
               <li>Priority processing</li>
               <li>All premium tools</li>
             </ul>
-            <button id="glassPremiumBtn" type="button" class="plan-btn plan-btn--primary">Upgrade to Premium</button>
+            <button id="premiumPlanBtn" type="button" class="plan-btn plan-btn--primary">Upgrade to Premium</button>
           </article>
         </section>
       </div>
@@ -491,7 +554,7 @@
           </div>
         </div>
 
-        <!-- Rating card (compact with liquid glass) -->
+        <!-- Rating card -->
         <div class="rating-compact-card">
           <div class="rating-compact-header">
             <h3 data-i18n="rating.title">⭐ User Rating</h3>

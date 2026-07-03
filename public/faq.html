@@ -16,9 +16,10 @@
       var prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
       var theme = savedTheme === "light" || savedTheme === "dark" ? savedTheme : (prefersLight ? "light" : "dark");
       document.documentElement.setAttribute("data-theme", theme);
+      document.documentElement.classList.add("flat-ui");
     })();
   </script>
-  <link rel="stylesheet" href="styles.min.css" />
+  <link rel="stylesheet" href="styles.min.css?v=20260703" />
   <style>
     /* Card-based FAQ grid — 5 cards per row, simple card design */
     .faq-card-grid {
@@ -30,26 +31,23 @@
 
     .faq-card {
       background: var(--card-surface);
-      backdrop-filter: blur(4px);
-      border-radius: 1.5rem;
+      border-radius: 1.25rem;
       padding: 1.5rem;
-      transition: all 0.3s ease;
+      transition: border-color 0.15s ease;
       border: 1px solid var(--border-light, rgba(0,0,0,0.05));
-      box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
       display: flex;
       flex-direction: column;
       height: 100%;
     }
 
     .faq-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+      border-color: var(--accent);
     }
 
     [data-theme="dark"] .faq-card {
-      background: rgba(20, 20, 30, 0.7);
+      background: var(--card-surface);
       border-color: rgba(255,255,255,0.08);
-      backdrop-filter: blur(6px);
     }
 
     .faq-card-question {
@@ -137,7 +135,7 @@
 <body class="info-page">
   <div class="background-glow" aria-hidden="true"></div>
   <main class="app-shell">
-    <header class="topbar glass-navbar" data-glass-navbar>
+    <header class="topbar" data-topbar>
       <a href="/index.html" class="brand brand-link">
         <span class="brand-logo-wrap">
           <img class="brand-logo" src="logo-v2.png" alt="File Converter" width="240" height="44" loading="eager" decoding="async" fetchpriority="high" />

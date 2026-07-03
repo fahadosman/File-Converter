@@ -519,7 +519,7 @@ const els = {
   brandTitle: document.getElementById("brandTitle"),
   planStatus: document.getElementById("planStatus"),
   upgradeBtn: document.getElementById("upgradeBtn"),
-  glassPremiumBtn: document.getElementById("glassPremiumBtn"),
+  glassPremiumBtn: document.getElementById("premiumPlanBtn"),
   iapBanner: document.querySelector(".iap-banner"),
   downloadBtn: document.getElementById("downloadBtn"),
   downloadInfo: document.getElementById("downloadInfo"),
