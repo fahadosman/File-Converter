@@ -52,6 +52,18 @@ main {
 
 .global-topbar .topbar-nav a {
   text-decoration: none;
+  font-weight: 600;
+  font-size: 0.92rem;
+  opacity: 0.82;
+  padding: 6px 10px;
+  border-radius: 10px;
+  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.global-topbar .topbar-nav a:hover {
+  opacity: 1;
+  background: var(--soft-bg, rgba(124, 140, 255, 0.1));
+  color: var(--accent, #7c8cff);
 }
 
 .nav-toggle {
